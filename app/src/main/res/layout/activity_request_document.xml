@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#5B9BD5">
+
+    <!-- Top Bar -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/topBar"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:background="#37474F"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_revert"
+            app:tint="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Request Document"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Scrollable Content -->
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Title Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Request Document"
+                android:textColor="@android:color/white"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="16dp"
+                android:text="Get the barangay documents you need—fast, easy, and convenient."
+                android:textColor="#E8F0FE"
+                android:textSize="13sp"
+                android:lineSpacingExtra="2dp" />
+
+            <!-- White Card Container -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/login_card_background"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <!-- ── Document Type ── -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Document Type"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- Dropdown — hint disabled so it doesn't overlap the value -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilDocument"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:boxBackgroundColor="@color/input_background"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/primary_blue"
+                        app:boxStrokeWidth="2dp"
+                        app:boxStrokeErrorColor="@android:color/holo_red_light"
+                        app:errorTextColor="@android:color/holo_red_light"
+                        app:hintEnabled="false">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/actvDocument"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Select document type"
+                            android:inputType="none"
+                            android:focusable="false"
+                            android:cursorVisible="false"
+                            android:textColor="@color/input_text_color"
+                            android:textColorHint="@color/hint_text_color"
+                            android:textSize="14sp"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="48dp"
+                            android:paddingTop="18dp"
+                            android:paddingBottom="18dp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- "Others" specify field — hidden by default -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilOtherDocument"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:visibility="gone"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="@color/input_background"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/primary_blue"
+                        app:boxStrokeWidth="2dp"
+                        app:boxStrokeErrorColor="@android:color/holo_red_light"
+                        app:errorTextColor="@android:color/holo_red_light"
+                        app:hintTextColor="@color/hint_text_color">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etOtherDocument"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Please specify document"
+                            android:inputType="textCapSentences"
+                            android:padding="16dp"
+                            android:textColor="@color/input_text_color"
+                            android:textColorHint="@color/hint_text_color"
+                            android:textSize="14sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="4dp"
+                        android:background="#22000000" />
+
+                    <!-- ── Purpose ── -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Purpose"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="8dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilPurpose"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="@color/input_background"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:hintTextColor="@color/hint_text_color"
+                        app:boxStrokeColor="@color/primary_blue"
+                        app:boxStrokeWidth="2dp"
+                        app:boxStrokeErrorColor="@android:color/holo_red_light"
+                        app:errorTextColor="@android:color/holo_red_light">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPurpose"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="e.g., Employment"
+                            android:inputType="textCapSentences"
+                            android:padding="16dp"
+                            android:textColor="@color/input_text_color"
+                            android:textColorHint="@color/hint_text_color"
+                            android:textSize="14sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="4dp"
+                        android:background="#22000000" />
+
+                    <!-- ── Payment ── -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Payment Method"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="10dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <!-- GCash -->
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/cvGCash"
+                            android:layout_width="0dp"
+                            android:layout_height="110dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            app:cardBackgroundColor="#0066FF"
+                            app:cardCornerRadius="14dp"
+                            app:cardElevation="4dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="G"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="28sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="GCash"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="15sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="Fast &amp; Cashless"
+                                    android:textColor="#CCE0FF"
+                                    android:textSize="11sp" />
+
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+
+                        <!-- Pay on Site -->
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/cvPayOnSite"
+                            android:layout_width="0dp"
+                            android:layout_height="110dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            app:cardBackgroundColor="#F0F4FF"
+                            app:cardCornerRadius="14dp"
+                            app:cardElevation="2dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Pay on Site"
+                                    android:textColor="#1E3A5F"
+                                    android:textSize="15sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="6dp"
+                                    android:text="At Barangay Office"
+                                    android:textColor="#5A7BA6"
+                                    android:textSize="12sp" />
+
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+
+                    </LinearLayout>
+
+                    <!-- Proof of Payment (shown when GCash selected) -->
+                    <TextView
+                        android:id="@+id/tvProofOfPayment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="Proof of Payment"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cvUploadProof"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:visibility="gone"
+                        app:cardBackgroundColor="@color/input_background"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:id="@+id/ivProofPreview"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:visibility="gone" />
+
+                            <ImageView
+                                android:id="@+id/ivUploadIcon"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:src="@android:drawable/ic_input_add"
+                                app:tint="@color/primary_blue" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Tap to upload receipt"
+                                android:textColor="@color/hint_text_color"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Submit Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSubmitRequest"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp"
+                android:backgroundTint="@color/dark_blue"
+                android:text="Submit Request"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="16dp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

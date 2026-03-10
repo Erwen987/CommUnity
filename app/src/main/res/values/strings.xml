@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">CommUnity</string>
+    <string name="app_logo">App Logo</string>
+    <string name="email_phone_label">Email/Phone Number</string>
+    <string name="email_phone_hint">Email or mobile number</string>
+    <string name="password_label">Password</string>
+    <string name="password_hint">Password</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="login_button">LOGIN</string>
+    <string name="no_account_text">Don\'t have an account? </string>
+    <string name="sign_up_text">Sign Up</string>
+</resources>

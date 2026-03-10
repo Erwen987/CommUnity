@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+
+    <application
+        android:name=".CommUnityApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.CommUnitys"
+        tools:targetApi="31">
+
+        <!-- Main Container - Main app with ViewPager2 -->
+        <activity
+            android:name=".view.MainContainerActivity"
+            android:exported="false" />
+
+        <!-- Login Page - Entry Point -->
+        <activity
+            android:name=".view.login.LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Sign Up -->
+        <activity
+            android:name=".view.signup.SignUpActivity"
+            android:exported="false" />
+
+        <!-- Welcome/Onboarding -->
+        <activity
+            android:name=".view.welcome.WelcomeActivity"
+            android:exported="false" />
+
+        <!-- Verify Email -->
+        <activity
+            android:name=".view.verification.VerifyEmailActivity"
+            android:exported="false" />
+
+        <!-- Report Issue -->
+        <activity
+            android:name=".view.reportissue.ReportIssueActivity"
+            android:exported="false" />
+
+        <!-- Request Document -->
+        <activity
+            android:name=".view.requestdocument.RequestDocumentActivity"
+            android:exported="false" />
+
+
+    </application>
+
+</manifest>

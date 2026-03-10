@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#5B9BD5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- BLUE HEADER SECTION -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingTop="32dp"
+            android:paddingBottom="60dp"
+            android:background="#5B9BD5">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Profile"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="24dp" />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/ivProfilePhoto"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:src="@drawable/ic_profile"
+                app:civ_border_width="3dp"
+                app:civ_border_color="@android:color/white" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabEditPhoto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-20dp"
+                android:layout_marginStart="60dp"
+                android:src="@drawable/ic_edit_profile"
+                app:fabSize="mini"
+                app:tint="@android:color/white"
+                app:backgroundTint="#5B9BD5"
+                app:elevation="4dp" />
+
+        </LinearLayout>
+
+        <!-- CREAM CONTENT SECTION -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FFF8F0"
+            android:layout_marginTop="-32dp"
+            android:paddingTop="16dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="32dp">
+
+            <TextView
+                android:id="@+id/tvUserName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="#1E3A5F"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Earned Points Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="20dp"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Earned Points"
+                            android:textColor="#1E3A5F"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvPoints"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textColor="#1E3A5F"
+                            android:textSize="36sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif-black" />
+
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnClaimReward"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:text="Claim Reward"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold"
+                        android:textAllCaps="false"
+                        android:textSize="13sp"
+                        android:backgroundTint="#FFA726"
+                        app:cornerRadius="24dp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Profile Details Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Profile Details"
+                        android:textColor="#1E3A5F"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#EEEEEE"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Full Name Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="14dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_profile"
+                            app:tint="#9E9E9E" />
+
+                        <TextView
+                            android:id="@+id/tvFullName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text=""
+                            android:textColor="#1E3A5F"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp"
+                        android:background="#F5F5F5" android:layout_marginBottom="14dp"/>
+
+                    <!-- Email Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="14dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@android:drawable/ic_dialog_email"
+                            app:tint="#9E9E9E" />
+
+                        <TextView
+                            android:id="@+id/tvEmail"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text=""
+                            android:textColor="#1E3A5F"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp"
+                        android:background="#F5F5F5" android:layout_marginBottom="14dp"/>
+
+                    <!-- Barangay Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_location"
+                            app:tint="#9E9E9E" />
+
+                        <TextView
+                            android:id="@+id/tvBarangay"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:text=""
+                            android:textColor="#1E3A5F"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Account Settings Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Account Settings"
+                        android:textColor="#1E3A5F"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#EEEEEE"
+                        android:layout_marginBottom="4dp" />
+
+                    <!-- Change Password -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnChangePassword"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:text="Change Password"
+                        android:textColor="#1E3A5F"
+                        android:textStyle="bold"
+                        android:textAllCaps="false"
+                        android:textSize="14sp"
+                        android:gravity="start|center_vertical"
+                        app:icon="@android:drawable/ic_lock_idle_lock"
+                        app:iconTint="#5B9BD5"
+                        app:iconGravity="start"
+                        app:iconSize="20dp"
+                        app:iconPadding="12dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#F5F5F5" />
+
+                    <!-- Delete Account -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDeleteAccount"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:text="Delete Account"
+                        android:textColor="#D32F2F"
+                        android:textStyle="bold"
+                        android:textAllCaps="false"
+                        android:textSize="14sp"
+                        android:gravity="start|center_vertical"
+                        app:icon="@android:drawable/ic_menu_delete"
+                        app:iconTint="#D32F2F"
+                        app:iconGravity="start"
+                        app:iconSize="20dp"
+                        app:iconPadding="12dp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Log Out Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogOut"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="LOG OUT"
+                android:textColor="#D32F2F"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:letterSpacing="0.08"
+                app:icon="@android:drawable/ic_menu_close_clear_cancel"
+                app:iconTint="#D32F2F"
+                app:iconGravity="start"
+                app:strokeColor="#FFCDD2"
+                app:strokeWidth="1dp"
+                app:cornerRadius="12dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
