@@ -5,13 +5,18 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.communitys.SupabaseAuthHelper
 import com.example.communitys.databinding.ActivityRequestDocumentBinding
+import com.example.communitys.model.repository.RequestRepository
+import kotlinx.coroutines.launch
 
 class RequestDocumentActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRequestDocumentBinding
+    private val repository = RequestRepository()
+    private val authHelper = SupabaseAuthHelper()
 
-    // All requestable barangay documents
     private val documentTypes = listOf(
         "Barangay Clearance",
         "Certificate of Residency",
@@ -24,7 +29,7 @@ class RequestDocumentActivity : AppCompatActivity() {
         "Others"
     )
 
-    private var selectedPayment: String = "gcash" // default
+    private var selectedPayment: String = "gcash"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,24 +41,15 @@ class RequestDocumentActivity : AppCompatActivity() {
         setupClickListeners()
     }
 
-    // ── Document dropdown ─────────────────────────────────────────────────────
-
     private fun setupDocumentDropdown() {
-        val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_dropdown_item_1line,
-            documentTypes
-        )
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, documentTypes)
         binding.actvDocument.setAdapter(adapter)
 
         binding.actvDocument.setOnItemClickListener { _, _, position, _ ->
             val selected = documentTypes[position]
-
-            // Clear dropdown error
             binding.tilDocument.error = null
             binding.tilDocument.isErrorEnabled = false
 
-            // Show/hide "Others" text field
             if (selected == "Others") {
                 binding.tilOtherDocument.visibility = View.VISIBLE
                 binding.etOtherDocument.requestFocus()
@@ -65,57 +61,37 @@ class RequestDocumentActivity : AppCompatActivity() {
         }
     }
 
-    // ── Payment selection ─────────────────────────────────────────────────────
-
     private fun setupPaymentSelection() {
-        // Default: GCash selected
         setPaymentSelected("gcash")
-
-        binding.cvGCash.setOnClickListener {
-            setPaymentSelected("gcash")
-        }
-
-        binding.cvPayOnSite.setOnClickListener {
-            setPaymentSelected("payonsite")
-        }
+        binding.cvGCash.setOnClickListener { setPaymentSelected("gcash") }
+        binding.cvPayOnSite.setOnClickListener { setPaymentSelected("pay_on_site") }
     }
 
     private fun setPaymentSelected(method: String) {
         selectedPayment = method
-
         if (method == "gcash") {
             binding.cvGCash.cardElevation = 8f
             binding.cvPayOnSite.cardElevation = 2f
-            // Show proof of payment upload
             binding.tvProofOfPayment.visibility = View.VISIBLE
             binding.cvUploadProof.visibility = View.VISIBLE
         } else {
             binding.cvGCash.cardElevation = 2f
             binding.cvPayOnSite.cardElevation = 8f
-            // Hide proof of payment upload
             binding.tvProofOfPayment.visibility = View.GONE
             binding.cvUploadProof.visibility = View.GONE
         }
     }
 
-    // ── Click listeners ───────────────────────────────────────────────────────
-
     private fun setupClickListeners() {
         binding.btnBack.setOnClickListener { finish() }
-
         binding.btnSubmitRequest.setOnClickListener {
-            if (validateForm()) {
-                submitRequest()
-            }
+            if (validateForm()) submitRequest()
         }
     }
-
-    // ── Validation ────────────────────────────────────────────────────────────
 
     private fun validateForm(): Boolean {
         var isValid = true
 
-        // Validate document type
         val selectedDoc = binding.actvDocument.text.toString().trim()
         if (selectedDoc.isEmpty() || selectedDoc !in documentTypes) {
             binding.tilDocument.error = "Please select a document type"
@@ -126,7 +102,6 @@ class RequestDocumentActivity : AppCompatActivity() {
             binding.tilDocument.isErrorEnabled = false
         }
 
-        // Validate "Others" field if visible
         if (binding.tilOtherDocument.visibility == View.VISIBLE) {
             val otherText = binding.etOtherDocument.text.toString().trim()
             if (otherText.isEmpty()) {
@@ -139,7 +114,6 @@ class RequestDocumentActivity : AppCompatActivity() {
             }
         }
 
-        // Validate purpose
         val purpose = binding.etPurpose.text.toString().trim()
         if (purpose.isEmpty()) {
             binding.tilPurpose.error = "Please enter the purpose"
@@ -153,9 +127,13 @@ class RequestDocumentActivity : AppCompatActivity() {
         return isValid
     }
 
-    // ── Submit ────────────────────────────────────────────────────────────────
-
     private fun submitRequest() {
+        val userId = authHelper.getCurrentUserId()
+        if (userId == null) {
+            Toast.makeText(this, "Not logged in. Please log in again.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val selectedDoc = binding.actvDocument.text.toString().trim()
         val finalDocumentType = if (selectedDoc == "Others") {
             binding.etOtherDocument.text.toString().trim()
@@ -164,13 +142,33 @@ class RequestDocumentActivity : AppCompatActivity() {
         }
         val purpose = binding.etPurpose.text.toString().trim()
 
-        // TODO: Save to Supabase document_requests table
-        Toast.makeText(
-            this,
-            "Request for \"$finalDocumentType\" submitted!\nWe'll notify you when it's ready.",
-            Toast.LENGTH_LONG
-        ).show()
+        binding.btnSubmitRequest.isEnabled = false
+        binding.btnSubmitRequest.text = "Submitting..."
 
-        finish()
+        lifecycleScope.launch {
+            val result = repository.submitRequest(
+                userId = userId,
+                documentType = finalDocumentType,
+                purpose = purpose,
+                paymentMethod = selectedPayment
+            )
+
+            result.onSuccess {
+                Toast.makeText(
+                    this@RequestDocumentActivity,
+                    "Request for \"$finalDocumentType\" submitted!\nYou can track it in My Request.",
+                    Toast.LENGTH_LONG
+                ).show()
+                finish()
+            }.onFailure { e ->
+                Toast.makeText(
+                    this@RequestDocumentActivity,
+                    "Failed to submit: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+                binding.btnSubmitRequest.isEnabled = true
+                binding.btnSubmitRequest.text = "Submit Request"
+            }
+        }
     }
 }

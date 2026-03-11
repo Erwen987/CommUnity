@@ -3,70 +3,78 @@ package com.example.communitys.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.communitys.SupabaseAuthHelper
+import com.example.communitys.model.data.RequestModel
+import com.example.communitys.model.repository.RequestRepository
+import kotlinx.coroutines.launch
 
 class DocumentsViewModel : ViewModel() {
 
-    private val _documents = MutableLiveData<List<Document>>()
-    val documents: LiveData<List<Document>> = _documents
+    private val repository = RequestRepository()
+    private val authHelper = SupabaseAuthHelper()
 
-    private val _filterType = MutableLiveData<FilterType>()
-    val filterType: LiveData<FilterType> = _filterType
+    private val _requests = MutableLiveData<List<RequestModel>>()
+    val requests: LiveData<List<RequestModel>> = _requests
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _error = MutableLiveData<String?>()
+    val error: LiveData<String?> = _error
+
+    private var allRequests = listOf<RequestModel>()
+    private var currentTab = "active"   // "active" or "history"
+    private var currentFilter = "all"   // "all" | "reviewing" | "processing" | "ready_for_pickup" | "released"
 
     init {
-        _filterType.value = FilterType.ALL
-        loadDocuments()
+        loadRequests()
     }
 
-    private fun loadDocuments() {
-        // Mock data - replace with actual repository call
-        val mockDocuments = listOf(
-            Document(
-                id = "1",
-                title = "Barangay Clearance",
-                status = DocumentStatus.PROCESSING,
-                requestDate = "Feb 20, 2026",
-                type = "Clearance"
-            ),
-            Document(
-                id = "2",
-                title = "Certificate of Residency",
-                status = DocumentStatus.RELEASED,
-                requestDate = "Feb 15, 2026",
-                type = "Certificate"
-            ),
-            Document(
-                id = "3",
-                title = "Business Permit",
-                status = DocumentStatus.PROCESSING,
-                requestDate = "Feb 18, 2026",
-                type = "Permit"
-            )
-        )
-        _documents.value = mockDocuments
+    fun loadRequests() {
+        val userId = authHelper.getCurrentUserId() ?: run {
+            _error.value = "Not logged in"
+            return
+        }
+        viewModelScope.launch {
+            _isLoading.value = true
+            repository.getUserRequests(userId)
+                .onSuccess { list ->
+                    allRequests = list
+                    applyFilter()
+                }
+                .onFailure { e ->
+                    _error.value = e.message
+                }
+            _isLoading.value = false
+        }
     }
 
-    fun filterDocuments(filterType: FilterType) {
-        _filterType.value = filterType
-        // Apply filter logic here
+    fun setTab(tab: String) {
+        currentTab = tab
+        // Reset chip filter when switching tabs
+        currentFilter = "all"
+        applyFilter()
     }
 
-    data class Document(
-        val id: String,
-        val title: String,
-        val status: DocumentStatus,
-        val requestDate: String,
-        val type: String
-    )
-
-    enum class DocumentStatus {
-        PROCESSING,
-        RELEASED,
-        REJECTED
+    fun setFilter(filter: String) {
+        currentFilter = filter
+        applyFilter()
     }
 
-    enum class FilterType {
-        ALL,
-        PROCESSING,
-        RELEASED
+    private fun applyFilter() {
+        var filtered = allRequests
+
+        if (currentTab == "history") {
+            // History tab: only released or rejected
+            filtered = filtered.filter { it.status == "released" || it.status == "rejected" }
+        } else {
+            // My Request tab: active items, apply chip filter
+            if (currentFilter != "all") {
+                filtered = filtered.filter { it.status == currentFilter }
+            }
+        }
+
+        _requests.value = filtered
     }
 }
