@@ -10,8 +10,9 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.communitys.databinding.FragmentProfileBinding
@@ -25,6 +26,15 @@ class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
     private lateinit var viewModel: ProfileViewModel
+
+    private val editProfileLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == AppCompatActivity.RESULT_OK) {
+            // Reload profile from Supabase to reflect saved changes
+            viewModel.loadUserProfile()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -100,7 +110,13 @@ class ProfileFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.fabEditPhoto.setOnClickListener {
-            Toast.makeText(requireContext(), "Photo upload coming soon", Toast.LENGTH_SHORT).show()
+            val profile = viewModel.userProfile.value ?: return@setOnClickListener
+            val intent = Intent(requireContext(), EditProfileActivity::class.java).apply {
+                putExtra("name",     profile.name)
+                putExtra("email",    profile.email)
+                putExtra("barangay", profile.barangay)
+            }
+            editProfileLauncher.launch(intent)
         }
         binding.btnClaimReward.setOnClickListener {
             Toast.makeText(requireContext(), "Rewards feature coming soon", Toast.LENGTH_SHORT).show()

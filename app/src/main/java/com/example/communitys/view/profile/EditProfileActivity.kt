@@ -1,15 +1,17 @@
 package com.example.communitys.view.profile
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.communitys.databinding.ActivityEditProfileBinding
+import com.example.communitys.model.repository.AuthRepository
+import kotlinx.coroutines.launch
 
 class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEditProfileBinding
+    private val authRepository = AuthRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,49 +22,72 @@ class EditProfileActivity : AppCompatActivity() {
         binding.etEditName.setText(intent.getStringExtra("name") ?: "")
         binding.etEditEmail.setText(intent.getStringExtra("email") ?: "")
         binding.etEditPhone.setText(intent.getStringExtra("phone") ?: "")
-        binding.etEditBarangay.setText(intent.getStringExtra("barangay") ?: "")
+
+        // Strip city/province suffix added by formatBarangay() in ViewModel
+        val rawBarangay = intent.getStringExtra("barangay") ?: ""
+        val cleanBarangay = rawBarangay
+            .removeSuffix(", Dagupan City, Pangasinan")
+            .removePrefix("Barangay ")
+            .trim()
+        binding.etEditBarangay.setText(cleanBarangay)
 
         setupClickListeners()
     }
 
     private fun setupClickListeners() {
 
-        // + Photo button
         binding.fabChangePhoto.setOnClickListener {
             Toast.makeText(this, "Photo upload coming soon", Toast.LENGTH_SHORT).show()
         }
 
-        // Cancel — just go back
-        binding.btnCancelEdit.setOnClickListener {
-            finish()
-        }
+        binding.btnCancelEdit.setOnClickListener { finish() }
 
-        // Save Changes — validate then send data back to ProfileFragment
         binding.btnSaveChanges.setOnClickListener {
-            val name     = binding.etEditName.text.toString().trim()
-            val email    = binding.etEditEmail.text.toString().trim()
+            val fullName = binding.etEditName.text.toString().trim()
             val phone    = binding.etEditPhone.text.toString().trim()
             val barangay = binding.etEditBarangay.text.toString().trim()
 
-            // Basic validation
-            if (name.isEmpty()) {
+            binding.tilEditName.error     = null
+            binding.tilEditBarangay.error = null
+
+            if (fullName.isEmpty()) {
                 binding.tilEditName.error = "Name is required"
                 return@setOnClickListener
             }
-            binding.tilEditName.error = null
-
-            // TODO: Call ViewModel to save to Supabase here
-            // viewModel.updateProfile(name, email, phone, barangay)
-
-            // Send updated data back to ProfileFragment
-            val result = Intent().apply {
-                putExtra("name",     name)
-                putExtra("email",    email)
-                putExtra("phone",    phone)
-                putExtra("barangay", barangay)
+            if (barangay.isEmpty()) {
+                binding.tilEditBarangay.error = "Barangay is required"
+                return@setOnClickListener
             }
-            setResult(Activity.RESULT_OK, result)
-            finish()
+
+            // Split "First Last" → firstName + lastName
+            val parts     = fullName.split(" ", limit = 2)
+            val firstName = parts[0]
+            val lastName  = if (parts.size > 1) parts[1] else ""
+
+            binding.btnSaveChanges.isEnabled = false
+            binding.btnSaveChanges.text      = "Saving…"
+
+            lifecycleScope.launch {
+                authRepository.updateUserProfile(firstName, lastName, barangay, phone)
+                    .onSuccess {
+                        Toast.makeText(
+                            this@EditProfileActivity,
+                            "Profile updated successfully!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        setResult(RESULT_OK)
+                        finish()
+                    }
+                    .onFailure { e ->
+                        binding.btnSaveChanges.isEnabled = true
+                        binding.btnSaveChanges.text      = "Save Changes"
+                        Toast.makeText(
+                            this@EditProfileActivity,
+                            e.message ?: "Failed to save changes",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+            }
         }
     }
 }

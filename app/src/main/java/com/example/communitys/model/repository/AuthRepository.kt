@@ -7,6 +7,7 @@ import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.gotrue.OtpType
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -348,60 +349,29 @@ class AuthRepository {
     }
 
     // ── Delete Account ────────────────────────────────────────────────────────
-    // Calls the Supabase function that:
-    // 1. Logs deletion to deleted_accounts table
-    // 2. Deletes from users table
-    // 3. Deletes from auth.users (making email available for reuse)
+    // Calls the delete_own_account() Postgres function (SECURITY DEFINER)
+    // which: logs to deleted_accounts, deletes from users, then deletes from
+    // auth.users — freeing the email so the user can re-register.
 
     suspend fun deleteAccount(reason: String): Result<Unit> {
         return try {
-            val userId = supabase.auth.currentUserOrNull()?.id
+            supabase.auth.currentUserOrNull()
                 ?: throw Exception("Not authenticated")
 
-            android.util.Log.d("AuthRepository", "Deleting account for auth_id: $userId, reason: $reason")
+            android.util.Log.d("AuthRepository", "Calling delete_own_account RPC, reason: $reason")
 
-            // Manual deletion process
-            // Step 1: Get user profile details
-            val users = try {
-                supabase.from("users")
-                    .select { filter { eq("auth_id", userId) } }
-                    .decodeList<UserModel>()
-            } catch (_: Exception) { emptyList() }
+            // Single RPC call handles logging + profile + auth.users deletion
+            supabase.postgrest.rpc(
+                "delete_own_account",
+                mapOf("p_reason" to reason)
+            )
 
-            val profile = users.firstOrNull()
-            val email = supabase.auth.currentUserOrNull()?.email ?: ""
+            android.util.Log.d("AuthRepository", "delete_own_account succeeded")
 
-            // Step 2: Log deletion to deleted_accounts
-            try {
-                supabase.from("deleted_accounts")
-                    .insert(mapOf(
-                        "auth_id" to userId.toString(),
-                        "email" to email,
-                        "first_name" to (profile?.firstName ?: ""),
-                        "last_name" to (profile?.lastName ?: ""),
-                        "barangay" to (profile?.barangay ?: ""),
-                        "reason" to reason
-                    ))
-                android.util.Log.d("AuthRepository", "Deletion logged to deleted_accounts")
-            } catch (logError: Exception) {
-                android.util.Log.w("AuthRepository", "Could not log deletion: ${logError.message}")
-            }
+            // Sign out the local session
+            try { supabase.auth.signOut() } catch (_: Exception) {}
 
-            // Step 3: Delete from users table
-            supabase.from("users")
-                .delete { filter { eq("auth_id", userId) } }
-
-            android.util.Log.d("AuthRepository", "Profile deleted from users table")
-
-            // Step 4: Sign out locally
-            try {
-                supabase.auth.signOut()
-                android.util.Log.d("AuthRepository", "Signed out after deletion")
-            } catch (e: Exception) {
-                android.util.Log.w("AuthRepository", "Sign out failed: ${e.message}")
-            }
-
-            android.util.Log.d("AuthRepository", "Account deletion complete. Email is now available for reuse.")
+            android.util.Log.d("AuthRepository", "Account fully deleted. Email is now free for re-registration.")
             Result.success(Unit)
 
         } catch (e: Exception) {
