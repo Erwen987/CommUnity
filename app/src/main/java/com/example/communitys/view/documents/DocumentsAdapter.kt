@@ -6,13 +6,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.communitys.databinding.ItemDocumentRequestBinding
-import com.example.communitys.model.data.RequestModel
+import com.example.communitys.viewmodel.DocumentsViewModel.DocumentItem
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class DocumentsAdapter(
-    private var items: List<RequestModel> = emptyList(),
-    private val onViewDetails: (RequestModel) -> Unit = {}
+    private var items: List<DocumentItem> = emptyList(),
+    private val onViewDetails: (DocumentItem) -> Unit = {}
 ) : RecyclerView.Adapter<DocumentsAdapter.ViewHolder>() {
 
     inner class ViewHolder(val binding: ItemDocumentRequestBinding) :
@@ -28,14 +28,13 @@ class DocumentsAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         with(holder.binding) {
-            tvDocumentTitle.text = item.documentType
-            tvReferenceNumber.text = item.referenceNumber.ifEmpty { "—" }
-            tvDate.text = formatDate(item.createdAt)
-            tvStatus.text = formatStatus(item.status)
+            tvDocumentTitle.text   = item.title
+            tvReferenceNumber.text = item.reference
+            tvDate.text            = formatDate(item.date)
+            tvStatus.text          = formatStatus(item.status)
 
-            // Rounded badge background with status colour
             val badge = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
+                shape        = GradientDrawable.RECTANGLE
                 cornerRadius = 100f
                 setColor(statusColor(item.status))
             }
@@ -47,20 +46,18 @@ class DocumentsAdapter(
 
     override fun getItemCount(): Int = items.size
 
-    fun updateList(newList: List<RequestModel>) {
+    fun updateList(newList: List<DocumentItem>) {
         items = newList
         notifyDataSetChanged()
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
     private fun formatStatus(status: String): String = when (status) {
-        "reviewing"       -> "Reviewing"
-        "processing"      -> "Processing"
-        "ready_for_pickup"-> "Ready for Pickup"
-        "released"        -> "Released"
-        "rejected"        -> "Rejected"
-        else              -> status.replaceFirstChar { it.uppercase() }
+        "reviewing"        -> "Reviewing"
+        "processing"       -> "Processing"
+        "ready_for_pickup" -> "Ready for Pickup"
+        "released"         -> "Released"
+        "rejected"         -> "Rejected"
+        else               -> status.replace('_', ' ').replaceFirstChar { it.uppercase() }
     }
 
     private fun statusColor(status: String): Int = when (status) {
@@ -72,14 +69,14 @@ class DocumentsAdapter(
         else               -> Color.GRAY
     }
 
-    private fun formatDate(createdAt: String): String {
+    private fun formatDate(date: String): String {
         return try {
             val input  = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
             val output = SimpleDateFormat("MMMM d, yyyy", Locale.getDefault())
-            val date   = input.parse(createdAt.take(19)) ?: return createdAt
-            output.format(date)
+            val parsed = input.parse(date.take(19)) ?: return date
+            output.format(parsed)
         } catch (e: Exception) {
-            createdAt.take(10)
+            date.take(10)
         }
     }
 }

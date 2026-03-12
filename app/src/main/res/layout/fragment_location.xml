@@ -116,170 +116,37 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Issues Reported"
+                    android:text="My Issues Reported"
                     android:textColor="#1E3A5F"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
-                <!-- Issue 1 - Resolved -->
-                <androidx.cardview.widget.CardView
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvEmpty"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    app:cardBackgroundColor="#F5F5F5"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp">
+                    android:text="No issues reported yet."
+                    android:textColor="#9E9E9E"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:visibility="gone" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="12dp">
-
-                        <ImageView
-                            android:layout_width="80dp"
-                            android:layout_height="80dp"
-                            android:scaleType="centerCrop"
-                            android:background="@android:color/darker_gray" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="12dp"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Uka sa kalsada"
-                                android:textColor="#1E3A5F"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Zone 3 - Main Road"
-                                android:textColor="#5A7BA6"
-                                android:textSize="12sp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="Kgwd. Nelly Bells"
-                                android:textColor="#1E3A5F"
-                                android:textSize="13sp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="January 24, 2026"
-                                android:textColor="#5A7BA6"
-                                android:textSize="11sp" />
-
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:background="@drawable/badge_released"
-                            android:paddingStart="12dp"
-                            android:paddingTop="6dp"
-                            android:paddingEnd="12dp"
-                            android:paddingBottom="6dp"
-                            android:text="Resolved"
-                            android:textColor="@android:color/white"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-
-                    </LinearLayout>
-
-                </androidx.cardview.widget.CardView>
-
-                <!-- Issue 2 - In Progress -->
-                <androidx.cardview.widget.CardView
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerReports"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    app:cardBackgroundColor="#F5F5F5"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="12dp">
-
-                        <ImageView
-                            android:layout_width="80dp"
-                            android:layout_height="80dp"
-                            android:scaleType="centerCrop"
-                            android:background="@android:color/darker_gray" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="12dp"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Uka sa kalsada"
-                                android:textColor="#1E3A5F"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Sitio Sabi Na Eh"
-                                android:textColor="#5A7BA6"
-                                android:textSize="12sp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="Kgwd. Pedro Penduko"
-                                android:textColor="#1E3A5F"
-                                android:textSize="13sp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="January 24, 2026"
-                                android:textColor="#5A7BA6"
-                                android:textSize="11sp" />
-
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:background="@drawable/badge_processing"
-                            android:paddingStart="12dp"
-                            android:paddingTop="6dp"
-                            android:paddingEnd="12dp"
-                            android:paddingBottom="6dp"
-                            android:text="In Progress"
-                            android:textColor="@android:color/white"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-
-                    </LinearLayout>
-
-                </androidx.cardview.widget.CardView>
+                    android:nestedScrollingEnabled="false"
+                    android:clipToPadding="false"
+                    android:scrollbars="none" />
 
             </LinearLayout>
 

@@ -34,27 +34,31 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <!-- 2 Tab Buttons -->
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="horizontal" android:padding="16dp">
+                android:orientation="horizontal" android:padding="12dp">
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnMyRequest"
-                    android:layout_width="0dp" android:layout_height="56dp" android:layout_weight="1"
-                    android:layout_marginEnd="8dp" android:text="My Request"
+                    android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
+                    android:text="My Request" android:textSize="12sp"
                     android:textColor="@android:color/white" android:textStyle="bold"
-                    android:backgroundTint="#2C5F7F" app:cornerRadius="16dp" />
+                    android:backgroundTint="#2C5F7F" app:cornerRadius="12dp" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnHistory"
-                    android:layout_width="0dp" android:layout_height="56dp" android:layout_weight="1"
-                    android:layout_marginStart="8dp" android:text="History"
+                    android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
+                    android:layout_marginStart="6dp" android:text="History" android:textSize="12sp"
                     android:textColor="#7A7A7A" android:textStyle="bold"
-                    android:backgroundTint="#D3D3D3" app:cornerRadius="16dp" />
+                    android:backgroundTint="#D3D3D3" app:cornerRadius="12dp" />
             </LinearLayout>
 
+            <!-- Filter Chips (only visible on My Request tab) -->
             <HorizontalScrollView
                 android:id="@+id/chipScrollView"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:scrollbars="none" android:paddingStart="16dp"
-                android:paddingEnd="16dp" android:paddingBottom="8dp">
+                android:scrollbars="none" android:paddingStart="12dp"
+                android:paddingEnd="12dp" android:paddingBottom="8dp">
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chipGroup"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -89,14 +93,14 @@
 
             <TextView android:id="@+id/tvEmpty"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="No requests found." android:textColor="#9E9E9E"
+                android:text="No items found." android:textColor="#9E9E9E"
                 android:textSize="14sp" android:gravity="center"
                 android:padding="32dp" android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent" android:layout_height="0dp"
-                android:layout_weight="1" android:padding="16dp"
+                android:layout_weight="1" android:padding="12dp"
                 android:clipToPadding="false" android:scrollbars="none" />
 
         </LinearLayout>

@@ -6,12 +6,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.communitys.databinding.FragmentLocationBinding
+import com.example.communitys.viewmodel.LocationViewModel
 
 class LocationFragment : Fragment() {
 
     private var _binding: FragmentLocationBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: LocationViewModel by viewModels()
+    private lateinit var adapter: LocationReportsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -25,14 +31,32 @@ class LocationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupClickListeners()
-    }
+        adapter = LocationReportsAdapter()
+        binding.recyclerReports.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerReports.adapter = adapter
 
-    private fun setupClickListeners() {
-        // Map click - TODO: Implement map interaction
         binding.cvMap.setOnClickListener {
             Toast.makeText(requireContext(), "Map interaction coming soon", Toast.LENGTH_SHORT).show()
         }
+
+        viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
+            binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
+        }
+
+        viewModel.reports.observe(viewLifecycleOwner) { list ->
+            adapter.updateList(list)
+            binding.tvEmpty.visibility      = if (list.isEmpty()) View.VISIBLE else View.GONE
+            binding.recyclerReports.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
+        }
+
+        viewModel.error.observe(viewLifecycleOwner) { err ->
+            if (!err.isNullOrBlank()) Toast.makeText(requireContext(), err, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadReports()
     }
 
     override fun onDestroyView() {

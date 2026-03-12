@@ -5,54 +5,66 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.communitys.SupabaseAuthHelper
-import com.example.communitys.model.data.RequestModel
 import com.example.communitys.model.repository.RequestRepository
 import kotlinx.coroutines.launch
 
 class DocumentsViewModel : ViewModel() {
 
-    private val repository = RequestRepository()
-    private val authHelper = SupabaseAuthHelper()
+    data class DocumentItem(
+        val id: String,
+        val title: String,      // document type
+        val reference: String,  // DR-001-2026
+        val status: String,
+        val date: String
+    )
 
-    private val _requests = MutableLiveData<List<RequestModel>>()
-    val requests: LiveData<List<RequestModel>> = _requests
+    private val requestRepo = RequestRepository()
+    private val authHelper  = SupabaseAuthHelper()
+
+    private val _items     = MutableLiveData<List<DocumentItem>>()
+    val items: LiveData<List<DocumentItem>> = _items
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _error = MutableLiveData<String?>()
+    private val _error     = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
-    private var allRequests = listOf<RequestModel>()
-    private var currentTab = "active"   // "active" or "history"
-    private var currentFilter = "all"   // "all" | "reviewing" | "processing" | "ready_for_pickup" | "released"
+    private var allRequests = listOf<DocumentItem>()
 
-    init {
-        loadRequests()
-    }
+    // "requests" | "history"
+    private var currentTab    = "requests"
+    private var currentFilter = "all"
 
-    fun loadRequests() {
+    init { loadAll() }
+
+    fun loadAll() {
         val userId = authHelper.getCurrentUserId() ?: run {
             _error.value = "Not logged in"
             return
         }
         viewModelScope.launch {
             _isLoading.value = true
-            repository.getUserRequests(userId)
-                .onSuccess { list ->
-                    allRequests = list
-                    applyFilter()
+
+            requestRepo.getUserRequests(userId).onSuccess { list ->
+                allRequests = list.map { r ->
+                    DocumentItem(
+                        id        = r.id,
+                        title     = r.documentType,
+                        reference = r.referenceNumber.ifEmpty { "—" },
+                        status    = r.status,
+                        date      = r.createdAt
+                    )
                 }
-                .onFailure { e ->
-                    _error.value = e.message
-                }
+            }.onFailure { _error.value = it.message }
+
             _isLoading.value = false
+            applyFilter()
         }
     }
 
     fun setTab(tab: String) {
-        currentTab = tab
-        // Reset chip filter when switching tabs
+        currentTab    = tab
         currentFilter = "all"
         applyFilter()
     }
@@ -63,18 +75,12 @@ class DocumentsViewModel : ViewModel() {
     }
 
     private fun applyFilter() {
-        var filtered = allRequests
-
-        if (currentTab == "history") {
-            // History tab: only released or rejected
-            filtered = filtered.filter { it.status == "released" || it.status == "rejected" }
-        } else {
-            // My Request tab: active items, apply chip filter
-            if (currentFilter != "all") {
-                filtered = filtered.filter { it.status == currentFilter }
+        _items.value = when (currentTab) {
+            "history" -> allRequests.filter { it.status == "released" || it.status == "rejected" }
+            else -> { // "requests" with chip filter
+                if (currentFilter == "all") allRequests
+                else allRequests.filter { it.status == currentFilter }
             }
         }
-
-        _requests.value = filtered
     }
 }

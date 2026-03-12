@@ -21,6 +21,11 @@ class DocumentsFragment : Fragment() {
     private val viewModel: DocumentsViewModel by viewModels()
     private lateinit var adapter: DocumentsAdapter
 
+    private val colorActive   = Color.parseColor("#2C5F7F")
+    private val colorInactive = Color.parseColor("#D3D3D3")
+    private val textActive    = Color.WHITE
+    private val textInactive  = Color.parseColor("#7A7A7A")
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentDocumentsBinding.inflate(inflater, container, false)
         return binding.root
@@ -35,10 +40,10 @@ class DocumentsFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = DocumentsAdapter(onViewDetails = { request ->
+        adapter = DocumentsAdapter(onViewDetails = { item ->
             Toast.makeText(
                 requireContext(),
-                "${request.documentType}\n${request.referenceNumber} — ${request.status.replace('_', ' ')}",
+                "Document Request\n${item.title}\n${item.reference} — ${item.status.replace('_', ' ')}",
                 Toast.LENGTH_LONG
             ).show()
         })
@@ -47,25 +52,23 @@ class DocumentsFragment : Fragment() {
     }
 
     private fun setupTabs() {
-        binding.btnMyRequest.setOnClickListener { setActiveTab("active") }
-        binding.btnHistory.setOnClickListener { setActiveTab("history") }
+        binding.btnMyRequest.setOnClickListener { setActiveTab("requests") }
+        binding.btnHistory.setOnClickListener   { setActiveTab("history") }
     }
 
     private fun setActiveTab(tab: String) {
         viewModel.setTab(tab)
-        if (tab == "active") {
-            binding.btnMyRequest.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#2C5F7F"))
-            binding.btnMyRequest.setTextColor(Color.WHITE)
-            binding.btnHistory.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D3D3D3"))
-            binding.btnHistory.setTextColor(Color.parseColor("#7A7A7A"))
-            binding.chipScrollView.visibility = View.VISIBLE
-        } else {
-            binding.btnHistory.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#2C5F7F"))
-            binding.btnHistory.setTextColor(Color.WHITE)
-            binding.btnMyRequest.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D3D3D3"))
-            binding.btnMyRequest.setTextColor(Color.parseColor("#7A7A7A"))
-            binding.chipScrollView.visibility = View.GONE
+
+        listOf(binding.btnMyRequest, binding.btnHistory).forEach { btn ->
+            btn.backgroundTintList = ColorStateList.valueOf(colorInactive)
+            btn.setTextColor(textInactive)
         }
+
+        val activeBtn = if (tab == "history") binding.btnHistory else binding.btnMyRequest
+        activeBtn.backgroundTintList = ColorStateList.valueOf(colorActive)
+        activeBtn.setTextColor(textActive)
+
+        binding.chipScrollView.visibility = if (tab == "requests") View.VISIBLE else View.GONE
     }
 
     private fun setupChips() {
@@ -86,10 +89,10 @@ class DocumentsFragment : Fragment() {
             binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
         }
 
-        viewModel.requests.observe(viewLifecycleOwner) { list ->
+        viewModel.items.observe(viewLifecycleOwner) { list ->
             adapter.updateList(list)
-            binding.tvEmpty.visibility    = if (list.isEmpty()) View.VISIBLE else View.GONE
-            binding.recyclerView.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
+            binding.tvEmpty.visibility      = if (list.isEmpty()) View.VISIBLE else View.GONE
+            binding.recyclerView.visibility = if (list.isEmpty()) View.GONE   else View.VISIBLE
         }
 
         viewModel.error.observe(viewLifecycleOwner) { err ->
@@ -99,7 +102,7 @@ class DocumentsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.loadRequests() // Refresh when returning from RequestDocumentActivity
+        viewModel.loadAll()
     }
 
     override fun onDestroyView() {
