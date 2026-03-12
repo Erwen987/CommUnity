@@ -185,7 +185,7 @@ class ReportIssueActivity : AppCompatActivity() {
                 val saveResult = reportRepository.createReport(report)
 
                 if (saveResult.isSuccess) {
-                    Toast.makeText(this@ReportIssueActivity, "Report submitted successfully!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@ReportIssueActivity, "Report submitted! Points will be awarded once officials review it.", Toast.LENGTH_LONG).show()
                     finish()
                 } else {
                     Toast.makeText(

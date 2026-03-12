@@ -1,6 +1,7 @@
 package com.example.communitys
 
 import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.Auth
 import io.github.jan.supabase.postgrest.Postgrest
@@ -23,6 +24,9 @@ class CommUnityApplication : Application() {
         super.onCreate()
 
         instance = this
+
+        // Follow system dark/light mode setting
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
 
         // Initialize Supabase with custom JSON configuration
         supabase = createSupabaseClient(

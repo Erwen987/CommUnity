@@ -32,6 +32,21 @@ class LocationReportsAdapter(
             tvReportDate.text        = formatDate(item.createdAt)
             tvReportStatus.text      = formatStatus(item.status)
 
+            when {
+                item.pointsAwarded != null -> {
+                    tvReportPoints.text = "🌟 +${item.pointsAwarded} pts earned"
+                    tvReportPoints.setTextColor(Color.parseColor("#4CAF50"))
+                }
+                item.status == "rejected" -> {
+                    tvReportPoints.text = "— No points"
+                    tvReportPoints.setTextColor(Color.parseColor("#BDBDBD"))
+                }
+                else -> {
+                    tvReportPoints.text = "⏳ Pts pending official review"
+                    tvReportPoints.setTextColor(Color.parseColor("#9E9E9E"))
+                }
+            }
+
             val color = statusColor(item.status)
 
             val badge = GradientDrawable().apply {

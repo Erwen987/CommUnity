@@ -12,6 +12,7 @@ data class ReportModel(
     @SerialName("image_url")    val imageUrl: String? = null,
     @SerialName("location_lat") val locationLat: Double? = null,
     @SerialName("location_lng") val locationLng: Double? = null,
-    @SerialName("status")       val status: String = "pending",
-    @SerialName("created_at")   val createdAt: String = ""
+    @SerialName("status")         val status: String = "pending",
+    @SerialName("created_at")     val createdAt: String = "",
+    @SerialName("points_awarded") val pointsAwarded: Int? = null
 )

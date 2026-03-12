@@ -15,18 +15,18 @@ class RequestRepository {
         userId: String,
         documentType: String,
         purpose: String,
-        paymentMethod: String
+        paymentMethod: String,
+        proofUrl: String? = null
     ): Result<Unit> {
         return try {
-            supabase.from("requests").insert(
-                mapOf(
-                    "user_id" to userId,
-                    "document_type" to documentType,
-                    "purpose" to purpose,
-                    "payment_method" to paymentMethod
-                    // reference_number and status use DB defaults
-                )
-            )
+            val data = buildMap {
+                put("user_id", userId)
+                put("document_type", documentType)
+                put("purpose", purpose)
+                put("payment_method", paymentMethod)
+                if (proofUrl != null) put("proof_url", proofUrl)
+            }
+            supabase.from("requests").insert(data)
             Result.success(Unit)
         } catch (e: Exception) {
             android.util.Log.e("RequestRepository", "submitRequest failed: ${e.message}")

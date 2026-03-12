@@ -25,7 +25,7 @@ class DashboardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity()).get(DashboardViewModel::class.java)
         return binding.root
     }
 
@@ -86,18 +86,7 @@ class DashboardFragment : Fragment() {
     }
 
     private fun loadUserData() {
-        val prefs = requireActivity().getSharedPreferences("CommUnityPrefs", 0)
-
-        // Check if user has ever logged in before
-        val hasLoggedInBefore = prefs.getBoolean("hasLoggedInBefore", false)
-
-        // Pass this to ViewModel
-        viewModel.loadUserData(hasLoggedInBefore)
-
-        // Mark that user has now logged in at least once
-        if (!hasLoggedInBefore) {
-            prefs.edit().putBoolean("hasLoggedInBefore", true).apply()
-        }
+        viewModel.loadUserData()
     }
 
     private fun setupClickListeners() {

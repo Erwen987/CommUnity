@@ -5,7 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.communitys.databinding.FragmentRewardsBinding
+import com.example.communitys.viewmodel.RewardsViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.text.NumberFormat
 import java.util.Locale
@@ -14,9 +16,9 @@ class RewardsFragment : Fragment() {
 
     private var _binding: FragmentRewardsBinding? = null
     private val binding get() = _binding!!
+    private lateinit var viewModel: RewardsViewModel
 
-    // TODO: Replace with value loaded from Supabase
-    private var currentPoints = 1234
+    private var currentPoints = 0
 
     data class Reward(val name: String, val emoji: String, val cost: Int)
 
@@ -32,14 +34,32 @@ class RewardsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRewardsBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(RewardsViewModel::class.java)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupClickListeners()
+
+        // Show correct 0-pts state immediately (no hardcoded flicker)
         updatePointsDisplay()
         updateCardStates()
-        setupClickListeners()
+
+        viewModel.totalPoints.observe(viewLifecycleOwner) { pts ->
+            currentPoints = pts
+            updatePointsDisplay()
+            updateCardStates()
+        }
+
+        // Load real points right away
+        viewModel.loadUserPoints()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh when coming back to tab (e.g. after earning points)
+        viewModel.loadUserPoints()
     }
 
     // ─── Points Display + Progress Bar ────────────────────────────────────────
@@ -112,10 +132,6 @@ class RewardsFragment : Fragment() {
     private fun processClaim(reward: Reward) {
         if (currentPoints < reward.cost) return
         currentPoints -= reward.cost
-
-        // TODO: Update points in Supabase & save claim record
-        // viewModel.claimReward(reward.name, reward.cost)
-
         updatePointsDisplay()
         updateCardStates()
 

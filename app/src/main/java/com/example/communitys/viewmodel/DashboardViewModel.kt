@@ -21,6 +21,9 @@ class DashboardViewModel : ViewModel() {
 
     // ── LiveData ──────────────────────────────────────────────────────────────
 
+    // Once true, the welcome card will never be shown again within this ViewModel's lifetime
+    private var welcomeCardShown = false
+
     private val _welcomeMessage = MutableLiveData<String>()
     val welcomeMessage: LiveData<String> = _welcomeMessage
 
@@ -41,30 +44,52 @@ class DashboardViewModel : ViewModel() {
 
     // ── Load all data ─────────────────────────────────────────────────────────
 
-    fun loadUserData(isReturningUser: Boolean) {
+    fun loadUserData() {
+        // Only show the welcome card once per session
+        if (welcomeCardShown) {
+            viewModelScope.launch { loadReportStats() }
+            return
+        }
+
         viewModelScope.launch {
             try {
                 val result = authRepository.getCurrentUser()
 
                 result.onSuccess { user ->
-                    val greeting = if (isReturningUser) "Welcome back" else "Welcome"
+                    // Use the DB flag: false = first ever login → "Welcome", true = returning → "Welcome Back"
+                    val greeting = if (user.hasLoggedInBefore) "Welcome Back" else "Welcome"
                     _welcomeMessage.value = "$greeting, ${user.firstName}! 👋"
                     _locationDate.value = "${formatBarangay(user.barangay)} • ${getCurrentDate()}"
                     _pointsEarned.value = user.points
+
+                    // Mark as logged in before in DB (no-op if already true)
+                    if (!user.hasLoggedInBefore) {
+                        try {
+                            supabase.from("users")
+                                .update({ set("has_logged_in_before", true) }) {
+                                    filter { eq("auth_id", user.authId) }
+                                }
+                        } catch (e: Exception) {
+                            android.util.Log.w("DashboardViewModel", "Could not update has_logged_in_before: ${e.message}")
+                        }
+                    }
+
+                    // Mark welcome card as shown for this session
+                    welcomeCardShown = true
                 }
 
                 result.onFailure {
-                    val greeting = if (isReturningUser) "Welcome back! 👋" else "Welcome! 👋"
-                    _welcomeMessage.value = greeting
+                    _welcomeMessage.value = "Welcome Back! 👋"
                     _locationDate.value = getCurrentDate()
+                    welcomeCardShown = true
                 }
 
             } catch (e: Exception) {
-                _welcomeMessage.value = if (isReturningUser) "Welcome back! 👋" else "Welcome! 👋"
+                _welcomeMessage.value = "Welcome! 👋"
                 _locationDate.value = getCurrentDate()
+                welcomeCardShown = true
             }
 
-            // Load report stats separately
             loadReportStats()
         }
     }

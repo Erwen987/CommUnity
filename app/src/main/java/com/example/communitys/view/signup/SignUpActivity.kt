@@ -3,9 +3,16 @@ package com.example.communitys.view.signup
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
+import android.text.SpannableString
 import android.text.TextWatcher
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
+import android.text.style.ForegroundColorSpan
+import android.text.style.UnderlineSpan
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.communitys.databinding.ActivitySignupBinding
@@ -42,6 +49,7 @@ class SignUpActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(AuthViewModel::class.java)
 
         setupBarangayDropdown()
+        setupPrivacyAgreement()
         setupValidation()
         setupClickListeners()
         observeViewModel()
@@ -76,6 +84,92 @@ class SignUpActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    // ── Privacy Agreement ─────────────────────────────────────────────────────
+
+    private fun setupPrivacyAgreement() {
+        val full   = "I have read and agree to the Privacy Policy"
+        val link   = "Privacy Policy"
+        val start  = full.indexOf(link)
+        val end    = start + link.length
+        val blue   = 0xFF1565C0.toInt()
+
+        val spannable = SpannableString(full)
+        spannable.setSpan(object : ClickableSpan() {
+            override fun onClick(widget: View) { showPrivacyPolicyDialog() }
+        }, start, end, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+        spannable.setSpan(UnderlineSpan(), start, end, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+        spannable.setSpan(ForegroundColorSpan(blue), start, end, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        binding.tvPrivacyText.text           = spannable
+        binding.tvPrivacyText.movementMethod = LinkMovementMethod.getInstance()
+
+        // Hide error as soon as checkbox is checked
+        binding.cbPrivacy.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) binding.tvPrivacyError.visibility = View.GONE
+        }
+    }
+
+    private fun showPrivacyPolicyDialog() {
+        val policy = """
+PRIVACY POLICY — CommUnity App
+
+Effective Date: January 1, 2026
+
+1. INFORMATION WE COLLECT
+We collect the following personal information when you register:
+• Full name
+• Email address
+• Barangay of residence
+
+When you use the app, we also collect:
+• Issue reports you submit (problem type, description, photos, location)
+• Document requests you make
+• App usage data for service improvement
+
+2. HOW WE USE YOUR INFORMATION
+Your information is used to:
+• Provide barangay community services
+• Process your document requests and issue reports
+• Notify you of updates on your submissions
+• Improve the CommUnity app and services
+
+3. WHO CAN SEE YOUR DATA
+• Your issue reports and document requests are visible to authorized barangay officials only.
+• Your personal information is never sold or shared with third parties outside the barangay.
+• Other residents cannot view your personal information.
+
+4. DATA SECURITY
+We protect your data using secure servers provided by Supabase. Access is restricted to authorized personnel only.
+
+5. YOUR RIGHTS
+You have the right to:
+• View and edit your profile information at any time
+• Delete your account, which permanently removes your data from our system
+• Request a copy of your stored data by contacting your barangay office
+
+6. CHILDREN'S PRIVACY
+CommUnity is intended for residents 18 years and older. We do not knowingly collect information from minors.
+
+7. CHANGES TO THIS POLICY
+We may update this Privacy Policy from time to time. Changes will be reflected in the app.
+
+8. CONTACT US
+For questions about this Privacy Policy, please contact your local Barangay Hall in Dagupan City, Pangasinan.
+
+By registering, you confirm that you have read, understood, and agreed to this Privacy Policy.
+        """.trimIndent()
+
+        AlertDialog.Builder(this)
+            .setTitle("Privacy Policy")
+            .setMessage(policy)
+            .setPositiveButton("I Understand") { dialog, _ ->
+                binding.cbPrivacy.isChecked = true
+                dialog.dismiss()
+            }
+            .setNegativeButton("Close", null)
+            .show()
     }
 
     // ── Barangay dropdown ─────────────────────────────────────────────────────
@@ -245,7 +339,7 @@ class SignUpActivity : AppCompatActivity() {
         validatePasswordField()
         validateConfirmPasswordField()
 
-        return listOf(
+        val fieldsValid = listOf(
             binding.tilFirstName.error,
             binding.tilLastName.error,
             binding.tilBarangay.error,
@@ -253,6 +347,11 @@ class SignUpActivity : AppCompatActivity() {
             binding.tilPassword.error,
             binding.tilConfirmPassword.error
         ).all { it == null }
+
+        val privacyAccepted = binding.cbPrivacy.isChecked
+        binding.tvPrivacyError.visibility = if (privacyAccepted) View.GONE else View.VISIBLE
+
+        return fieldsValid && privacyAccepted
     }
 
     // ── Click listeners ───────────────────────────────────────────────────────

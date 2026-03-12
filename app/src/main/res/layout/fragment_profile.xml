@@ -284,7 +284,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="52dp"
                         android:text="Change Password"
-                        android:textColor="#1E3A5F"
+                        android:textColor="#1E3A5f"
                         android:textStyle="bold"
                         android:textAllCaps="false"
                         android:textSize="14sp"

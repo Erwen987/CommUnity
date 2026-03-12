@@ -11,12 +11,14 @@ class ReportRepository {
     private val supabase = CommUnityApplication.supabase
 
     // ── Create report — used by ReportIssueActivity ───────────────────────────
-    // Returns Result<Unit> so ReportIssueActivity compiles without changes
+    // Returns Result<String> with the new report's UUID
 
-    suspend fun createReport(report: ReportModel): Result<Unit> {
+    suspend fun createReport(report: ReportModel): Result<String> {
         return try {
-            supabase.from("reports").insert(report)
-            Result.success(Unit)
+            val inserted = supabase.from("reports").insert(report) {
+                select()
+            }.decodeSingle<ReportModel>()
+            Result.success(inserted.id)
         } catch (e: Exception) {
             android.util.Log.e("ReportRepository", "createReport failed: ${e.message}")
             Result.failure(Exception(e.message ?: "Failed to save report"))
@@ -82,6 +84,45 @@ class ReportRepository {
             Result.success(reports)
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    // ── Award points for a report ─────────────────────────────────────────────
+    // Called after submission for auto-awarded problems (e.g. Broken Road / Pothole).
+    // Inserts a rewards row, updates users.points, and stamps points_awarded on the report.
+
+    suspend fun awardPoints(userId: String, reportId: String, points: Int, reason: String): Result<Unit> {
+        return try {
+            // Insert rewards record
+            supabase.from("rewards").insert(
+                mapOf(
+                    "user_id" to userId,
+                    "points"  to points,
+                    "reason"  to reason
+                )
+            )
+
+            // Stamp points on the report
+            supabase.from("reports")
+                .update({ set("points_awarded", points) }) {
+                    filter { eq("id", reportId) }
+                }
+
+            // Fetch current points then increment
+            val currentPoints = supabase.from("users")
+                .select { filter { eq("auth_id", userId) } }
+                .decodeList<com.example.communitys.model.data.UserModel>()
+                .firstOrNull()?.points ?: 0
+
+            supabase.from("users")
+                .update({ set("points", currentPoints + points) }) {
+                    filter { eq("auth_id", userId) }
+                }
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            android.util.Log.e("ReportRepository", "awardPoints failed: ${e.message}")
+            Result.failure(Exception(e.message ?: "Failed to award points"))
         }
     }
 

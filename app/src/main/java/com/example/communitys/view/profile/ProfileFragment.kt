@@ -1,24 +1,20 @@
 package com.example.communitys.view.profile
 
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.communitys.R
 import com.example.communitys.databinding.FragmentProfileBinding
 import com.example.communitys.view.login.LoginActivity
 import com.example.communitys.viewmodel.ProfileViewModel
-import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 
 class ProfileFragment : Fragment() {
@@ -129,70 +125,23 @@ class ProfileFragment : Fragment() {
     // ── Change Password Dialog ────────────────────────────────────────────────
 
     private fun showChangePasswordDialog() {
-        val ctx = requireContext()
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_change_password, null)
 
-        val layout = LinearLayout(ctx).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(64, 40, 64, 8)
-        }
+        val tilNew     = dialogView.findViewById<TextInputLayout>(R.id.tilNewPassword)
+        val etNew      = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etNewPassword)
+        val tilConfirm = dialogView.findViewById<TextInputLayout>(R.id.tilConfirmPassword)
+        val etConfirm  = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etConfirmPassword)
 
-        // New password
-        val tilNew = TextInputLayout(ctx, null,
-            com.google.android.material.R.attr.textInputOutlinedStyle).apply {
-            hint = "New password"
-            endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = 32 }
-        }
-        val etNew = TextInputEditText(ctx).apply {
-            inputType = android.text.InputType.TYPE_CLASS_TEXT or
-                    android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
-        }
-        tilNew.addView(etNew)
-
-        // Confirm password
-        val tilConfirm = TextInputLayout(ctx, null,
-            com.google.android.material.R.attr.textInputOutlinedStyle).apply {
-            hint = "Confirm new password"
-            endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = 16 }
-        }
-        val etConfirm = TextInputEditText(ctx).apply {
-            inputType = android.text.InputType.TYPE_CLASS_TEXT or
-                    android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
-        }
-        tilConfirm.addView(etConfirm)
-
-        // Hint text
-        val tvHint = TextView(ctx).apply {
-            text = "🔒 Min 8 characters · letters and numbers only"
-            textSize = 12f
-            setTextColor(Color.parseColor("#757575"))
-        }
-
-        layout.addView(tilNew)
-        layout.addView(tilConfirm)
-        layout.addView(tvHint)
-
-        val dialog = AlertDialog.Builder(ctx)
-            .setTitle("Change Password")
-            .setView(layout)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
             .setPositiveButton("Change", null)
             .setNegativeButton("Cancel", null)
             .create()
 
         dialog.show()
 
-        // Style buttons
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#5B9BD5"))
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#9E9E9E"))
-
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             val newPw     = etNew.text.toString()
             val confirmPw = etConfirm.text.toString()
             tilNew.error     = null
@@ -223,72 +172,21 @@ class ProfileFragment : Fragment() {
     // ── Delete Account Dialog — Step 1: Reason ────────────────────────────────
 
     private fun showDeleteAccountDialog() {
-        val ctx = requireContext()
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_delete_account, null)
 
-        val layout = LinearLayout(ctx).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(64, 32, 64, 8)
-        }
+        val tilReason = dialogView.findViewById<TextInputLayout>(R.id.tilReason)
+        val etReason  = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etReason)
 
-        // Red warning box
-        val tvWarning = TextView(ctx).apply {
-            text = "⚠️  This will permanently delete your account from the barangay system.\n\nYou may register again in a different barangay after deletion."
-            textSize = 13f
-            setTextColor(Color.parseColor("#B71C1C"))
-            setBackgroundColor(Color.parseColor("#FFEBEE"))
-            setPadding(24, 20, 24, 20)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = 28 }
-        }
-
-        // Label
-        val tvLabel = TextView(ctx).apply {
-            text = "What is the reason for deleting your account?"
-            textSize = 14f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.parseColor("#1E3A5F"))
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = 12 }
-        }
-
-        // Reason input
-        val tilReason = TextInputLayout(ctx, null,
-            com.google.android.material.R.attr.textInputOutlinedStyle).apply {
-            hint = "e.g., Moving to another barangay"
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
-        val etReason = TextInputEditText(ctx).apply {
-            inputType = android.text.InputType.TYPE_CLASS_TEXT or
-                    android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE or
-                    android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-            minLines = 2
-            maxLines = 4
-        }
-        tilReason.addView(etReason)
-
-        layout.addView(tvWarning)
-        layout.addView(tvLabel)
-        layout.addView(tilReason)
-
-        val dialog = AlertDialog.Builder(ctx)
-            .setTitle("Delete Account")
-            .setView(layout)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
             .setPositiveButton("Next →", null)
             .setNegativeButton("Cancel", null)
             .create()
 
         dialog.show()
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#D32F2F"))
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#9E9E9E"))
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             val reason = etReason.text.toString().trim()
             tilReason.error = null
 
@@ -307,71 +205,20 @@ class ProfileFragment : Fragment() {
     // ── Delete Account Dialog — Step 2: Final Confirm ─────────────────────────
 
     private fun showFinalDeleteConfirmation(reason: String) {
-        val ctx = requireContext()
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_delete_confirm, null)
 
-        val layout = LinearLayout(ctx).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(64, 32, 64, 8)
-        }
+        dialogView.findViewById<android.widget.TextView>(R.id.tvReasonDisplay).text = "\"$reason\""
 
-        val tvMessage = TextView(ctx).apply {
-            text = "Your account will be permanently deleted from the barangay system and officials will be notified of your reason."
-            textSize = 14f
-            setTextColor(Color.parseColor("#424242"))
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = 20 }
-        }
-
-        val tvReasonLabel = TextView(ctx).apply {
-            text = "Your reason:"
-            textSize = 12f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.parseColor("#757575"))
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = 6 }
-        }
-
-        val tvReason = TextView(ctx).apply {
-            text = "\"$reason\""
-            textSize = 14f
-            setTypeface(null, Typeface.ITALIC)
-            setTextColor(Color.parseColor("#1E3A5F"))
-            setBackgroundColor(Color.parseColor("#F3F6FF"))
-            setPadding(20, 16, 20, 16)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = 20 }
-        }
-
-        val tvCannotUndo = TextView(ctx).apply {
-            text = "⚠️ This action cannot be undone."
-            textSize = 13f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.parseColor("#D32F2F"))
-        }
-
-        layout.addView(tvMessage)
-        layout.addView(tvReasonLabel)
-        layout.addView(tvReason)
-        layout.addView(tvCannotUndo)
-
-        val dialog = AlertDialog.Builder(ctx)
-            .setTitle("Are you absolutely sure?")
-            .setView(layout)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
             .setPositiveButton("Yes, Delete My Account", null)
             .setNegativeButton("No, Keep My Account", null)
             .create()
 
         dialog.show()
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#D32F2F"))
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#5B9BD5"))
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             dialog.dismiss()
             viewModel.deleteAccount(reason)
         }
@@ -380,7 +227,7 @@ class ProfileFragment : Fragment() {
     // ── Logout Dialog ─────────────────────────────────────────────────────────
 
     private fun showLogoutDialog() {
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle("Log Out")
             .setMessage("Are you sure you want to log out?")
             .setPositiveButton("Yes") { _, _ -> viewModel.logout() }
