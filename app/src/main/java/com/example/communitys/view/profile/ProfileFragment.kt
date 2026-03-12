@@ -1,6 +1,7 @@
 package com.example.communitys.view.profile
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.example.communitys.R
 import com.example.communitys.databinding.FragmentProfileBinding
 import com.example.communitys.view.login.LoginActivity
@@ -27,7 +30,6 @@ class ProfileFragment : Fragment() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == AppCompatActivity.RESULT_OK) {
-            // Reload profile from Supabase to reflect saved changes
             viewModel.loadUserProfile()
         }
     }
@@ -58,6 +60,7 @@ class ProfileFragment : Fragment() {
             binding.tvEmail.text    = profile.email
             binding.tvBarangay.text = profile.barangay
             binding.tvPoints.text   = profile.points.toString()
+            loadAvatar(profile.avatarUrl)
         }
 
         viewModel.logoutState.observe(viewLifecycleOwner) { state ->
@@ -100,11 +103,25 @@ class ProfileFragment : Fragment() {
                 else -> {}
             }
         }
+
+        viewModel.avatarUpdateState.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is ProfileViewModel.ActionState.Success ->
+                    showSuccessToast("✅ Avatar updated!")
+                is ProfileViewModel.ActionState.Error ->
+                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
+                else -> {}
+            }
+        }
     }
 
     // ── Click Listeners ───────────────────────────────────────────────────────
 
     private fun setupClickListeners() {
+        // Avatar picker — tap the avatar container
+        binding.flAvatarContainer.setOnClickListener { openAvatarPicker() }
+
+        // Edit profile via FAB (original behavior, now also accessible from avatar long-press)
         binding.fabEditPhoto.setOnClickListener {
             val profile = viewModel.userProfile.value ?: return@setOnClickListener
             val intent = Intent(requireContext(), EditProfileActivity::class.java).apply {
@@ -114,12 +131,69 @@ class ProfileFragment : Fragment() {
             }
             editProfileLauncher.launch(intent)
         }
+
         binding.btnClaimReward.setOnClickListener {
             Toast.makeText(requireContext(), "Rewards feature coming soon", Toast.LENGTH_SHORT).show()
         }
+
         binding.btnChangePassword.setOnClickListener { showChangePasswordDialog() }
         binding.btnDeleteAccount.setOnClickListener  { showDeleteAccountDialog() }
         binding.btnLogOut.setOnClickListener         { showLogoutDialog() }
+    }
+
+    // ── Avatar ────────────────────────────────────────────────────────────────
+
+    private fun loadAvatar(avatarUrl: String?) {
+        when {
+            avatarUrl == null -> {
+                // Default: show ic_profile
+                binding.ivProfilePhoto.visibility  = View.VISIBLE
+                binding.flPresetAvatar.visibility  = View.GONE
+                binding.ivProfilePhoto.setImageResource(R.drawable.ic_profile)
+            }
+            avatarUrl.startsWith("preset_") -> {
+                // Preset: show colored circle overlay
+                val drawableRes = AvatarPickerSheet.presetDrawable(avatarUrl)
+                if (drawableRes != null) {
+                    binding.ivProfilePhoto.visibility  = View.GONE
+                    binding.flPresetAvatar.visibility  = View.VISIBLE
+                    binding.ivPresetCircle.setImageResource(drawableRes)
+                }
+            }
+            else -> {
+                // Remote URL: load with Coil into CircleImageView
+                binding.ivProfilePhoto.visibility  = View.VISIBLE
+                binding.flPresetAvatar.visibility  = View.GONE
+                binding.ivProfilePhoto.load(avatarUrl) {
+                    transformations(CircleCropTransformation())
+                    placeholder(R.drawable.ic_profile)
+                    error(R.drawable.ic_profile)
+                }
+            }
+        }
+    }
+
+    private fun openAvatarPicker() {
+        val sheet = AvatarPickerSheet.newInstance()
+        sheet.listener = object : AvatarPickerSheet.AvatarSelectedListener {
+            override fun onPresetSelected(presetId: String) {
+                viewModel.updateAvatar(presetId)
+            }
+            override fun onPhotoSelected(uri: Uri) {
+                uploadPhoto(uri)
+            }
+        }
+        sheet.show(childFragmentManager, "avatar_picker")
+    }
+
+    private fun uploadPhoto(uri: Uri) {
+        try {
+            val bytes = requireContext().contentResolver
+                .openInputStream(uri)?.readBytes() ?: return
+            viewModel.uploadAndSaveAvatar(bytes)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Could not read photo", Toast.LENGTH_SHORT).show()
+        }
     }
 
     // ── Change Password Dialog ────────────────────────────────────────────────

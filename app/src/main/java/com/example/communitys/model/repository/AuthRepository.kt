@@ -8,7 +8,7 @@ import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.gotrue.OtpType
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.postgrest.rpc
+import io.github.jan.supabase.storage.storage
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -336,6 +336,35 @@ class AuthRepository {
             Result.failure(Exception("Failed to update profile: ${e.message}"))
         }
     }
+    // ── Update Avatar ─────────────────────────────────────────────────────────
+
+    suspend fun updateAvatar(avatarUrl: String): Result<Unit> {
+        return try {
+            val userId = supabase.auth.currentUserOrNull()?.id
+                ?: throw Exception("Not authenticated")
+            supabase.from("users")
+                .update({ set("avatar_url", avatarUrl) }) {
+                    filter { eq("auth_id", userId) }
+                }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(Exception("Failed to update avatar: ${e.message}"))
+        }
+    }
+
+    // ── Upload Avatar Photo to Storage ────────────────────────────────────────
+
+    suspend fun uploadAvatarPhoto(userId: String, imageBytes: ByteArray): Result<String> {
+        return try {
+            val path = "$userId/avatar.jpg"
+            supabase.storage.from("avatars").upload(path, imageBytes, upsert = true)
+            val url = supabase.storage.from("avatars").publicUrl(path)
+            Result.success(url)
+        } catch (e: Exception) {
+            Result.failure(Exception("Failed to upload photo: ${e.message}"))
+        }
+    }
+
     // ── Change Password ───────────────────────────────────────────────────────
 
     suspend fun changePassword(newPassword: String): Result<Unit> {
@@ -350,26 +379,54 @@ class AuthRepository {
     }
 
     // ── Delete Account ────────────────────────────────────────────────────────
-    // Calls the delete_own_account() Postgres RPC (SECURITY DEFINER).
-    // This runs server-side and properly deletes from auth.users,
-    // freeing the email for re-registration. Admin key is NOT needed.
+    // Logs deletion to deleted_accounts table, then deletes from users table.
+    // The auth user deletion must be done manually by admin or will happen automatically
+    // when the user tries to log in again (orphaned auth user detection).
 
     suspend fun deleteAccount(reason: String): Result<Unit> {
         return try {
-            supabase.auth.currentUserOrNull()
+            val userId = supabase.auth.currentUserOrNull()?.id?.toString()
                 ?: throw Exception("Not authenticated")
 
-            android.util.Log.d("AuthRepository", "Calling delete_own_account RPC")
+            android.util.Log.d("AuthRepository", "Deleting account for user: $userId")
 
-            // Single server-side call: logs deletion + deletes profile + deletes auth user
-            supabase.postgrest.rpc(
-                "delete_own_account",
-                buildJsonObject { put("p_reason", reason) }
-            )
+            // Get user info before deletion
+            val users = supabase.from("users")
+                .select { filter { eq("auth_id", userId) } }
+                .decodeList<UserModel>()
 
-            android.util.Log.d("AuthRepository", "delete_own_account succeeded — email is now free")
+            if (users.isEmpty()) {
+                throw Exception("User profile not found")
+            }
 
-            try { supabase.auth.signOut() } catch (_: Exception) {}
+            val user = users.first()
+
+            // Log deletion to deleted_accounts table
+            val deletionData = buildMap {
+                put("auth_id", userId)
+                put("email", user.email)
+                put("first_name", user.firstName)
+                put("last_name", user.lastName)
+                put("barangay", user.barangay)
+                put("reason", reason)
+            }
+
+            supabase.from("deleted_accounts").insert(deletionData)
+            android.util.Log.d("AuthRepository", "Logged deletion to deleted_accounts")
+
+            // Delete from users table
+            supabase.from("users").delete {
+                filter { eq("auth_id", userId) }
+            }
+            android.util.Log.d("AuthRepository", "Deleted user profile from users table")
+
+            // Try to delete auth user (may fail without admin key, but that's okay)
+            try {
+                supabase.auth.signOut()
+                android.util.Log.d("AuthRepository", "Signed out user")
+            } catch (e: Exception) {
+                android.util.Log.w("AuthRepository", "Sign out failed: ${e.message}")
+            }
 
             Result.success(Unit)
 

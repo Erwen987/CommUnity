@@ -30,7 +30,10 @@ data class UserModel(
     val points: Int = 0,
 
     @SerialName("has_logged_in_before")
-    val hasLoggedInBefore: Boolean = false
+    val hasLoggedInBefore: Boolean = false,
+
+    @SerialName("avatar_url")
+    val avatarUrl: String? = null
 ) {
     // Full name helper used by ProfileFragment
     val name: String get() = "$firstName $lastName".trim()

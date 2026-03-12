@@ -31,25 +31,71 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="24dp" />
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/ivProfilePhoto"
-                android:layout_width="110dp"
-                android:layout_height="110dp"
-                android:src="@drawable/ic_profile"
-                app:civ_border_width="3dp"
-                app:civ_border_color="@android:color/white" />
+            <!-- Avatar container — tapping opens picker -->
+            <FrameLayout
+                android:id="@+id/flAvatarContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:foreground="?attr/selectableItemBackgroundBorderless">
 
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/ivProfilePhoto"
+                    android:layout_width="110dp"
+                    android:layout_height="110dp"
+                    android:src="@drawable/ic_profile"
+                    app:civ_border_width="3dp"
+                    app:civ_border_color="@android:color/white" />
+
+                <!-- Preset avatar overlay (shown for preset avatars) -->
+                <FrameLayout
+                    android:id="@+id/flPresetAvatar"
+                    android:layout_width="110dp"
+                    android:layout_height="110dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/ivPresetCircle"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="fitXY" />
+
+                    <ImageView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_profile"
+                        android:alpha="0.9" />
+
+                </FrameLayout>
+
+                <!-- Camera badge -->
+                <LinearLayout
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginEnd="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:background="#5B9BD5"
+                    android:gravity="center"
+                    android:elevation="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📷"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <!-- Hidden FAB kept for binding compatibility -->
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fabEditPhoto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-20dp"
-                android:layout_marginStart="60dp"
-                android:src="@drawable/ic_edit_profile"
-                app:fabSize="mini"
-                app:tint="@android:color/white"
-                app:backgroundTint="#5B9BD5"
-                app:elevation="4dp" />
+                android:visibility="gone"
+                app:fabSize="mini" />
 
         </LinearLayout>
 

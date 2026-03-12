@@ -4,7 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.communitys.CommUnityApplication
 import com.example.communitys.model.repository.AuthRepository
+import io.github.jan.supabase.gotrue.auth
 import kotlinx.coroutines.launch
 
 class ProfileViewModel : ViewModel() {
@@ -23,6 +25,9 @@ class ProfileViewModel : ViewModel() {
     private val _deleteAccountState = MutableLiveData<ActionState>()
     val deleteAccountState: LiveData<ActionState> = _deleteAccountState
 
+    private val _avatarUpdateState = MutableLiveData<ActionState>()
+    val avatarUpdateState: LiveData<ActionState> = _avatarUpdateState
+
     init {
         loadUserProfile()
     }
@@ -37,7 +42,8 @@ class ProfileViewModel : ViewModel() {
                     lastName  = user.lastName,
                     email     = user.email,
                     barangay  = formatBarangay(user.barangay),
-                    points    = user.points
+                    points    = user.points,
+                    avatarUrl = user.avatarUrl
                 )
             }
         }
@@ -79,6 +85,39 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
+    // ── Update Avatar ─────────────────────────────────────────────────────────
+
+    fun updateAvatar(avatarUrl: String) {
+        viewModelScope.launch {
+            val result = authRepository.updateAvatar(avatarUrl)
+            result.onSuccess {
+                _userProfile.value = _userProfile.value?.copy(avatarUrl = avatarUrl)
+                _avatarUpdateState.value = ActionState.Success
+            }.onFailure { e ->
+                _avatarUpdateState.value = ActionState.Error(e.message ?: "Failed to update avatar")
+            }
+        }
+    }
+
+    fun uploadAndSaveAvatar(imageBytes: ByteArray) {
+        _avatarUpdateState.value = ActionState.Loading
+        viewModelScope.launch {
+            val userId = CommUnityApplication.supabase.auth.currentUserOrNull()?.id ?: return@launch
+            val uploadResult = authRepository.uploadAvatarPhoto(userId, imageBytes)
+            uploadResult.onSuccess { url ->
+                val saveResult = authRepository.updateAvatar(url)
+                saveResult.onSuccess {
+                    _userProfile.value = _userProfile.value?.copy(avatarUrl = url)
+                    _avatarUpdateState.value = ActionState.Success
+                }.onFailure { e ->
+                    _avatarUpdateState.value = ActionState.Error(e.message ?: "Failed to save avatar")
+                }
+            }.onFailure { e ->
+                _avatarUpdateState.value = ActionState.Error(e.message ?: "Failed to upload photo")
+            }
+        }
+    }
+
     // ── Logout ────────────────────────────────────────────────────────────────
 
     fun logout() {
@@ -103,12 +142,13 @@ class ProfileViewModel : ViewModel() {
     // ── Data classes ──────────────────────────────────────────────────────────
 
     data class UserProfile(
-        val name      : String = "",
-        val firstName : String = "",
-        val lastName  : String = "",
-        val email     : String = "",
-        val barangay  : String = "",
-        val points    : Int    = 0
+        val name      : String  = "",
+        val firstName : String  = "",
+        val lastName  : String  = "",
+        val email     : String  = "",
+        val barangay  : String  = "",
+        val points    : Int     = 0,
+        val avatarUrl : String? = null
     )
 
     sealed class LogoutState {
