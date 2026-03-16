@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/Jv/AndroidStudioProjects/CommUnity -name *.gradle -o -name gradle.properties)",
+      "Bash(xargs grep:*)",
+      "Bash(npx -y @modelcontextprotocol/server-postgres \"postgresql://postgres.apesvvqntqldihnzmitn:CommUnity09@WebAndApphere@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres\")",
+      "Bash(npx pg-query:*)",
+      "Bash(curl -s \"https://apesvvqntqldihnzmitn.supabase.co/rest/v1/?apikey=sb_publishable_mRVhQVRmCmX7mYUpy6WDxw_Nu6iaN7_\")",
+      "Bash(node -e \":*)",
+      "Bash(node -e \"const { createClient } = require\\(''@supabase/supabase-js''\\); const supabase = createClient\\(''https://apesvvqntqldihnzmitn.supabase.co'', ''sb_publishable_mRVhQVRmCmX7mYUpy6WDxw_Nu6iaN7_''\\); const tables = [''users'',''profiles'',''reports'',''requests'',''residents'',''announcements'',''rewards'',''officials'',''barangay_officials'',''user_profiles'',''issue_reports'',''document_requests'',''points'',''leaderboard'']; Promise.all\\(tables.map\\(t => supabase.from\\(t\\).select\\(''*''\\).limit\\(1\\).then\\(\\({data,error}\\) => error ? \\(''NO: '' + t + '' - '' + error.message\\) : \\(''YES: '' + t + '' cols: '' + \\(data[0] ? Object.keys\\(data[0]\\).join\\('',''\\) : ''empty''\\)\\)\\)\\)\\).then\\(r => r.forEach\\(x => console.log\\(x\\)\\)\\).catch\\(console.error\\);\")",
+      "Bash(node -e \"const { createClient } = require\\(''@supabase/supabase-js''\\); const supabase = createClient\\(''https://apesvvqntqldihnzmitn.supabase.co'', ''sb_publishable_mRVhQVRmCmX7mYUpy6WDxw_Nu6iaN7_''\\); const tables = [''users'',''reports'',''requests'',''announcements'',''rewards'',''notifications'',''transactions'',''settings'',''barangay'',''categories'',''comments'',''feedback'',''history'',''logs'']; Promise.all\\(tables.map\\(t => supabase.from\\(t\\).select\\(''*''\\).limit\\(2\\).then\\(\\({data,error}\\) => error ? null : \\(''TABLE: '' + t + '' | cols: '' + \\(data && data[0] ? Object.keys\\(data[0]\\).join\\('', ''\\) : ''empty''\\)\\)\\)\\)\\).then\\(r => r.filter\\(Boolean\\).forEach\\(x => console.log\\(x\\)\\)\\).catch\\(console.error\\);\")",
+      "Bash(grep -r \"announcements\\\\|rewards\" c:UsersJvAndroidStudioProjectsCommUnity --include=*.kt)",
+      "Bash(find c:UsersJvDownloadsCommUnityWeb -type f \\\\\\(-name *.ts -o -name *.tsx -o -name *.js \\\\\\))",
+      "Bash(grep -r \"from\\(.*\\)\\\\|\\\\.select\\\\|\\\\.insert\\\\|\\\\.update\" c:UsersJvDownloadsCommUnityWeb --include=*.ts --include=*.tsx --include=*.js)",
+      "Bash(find c:UsersJvDownloadsCommUnityWebcommunity-websrc -type f \\\\\\(-name *.ts -o -name *.tsx -o -name *.js \\\\\\))",
+      "Bash(grep -r \"from\\(.*\\)\\\\|\\\\.select\\\\|\\\\.insert\\\\|\\\\.update\" c:UsersJvDownloadsCommUnityWebcommunity-websrc --include=*.js)",
+      "Bash(grep -r \"reports\\\\|requests\\\\|users\\\\|rewards\\\\|announcements\" c:UsersJvDownloadsCommUnityWebcommunity-websrc --include=*.js)",
+      "Bash(find c:UsersJvDownloadsCommUnityWebss-main -type f \\\\\\(-name *.ts -o -name *.tsx -o -name *.js -o -name *.kt \\\\\\))",
+      "Bash(grep -r \"problem\\\\|category\" c:UsersJvAndroidStudioProjectsCommUnity --include=*.kt)"
+    ]
+  }
+}

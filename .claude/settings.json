@@ -8,7 +8,9 @@
       "Bash(cmd /c \"taskkill /PID 30852 /F & echo done\")",
       "Bash(PORT=3001 npm start)",
       "Read(//mnt/c/Users/Jv/Downloads/CommUnityWebss-main/CommUnityWebss-main/frontend/**)",
-      "Read(//mnt/c/**)"
+      "Read(//mnt/c/**)",
+      "Read(//c/Users/Jv/Downloads/CommUnityWeb/**)",
+      "Bash(npx create-react-app:*)"
     ]
   }
 }
