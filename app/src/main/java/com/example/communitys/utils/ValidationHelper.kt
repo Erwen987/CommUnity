@@ -22,8 +22,8 @@ object ValidationHelper {
         RegexOption.IGNORE_CASE
     )
 
-    // Letters + digits only — no symbols, no whitespace
-    private val PASSWORD_REGEX = Regex("^[A-Za-z0-9]+\$")
+    // Letters + digits + allowed special chars
+    private val PASSWORD_REGEX = Regex("^[A-Za-z0-9@#\$!%*?&_\\-]+\$")
 
     // Exactly 6 digits
     private val OTP_REGEX = Regex("^[0-9]{6}\$")
@@ -59,17 +59,26 @@ object ValidationHelper {
 
     // ─────────────────────────────────────────────────────────────────────────
     // PASSWORD   (used by AuthRepository, AuthViewModel, SignUpActivity)
-    // Rules: alphanumeric only | no whitespace | min 8 chars | 1 letter + 1 digit
+    // Rules: min 8 chars | 1 uppercase | 1 lowercase | 1 digit | 1 special char
     // ─────────────────────────────────────────────────────────────────────────
+    private val SPECIAL_CHARS = setOf('@', '#', '$', '!', '%', '*', '?', '&', '_', '-')
+
     fun validatePassword(value: String): ValidationResult {
-        return when {
-            value.isEmpty()                 -> ValidationResult.Error("Password is required")
-            value.any { it.isWhitespace() } -> ValidationResult.Error("Password must not contain spaces")
-            value.length < 8                -> ValidationResult.Error("Password must be at least 8 characters")
-            !PASSWORD_REGEX.matches(value)  -> ValidationResult.Error("Only letters and numbers allowed (no symbols)")
-            !value.any { it.isLetter() }    -> ValidationResult.Error("Password must contain at least one letter")
-            !value.any { it.isDigit() }     -> ValidationResult.Error("Password must contain at least one number")
-            else                            -> ValidationResult.Success
+        if (value.isEmpty()) return ValidationResult.Error("Password is required")
+        if (value.any { it.isWhitespace() }) return ValidationResult.Error("Password must not contain spaces")
+        if (!PASSWORD_REGEX.matches(value)) return ValidationResult.Error("Password contains invalid characters. Only letters, numbers, and @#\$!%*?&_- are allowed")
+
+        val missing = mutableListOf<String>()
+        if (value.length < 8)                  missing.add("at least 8 characters")
+        if (!value.any { it.isUpperCase() })   missing.add("one uppercase letter (A-Z)")
+        if (!value.any { it.isLowerCase() })   missing.add("one lowercase letter (a-z)")
+        if (!value.any { it.isDigit() })       missing.add("one number (0-9)")
+        if (!value.any { it in SPECIAL_CHARS }) missing.add("one special character (@#\$!%*?&_-)")
+
+        return if (missing.isEmpty()) {
+            ValidationResult.Success
+        } else {
+            ValidationResult.Error("Password needs: ${missing.joinToString(", ")}")
         }
     }
 
