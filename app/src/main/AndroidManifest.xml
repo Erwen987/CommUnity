@@ -58,6 +58,19 @@
             android:name=".view.requestdocument.RequestDocumentActivity"
             android:exported="false" />
 
+        <!-- Reset Password (handles deep link from email) -->
+        <activity
+            android:name=".view.resetpassword.ResetPasswordActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="communitys"
+                    android:host="reset-password" />
+            </intent-filter>
+        </activity>
 
     </application>
 

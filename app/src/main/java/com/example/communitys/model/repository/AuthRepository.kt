@@ -249,10 +249,28 @@ class AuthRepository {
 
     suspend fun resetPassword(email: String): Result<Unit> {
         return try {
-            supabase.auth.resetPasswordForEmail(email)
+            supabase.auth.resetPasswordForEmail(email, "communitys://reset-password")
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(Exception(e.message ?: "Failed to send reset email"))
+        }
+    }
+
+    suspend fun updatePasswordWithSession(accessToken: String, refreshToken: String, newPassword: String): Result<Unit> {
+        return try {
+            supabase.auth.importSession(
+                io.github.jan.supabase.gotrue.user.UserSession(
+                    accessToken  = accessToken,
+                    tokenType    = "bearer",
+                    expiresIn    = 3600L,
+                    refreshToken = refreshToken,
+                    user         = null
+                )
+            )
+            supabase.auth.updateUser { password = newPassword }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(Exception(e.message ?: "Failed to reset password"))
         }
     }
 
