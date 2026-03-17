@@ -30,14 +30,18 @@ class AvatarPickerSheet : BottomSheetDialogFragment() {
     private var _binding: BottomSheetAvatarPickerBinding? = null
     private val binding get() = _binding!!
 
-    // Preset: id → background drawable res
+    // Preset: id → drawable res
     private val presets = listOf(
-        "preset_1" to R.drawable.avatar_bg_1,
-        "preset_2" to R.drawable.avatar_bg_2,
-        "preset_3" to R.drawable.avatar_bg_3,
-        "preset_4" to R.drawable.avatar_bg_4,
-        "preset_5" to R.drawable.avatar_bg_5,
-        "preset_6" to R.drawable.avatar_bg_6
+        "preset_1"  to R.drawable.avatar_preset_1,
+        "preset_2"  to R.drawable.avatar_preset_2,
+        "preset_3"  to R.drawable.avatar_preset_3,
+        "preset_4"  to R.drawable.avatar_preset_4,
+        "preset_5"  to R.drawable.avatar_preset_5,
+        "preset_6"  to R.drawable.avatar_preset_6,
+        "preset_7"  to R.drawable.avatar_preset_7,
+        "preset_8"  to R.drawable.avatar_preset_8,
+        "preset_9"  to R.drawable.avatar_preset_9,
+        "preset_10" to R.drawable.avatar_preset_10
     )
 
     private val imagePickerLauncher = registerForActivityResult(
@@ -130,12 +134,16 @@ class AvatarPickerSheet : BottomSheetDialogFragment() {
 
         // Map preset ID → drawable resource (used when loading the saved avatar)
         fun presetDrawable(presetId: String): Int? = when (presetId) {
-            "preset_1" -> R.drawable.avatar_bg_1
-            "preset_2" -> R.drawable.avatar_bg_2
-            "preset_3" -> R.drawable.avatar_bg_3
-            "preset_4" -> R.drawable.avatar_bg_4
-            "preset_5" -> R.drawable.avatar_bg_5
-            "preset_6" -> R.drawable.avatar_bg_6
+            "preset_1"  -> R.drawable.avatar_preset_1
+            "preset_2"  -> R.drawable.avatar_preset_2
+            "preset_3"  -> R.drawable.avatar_preset_3
+            "preset_4"  -> R.drawable.avatar_preset_4
+            "preset_5"  -> R.drawable.avatar_preset_5
+            "preset_6"  -> R.drawable.avatar_preset_6
+            "preset_7"  -> R.drawable.avatar_preset_7
+            "preset_8"  -> R.drawable.avatar_preset_8
+            "preset_9"  -> R.drawable.avatar_preset_9
+            "preset_10" -> R.drawable.avatar_preset_10
             else -> null
         }
     }
