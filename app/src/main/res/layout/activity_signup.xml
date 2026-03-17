@@ -209,7 +209,7 @@
                     app:boxStrokeWidth="2dp"
                     app:boxStrokeErrorColor="@android:color/holo_red_light"
                     app:errorTextColor="@android:color/holo_red_light"
-                    app:helperText="Min 8 characters · letters and numbers only"
+                    app:helperText="Must have: uppercase, lowercase, number &amp; special char (@#$!%*?&amp;_-)"
                     app:helperTextTextColor="@color/hint_text_color">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -262,11 +262,12 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
-                    <CheckBox
+                    <com.google.android.material.checkbox.MaterialCheckBox
                         android:id="@+id/cbPrivacy"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:buttonTint="@color/primary_blue" />
+                        app:buttonTint="@color/primary_blue"
+                        app:useMaterialThemeColors="false" />
 
                     <TextView
                         android:id="@+id/tvPrivacyText"
