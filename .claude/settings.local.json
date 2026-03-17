@@ -17,7 +17,8 @@
       "Bash(grep -r \"reports\\\\|requests\\\\|users\\\\|rewards\\\\|announcements\" c:UsersJvDownloadsCommUnityWebcommunity-websrc --include=*.js)",
       "Bash(find c:UsersJvDownloadsCommUnityWebss-main -type f \\\\\\(-name *.ts -o -name *.tsx -o -name *.js -o -name *.kt \\\\\\))",
       "Bash(grep -r \"problem\\\\|category\" c:UsersJvAndroidStudioProjectsCommUnity --include=*.kt)",
-      "Bash(del \"c:\\\\Users\\\\Jv\\\\AndroidStudioProjects\\\\CommUnity\\\\app\\\\src\\\\main\\\\res\\\\drawable\\\\checkbox_custom.xml\")"
+      "Bash(del \"c:\\\\Users\\\\Jv\\\\AndroidStudioProjects\\\\CommUnity\\\\app\\\\src\\\\main\\\\res\\\\drawable\\\\checkbox_custom.xml\")",
+      "Read(//c/Users/Jv/.claude/projects/c--Users-Jv-AndroidStudioProjects-CommUnity/561169c7-e838-4d76-9219-a4900795fc9d/tool-results/**)"
     ]
   }
 }

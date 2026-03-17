@@ -5,6 +5,7 @@ import com.example.communitys.model.data.UserModel
 import com.example.communitys.utils.ValidationHelper
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.builtin.Email
+import io.github.jan.supabase.gotrue.providers.builtin.OTP
 import io.github.jan.supabase.gotrue.OtpType
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
@@ -362,6 +363,47 @@ class AuthRepository {
             Result.success(url)
         } catch (e: Exception) {
             Result.failure(Exception("Failed to upload photo: ${e.message}"))
+        }
+    }
+
+    // ── Send OTP for Identity Verification ───────────────────────────────────
+
+    suspend fun sendOtpForVerification(email: String): Result<Unit> {
+        return try {
+            supabase.auth.signInWith(OTP) {
+                this.email = email
+                createUser = false
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(Exception("Failed to send verification code: ${e.message}"))
+        }
+    }
+
+    // ── Verify OTP for Sensitive Action ──────────────────────────────────────
+
+    suspend fun verifyOtpForAction(email: String, otp: String): Result<Unit> {
+        return try {
+            when (val result = ValidationHelper.validateOTP(otp)) {
+                is ValidationHelper.ValidationResult.Error ->
+                    return Result.failure(Exception(result.message))
+                else -> {}
+            }
+            supabase.auth.verifyEmailOtp(
+                type = OtpType.Email.EMAIL,
+                email = email,
+                token = otp
+            )
+            Result.success(Unit)
+        } catch (e: Exception) {
+            val errorMessage = when {
+                e.message?.contains("invalid", ignoreCase = true) == true ->
+                    "Invalid verification code. Please try again."
+                e.message?.contains("expired", ignoreCase = true) == true ->
+                    "Code has expired. Please request a new one."
+                else -> "Verification failed: ${e.message}"
+            }
+            Result.failure(Exception(errorMessage))
         }
     }
 

@@ -6,15 +6,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import coil.load
 import coil.transform.CircleCropTransformation
 import com.example.communitys.R
 import com.example.communitys.databinding.FragmentProfileBinding
+import com.example.communitys.utils.ValidationHelper
 import com.example.communitys.view.login.LoginActivity
 import com.example.communitys.viewmodel.ProfileViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -136,8 +140,12 @@ class ProfileFragment : Fragment() {
             Toast.makeText(requireContext(), "Rewards feature coming soon", Toast.LENGTH_SHORT).show()
         }
 
-        binding.btnChangePassword.setOnClickListener { showChangePasswordDialog() }
-        binding.btnDeleteAccount.setOnClickListener  { showDeleteAccountDialog() }
+        binding.btnChangePassword.setOnClickListener {
+            showOtpVerificationDialog { showChangePasswordDialog() }
+        }
+        binding.btnDeleteAccount.setOnClickListener {
+            showOtpVerificationDialog { showDeleteAccountDialog() }
+        }
         binding.btnLogOut.setOnClickListener         { showLogoutDialog() }
     }
 
@@ -196,6 +204,76 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // ── OTP Verification Dialog ───────────────────────────────────────────────
+
+    private fun showOtpVerificationDialog(onVerified: () -> Unit) {
+        viewModel.sendOtp()
+
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_otp_verify, null)
+
+        val tilOtp      = dialogView.findViewById<TextInputLayout>(R.id.tilOtp)
+        val etOtp       = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOtp)
+        val tvEmailInfo = dialogView.findViewById<TextView>(R.id.tvOtpEmailInfo)
+        val tvResend    = dialogView.findViewById<TextView>(R.id.tvOtpResend)
+
+        val email = viewModel.userProfile.value?.email ?: ""
+        tvEmailInfo.text = "A 6-digit code has been sent to $email"
+
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
+            .setPositiveButton("Verify", null)
+            .setNegativeButton("Cancel", null)
+            .create()
+
+        var otpObserver: Observer<ProfileViewModel.OtpState>? = null
+
+        otpObserver = Observer { state ->
+            when (state) {
+                is ProfileViewModel.OtpState.Verifying -> {
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
+                }
+                is ProfileViewModel.OtpState.Verified -> {
+                    viewModel.otpState.removeObserver(otpObserver!!)
+                    viewModel.resetOtpState()
+                    dialog.dismiss()
+                    onVerified()
+                }
+                is ProfileViewModel.OtpState.Error -> {
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = true
+                    tilOtp.error = state.message
+                }
+                else -> {}
+            }
+        }
+
+        tvResend.setOnClickListener {
+            viewModel.sendOtp()
+            tilOtp.error = null
+            Toast.makeText(requireContext(), "Code resent to $email", Toast.LENGTH_SHORT).show()
+        }
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val otp = etOtp.text.toString().trim()
+                tilOtp.error = null
+                if (otp.length != 6 || !otp.all { it.isDigit() }) {
+                    tilOtp.error = "Enter the 6-digit code sent to your email"
+                    return@setOnClickListener
+                }
+                viewModel.verifyOtp(otp)
+            }
+            viewModel.otpState.observe(viewLifecycleOwner, otpObserver)
+        }
+
+        dialog.setOnDismissListener {
+            otpObserver?.let { viewModel.otpState.removeObserver(it) }
+            viewModel.resetOtpState()
+        }
+
+        dialog.show()
+    }
+
     // ── Change Password Dialog ────────────────────────────────────────────────
 
     private fun showChangePasswordDialog() {
@@ -215,27 +293,23 @@ class ProfileFragment : Fragment() {
 
         dialog.show()
 
-        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             val newPw     = etNew.text.toString()
             val confirmPw = etConfirm.text.toString()
             tilNew.error     = null
             tilConfirm.error = null
 
-            when {
-                newPw.isEmpty() ->
-                { tilNew.error = "Please enter a new password"; return@setOnClickListener }
-                newPw.length < 8 ->
-                { tilNew.error = "Minimum 8 characters required"; return@setOnClickListener }
-                !newPw.matches(Regex("^[A-Za-z0-9]+\$")) ->
-                { tilNew.error = "Letters and numbers only — no symbols"; return@setOnClickListener }
-                !newPw.any { it.isLetter() } ->
-                { tilNew.error = "Must contain at least one letter"; return@setOnClickListener }
-                !newPw.any { it.isDigit() } ->
-                { tilNew.error = "Must contain at least one number"; return@setOnClickListener }
-                confirmPw.isEmpty() ->
-                { tilConfirm.error = "Please confirm your password"; return@setOnClickListener }
-                newPw != confirmPw ->
-                { tilConfirm.error = "Passwords do not match"; return@setOnClickListener }
+            with(ValidationHelper) {
+                val pwResult = validatePassword(newPw)
+                if (pwResult is ValidationHelper.ValidationResult.Error) {
+                    tilNew.error = pwResult.message
+                    return@setOnClickListener
+                }
+                val confirmResult = validateConfirmPassword(newPw, confirmPw)
+                if (confirmResult is ValidationHelper.ValidationResult.Error) {
+                    tilConfirm.error = confirmResult.message
+                    return@setOnClickListener
+                }
             }
 
             viewModel.changePassword(newPw)
@@ -260,7 +334,7 @@ class ProfileFragment : Fragment() {
 
         dialog.show()
 
-        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             val reason = etReason.text.toString().trim()
             tilReason.error = null
 
@@ -292,7 +366,7 @@ class ProfileFragment : Fragment() {
 
         dialog.show()
 
-        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             dialog.dismiss()
             viewModel.deleteAccount(reason)
         }
