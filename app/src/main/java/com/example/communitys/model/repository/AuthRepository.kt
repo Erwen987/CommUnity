@@ -5,7 +5,6 @@ import com.example.communitys.model.data.UserModel
 import com.example.communitys.utils.ValidationHelper
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.builtin.Email
-import io.github.jan.supabase.gotrue.providers.builtin.OTP
 import io.github.jan.supabase.gotrue.OtpType
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
@@ -367,13 +366,11 @@ class AuthRepository {
     }
 
     // ── Send OTP for Identity Verification ───────────────────────────────────
+    // Uses resetPasswordForEmail which sends a 6-digit code (not a magic link)
 
     suspend fun sendOtpForVerification(email: String): Result<Unit> {
         return try {
-            supabase.auth.signInWith(OTP) {
-                this.email = email
-                createUser = false
-            }
+            supabase.auth.resetPasswordForEmail(email)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(Exception("Failed to send verification code: ${e.message}"))
@@ -390,7 +387,7 @@ class AuthRepository {
                 else -> {}
             }
             supabase.auth.verifyEmailOtp(
-                type = OtpType.Email.EMAIL,
+                type = OtpType.Email.RECOVERY,
                 email = email,
                 token = otp
             )
@@ -409,26 +406,49 @@ class AuthRepository {
 
     // ── Change Password ───────────────────────────────────────────────────────
 
-    suspend fun changePassword(newPassword: String): Result<Unit> {
+    suspend fun changePassword(currentPassword: String, newPassword: String): Result<Unit> {
         return try {
+            val email = supabase.auth.currentUserOrNull()?.email
+                ?: throw Exception("Not authenticated")
+
+            // Verify current password
+            try {
+                supabase.auth.signInWith(Email) {
+                    this.email = email
+                    this.password = currentPassword
+                }
+            } catch (e: Exception) {
+                throw Exception("Current password is incorrect")
+            }
+
+            // Update to new password
             supabase.auth.updateUser {
                 password = newPassword
             }
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(Exception("Failed to change password: ${e.message}"))
+            Result.failure(Exception(e.message ?: "Failed to change password"))
         }
     }
 
     // ── Delete Account ────────────────────────────────────────────────────────
-    // Logs deletion to deleted_accounts table, then deletes from users table.
-    // The auth user deletion must be done manually by admin or will happen automatically
-    // when the user tries to log in again (orphaned auth user detection).
 
-    suspend fun deleteAccount(reason: String): Result<Unit> {
+    suspend fun deleteAccount(currentPassword: String, reason: String): Result<Unit> {
         return try {
-            val userId = supabase.auth.currentUserOrNull()?.id?.toString()
+            val currentUser = supabase.auth.currentUserOrNull()
                 ?: throw Exception("Not authenticated")
+            val userId = currentUser.id.toString()
+            val email = currentUser.email ?: throw Exception("Not authenticated")
+
+            // Verify current password
+            try {
+                supabase.auth.signInWith(Email) {
+                    this.email = email
+                    this.password = currentPassword
+                }
+            } catch (e: Exception) {
+                throw Exception("Password is incorrect. Account not deleted.")
+            }
 
             android.util.Log.d("AuthRepository", "Deleting account for user: $userId")
 

@@ -28,9 +28,6 @@ class ProfileViewModel : ViewModel() {
     private val _avatarUpdateState = MutableLiveData<ActionState>()
     val avatarUpdateState: LiveData<ActionState> = _avatarUpdateState
 
-    private val _otpState = MutableLiveData<OtpState>()
-    val otpState: LiveData<OtpState> = _otpState
-
     init {
         loadUserProfile()
     }
@@ -62,10 +59,10 @@ class ProfileViewModel : ViewModel() {
 
     // ── Change Password ───────────────────────────────────────────────────────
 
-    fun changePassword(newPassword: String) {
+    fun changePassword(currentPassword: String, newPassword: String) {
         _changePasswordState.value = ActionState.Loading
         viewModelScope.launch {
-            val result = authRepository.changePassword(newPassword)
+            val result = authRepository.changePassword(currentPassword, newPassword)
             result.onSuccess {
                 _changePasswordState.value = ActionState.Success
             }.onFailure { e ->
@@ -76,48 +73,16 @@ class ProfileViewModel : ViewModel() {
 
     // ── Delete Account ────────────────────────────────────────────────────────
 
-    fun deleteAccount(reason: String) {
+    fun deleteAccount(currentPassword: String, reason: String) {
         _deleteAccountState.value = ActionState.Loading
         viewModelScope.launch {
-            val result = authRepository.deleteAccount(reason)
+            val result = authRepository.deleteAccount(currentPassword, reason)
             result.onSuccess {
                 _deleteAccountState.value = ActionState.Success
             }.onFailure { e ->
                 _deleteAccountState.value = ActionState.Error(e.message ?: "Failed to delete account")
             }
         }
-    }
-
-    // ── OTP Verification ─────────────────────────────────────────────────────
-
-    fun sendOtp() {
-        val email = userProfile.value?.email ?: return
-        _otpState.value = OtpState.Sending
-        viewModelScope.launch {
-            val result = authRepository.sendOtpForVerification(email)
-            result.onSuccess {
-                _otpState.value = OtpState.Sent
-            }.onFailure { e ->
-                _otpState.value = OtpState.Error(e.message ?: "Failed to send code")
-            }
-        }
-    }
-
-    fun verifyOtp(otp: String) {
-        val email = userProfile.value?.email ?: return
-        _otpState.value = OtpState.Verifying
-        viewModelScope.launch {
-            val result = authRepository.verifyOtpForAction(email, otp)
-            result.onSuccess {
-                _otpState.value = OtpState.Verified
-            }.onFailure { e ->
-                _otpState.value = OtpState.Error(e.message ?: "Verification failed")
-            }
-        }
-    }
-
-    fun resetOtpState() {
-        _otpState.value = OtpState.Idle
     }
 
     // ── Update Avatar ─────────────────────────────────────────────────────────
@@ -198,12 +163,4 @@ class ProfileViewModel : ViewModel() {
         data class Error(val message: String) : ActionState()
     }
 
-    sealed class OtpState {
-        object Idle : OtpState()
-        object Sending : OtpState()
-        object Sent : OtpState()
-        object Verifying : OtpState()
-        object Verified : OtpState()
-        data class Error(val message: String) : OtpState()
-    }
 }

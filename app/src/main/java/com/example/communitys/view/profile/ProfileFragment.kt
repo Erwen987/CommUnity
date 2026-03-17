@@ -6,13 +6,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import coil.load
 import coil.transform.CircleCropTransformation
@@ -140,12 +138,8 @@ class ProfileFragment : Fragment() {
             Toast.makeText(requireContext(), "Rewards feature coming soon", Toast.LENGTH_SHORT).show()
         }
 
-        binding.btnChangePassword.setOnClickListener {
-            showOtpVerificationDialog { showChangePasswordDialog() }
-        }
-        binding.btnDeleteAccount.setOnClickListener {
-            showOtpVerificationDialog { showDeleteAccountDialog() }
-        }
+        binding.btnChangePassword.setOnClickListener { showChangePasswordDialog() }
+        binding.btnDeleteAccount.setOnClickListener  { showDeleteAccountDialog() }
         binding.btnLogOut.setOnClickListener         { showLogoutDialog() }
     }
 
@@ -204,82 +198,14 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    // ── OTP Verification Dialog ───────────────────────────────────────────────
-
-    private fun showOtpVerificationDialog(onVerified: () -> Unit) {
-        viewModel.sendOtp()
-
-        val dialogView = LayoutInflater.from(requireContext())
-            .inflate(R.layout.dialog_otp_verify, null)
-
-        val tilOtp      = dialogView.findViewById<TextInputLayout>(R.id.tilOtp)
-        val etOtp       = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOtp)
-        val tvEmailInfo = dialogView.findViewById<TextView>(R.id.tvOtpEmailInfo)
-        val tvResend    = dialogView.findViewById<TextView>(R.id.tvOtpResend)
-
-        val email = viewModel.userProfile.value?.email ?: ""
-        tvEmailInfo.text = "A 6-digit code has been sent to $email"
-
-        val dialog = MaterialAlertDialogBuilder(requireContext())
-            .setView(dialogView)
-            .setPositiveButton("Verify", null)
-            .setNegativeButton("Cancel", null)
-            .create()
-
-        var otpObserver: Observer<ProfileViewModel.OtpState>? = null
-
-        otpObserver = Observer { state ->
-            when (state) {
-                is ProfileViewModel.OtpState.Verifying -> {
-                    dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
-                }
-                is ProfileViewModel.OtpState.Verified -> {
-                    viewModel.otpState.removeObserver(otpObserver!!)
-                    viewModel.resetOtpState()
-                    dialog.dismiss()
-                    onVerified()
-                }
-                is ProfileViewModel.OtpState.Error -> {
-                    dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = true
-                    tilOtp.error = state.message
-                }
-                else -> {}
-            }
-        }
-
-        tvResend.setOnClickListener {
-            viewModel.sendOtp()
-            tilOtp.error = null
-            Toast.makeText(requireContext(), "Code resent to $email", Toast.LENGTH_SHORT).show()
-        }
-
-        dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                val otp = etOtp.text.toString().trim()
-                tilOtp.error = null
-                if (otp.length != 6 || !otp.all { it.isDigit() }) {
-                    tilOtp.error = "Enter the 6-digit code sent to your email"
-                    return@setOnClickListener
-                }
-                viewModel.verifyOtp(otp)
-            }
-            viewModel.otpState.observe(viewLifecycleOwner, otpObserver)
-        }
-
-        dialog.setOnDismissListener {
-            otpObserver?.let { viewModel.otpState.removeObserver(it) }
-            viewModel.resetOtpState()
-        }
-
-        dialog.show()
-    }
-
     // ── Change Password Dialog ────────────────────────────────────────────────
 
     private fun showChangePasswordDialog() {
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_change_password, null)
 
+        val tilCurrent = dialogView.findViewById<TextInputLayout>(R.id.tilCurrentPassword)
+        val etCurrent  = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etCurrentPassword)
         val tilNew     = dialogView.findViewById<TextInputLayout>(R.id.tilNewPassword)
         val etNew      = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etNewPassword)
         val tilConfirm = dialogView.findViewById<TextInputLayout>(R.id.tilConfirmPassword)
@@ -292,12 +218,20 @@ class ProfileFragment : Fragment() {
             .create()
 
         dialog.show()
+        dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val currentPw = etCurrent.text.toString()
             val newPw     = etNew.text.toString()
             val confirmPw = etConfirm.text.toString()
+            tilCurrent.error = null
             tilNew.error     = null
             tilConfirm.error = null
+
+            if (currentPw.isEmpty()) {
+                tilCurrent.error = "Enter your current password"
+                return@setOnClickListener
+            }
 
             with(ValidationHelper) {
                 val pwResult = validatePassword(newPw)
@@ -312,19 +246,21 @@ class ProfileFragment : Fragment() {
                 }
             }
 
-            viewModel.changePassword(newPw)
+            viewModel.changePassword(currentPw, newPw)
             dialog.dismiss()
         }
     }
 
-    // ── Delete Account Dialog — Step 1: Reason ────────────────────────────────
+    // ── Delete Account Dialog ─────────────────────────────────────────────────
 
     private fun showDeleteAccountDialog() {
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_delete_account, null)
 
-        val tilReason = dialogView.findViewById<TextInputLayout>(R.id.tilReason)
-        val etReason  = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etReason)
+        val tilPassword = dialogView.findViewById<TextInputLayout>(R.id.tilPassword)
+        val etPassword  = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etPassword)
+        val tilReason   = dialogView.findViewById<TextInputLayout>(R.id.tilReason)
+        val etReason    = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etReason)
 
         val dialog = MaterialAlertDialogBuilder(requireContext())
             .setView(dialogView)
@@ -333,12 +269,17 @@ class ProfileFragment : Fragment() {
             .create()
 
         dialog.show()
+        dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val reason = etReason.text.toString().trim()
-            tilReason.error = null
+            val password = etPassword.text.toString()
+            val reason   = etReason.text.toString().trim()
+            tilPassword.error = null
+            tilReason.error   = null
 
             when {
+                password.isEmpty() ->
+                { tilPassword.error = "Enter your password to confirm"; return@setOnClickListener }
                 reason.isEmpty() ->
                 { tilReason.error = "Please provide a reason"; return@setOnClickListener }
                 reason.length < 5 ->
@@ -346,13 +287,13 @@ class ProfileFragment : Fragment() {
             }
 
             dialog.dismiss()
-            showFinalDeleteConfirmation(reason)
+            showFinalDeleteConfirmation(password, reason)
         }
     }
 
-    // ── Delete Account Dialog — Step 2: Final Confirm ─────────────────────────
+    // ── Delete Account — Final Confirm ────────────────────────────────────────
 
-    private fun showFinalDeleteConfirmation(reason: String) {
+    private fun showFinalDeleteConfirmation(password: String, reason: String) {
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_delete_confirm, null)
 
@@ -368,7 +309,7 @@ class ProfileFragment : Fragment() {
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             dialog.dismiss()
-            viewModel.deleteAccount(reason)
+            viewModel.deleteAccount(password, reason)
         }
     }
 
