@@ -154,12 +154,12 @@ class ProfileFragment : Fragment() {
                 binding.ivProfilePhoto.setImageResource(R.drawable.ic_profile)
             }
             avatarUrl.startsWith("preset_") -> {
-                // Preset: show colored circle overlay
+                // Preset: load directly into CircleImageView so it's circular and not cropped
                 val drawableRes = AvatarPickerSheet.presetDrawable(avatarUrl)
                 if (drawableRes != null) {
-                    binding.ivProfilePhoto.visibility  = View.GONE
-                    binding.flPresetAvatar.visibility  = View.VISIBLE
-                    binding.ivPresetCircle.setImageResource(drawableRes)
+                    binding.flPresetAvatar.visibility  = View.GONE
+                    binding.ivProfilePhoto.visibility  = View.VISIBLE
+                    binding.ivProfilePhoto.setImageResource(drawableRes)
                 }
             }
             else -> {

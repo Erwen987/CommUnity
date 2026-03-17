@@ -40,13 +40,13 @@
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/ivProfilePhoto"
-                    android:layout_width="110dp"
-                    android:layout_height="110dp"
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
                     android:src="@drawable/ic_profile"
                     app:civ_border_width="3dp"
                     app:civ_border_color="@android:color/white" />
 
-                <!-- Preset avatar overlay (shown for preset avatars) -->
+                <!-- Preset avatar (kept for layout binding compatibility, always gone now) -->
                 <FrameLayout
                     android:id="@+id/flPresetAvatar"
                     android:layout_width="110dp"
@@ -57,14 +57,7 @@
                         android:id="@+id/ivPresetCircle"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:scaleType="fitXY" />
-
-                    <ImageView
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_profile"
-                        android:alpha="0.9" />
+                        android:scaleType="centerCrop" />
 
                 </FrameLayout>
 
