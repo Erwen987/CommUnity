@@ -105,7 +105,7 @@ class AvatarPickerSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.rvAvatarPresets.layoutManager = GridLayoutManager(requireContext(), 3)
+        binding.rvAvatarPresets.layoutManager = GridLayoutManager(requireContext(), 5)
         binding.rvAvatarPresets.adapter = PresetAdapter(presets) { presetId ->
             listener?.onPresetSelected(presetId)
             dismiss()
