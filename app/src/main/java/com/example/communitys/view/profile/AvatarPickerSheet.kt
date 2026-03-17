@@ -2,6 +2,7 @@ package com.example.communitys.view.profile
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -17,6 +18,8 @@ import com.example.communitys.R
 import com.example.communitys.databinding.BottomSheetAvatarPickerBinding
 import com.example.communitys.databinding.ItemAvatarPresetBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.yalantis.ucrop.UCrop
+import java.io.File
 
 class AvatarPickerSheet : BottomSheetDialogFragment() {
 
@@ -47,8 +50,15 @@ class AvatarPickerSheet : BottomSheetDialogFragment() {
     private val imagePickerLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        if (uri != null) {
-            listener?.onPhotoSelected(uri)
+        if (uri != null) launchCropper(uri)
+    }
+
+    private val cropLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val croppedUri = UCrop.getOutput(result.data ?: return@registerForActivityResult)
+        if (result.resultCode == android.app.Activity.RESULT_OK && croppedUri != null) {
+            listener?.onPhotoSelected(croppedUri)
             dismiss()
         }
     }
@@ -58,6 +68,30 @@ class AvatarPickerSheet : BottomSheetDialogFragment() {
     ) { granted ->
         if (granted) imagePickerLauncher.launch("image/*")
         else Toast.makeText(requireContext(), "Permission required to pick a photo", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun launchCropper(sourceUri: Uri) {
+        val destFile = File(requireContext().cacheDir, "cropped_avatar_${System.currentTimeMillis()}.jpg")
+        val destUri  = Uri.fromFile(destFile)
+
+        val options = UCrop.Options().apply {
+            setCircleDimmedLayer(true)
+            setShowCropGrid(false)
+            setShowCropFrame(false)
+            setToolbarColor(0xFF1E3A5F.toInt())
+            setStatusBarColor(0xFF1E3A5F.toInt())
+            setToolbarWidgetColor(Color.WHITE)
+            setToolbarTitle("Crop Photo")
+            setCompressionQuality(90)
+        }
+
+        val intent = UCrop.of(sourceUri, destUri)
+            .withAspectRatio(1f, 1f)
+            .withMaxResultSize(512, 512)
+            .withOptions(options)
+            .getIntent(requireContext())
+
+        cropLauncher.launch(intent)
     }
 
     override fun onCreateView(
