@@ -133,7 +133,7 @@ class ProfileFragment : Fragment() {
         }
 
         binding.btnClaimReward.setOnClickListener {
-            Toast.makeText(requireContext(), "Rewards feature coming soon", Toast.LENGTH_SHORT).show()
+            showSuccessSnackbar("Rewards feature coming soon!")
         }
 
         binding.btnChangePassword.setOnClickListener { showChangePasswordDialog() }
@@ -194,7 +194,7 @@ class ProfileFragment : Fragment() {
                 .openInputStream(uri)?.readBytes() ?: return
             viewModel.uploadAndSaveAvatar(bytes)
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Could not read photo", Toast.LENGTH_SHORT).show()
+            showErrorSnackbar("Could not read photo")
         }
     }
 
