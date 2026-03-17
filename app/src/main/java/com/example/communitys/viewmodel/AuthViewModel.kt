@@ -48,6 +48,18 @@ class AuthViewModel : ViewModel() {
             return
         }
 
+        // Block admin and official accounts from logging into the resident app
+        val blockedEmails = listOf(
+            "pandahuntergamer09@gmail.com",  // admin
+            "jerwenbacani80@gmail.com"       // official
+        )
+        if (email.trim().lowercase() in blockedEmails) {
+            _loginState.value = AuthState.Error(
+                "This account is for the admin/official portal only. Please use the web portal to log in."
+            )
+            return
+        }
+
         // Clear errors and start loading
         _validationErrors.value = ValidationErrors()
         _loginState.value = AuthState.Loading
@@ -108,6 +120,18 @@ class AuthViewModel : ViewModel() {
 
         if (errors.hasErrors()) {
             _validationErrors.value = errors
+            return
+        }
+
+        // Block admin and official accounts from registering in the resident app
+        val blockedEmails = listOf(
+            "pandahuntergamer09@gmail.com",
+            "jerwenbacani80@gmail.com"
+        )
+        if (email.trim().lowercase() in blockedEmails) {
+            val errors2 = ValidationErrors()
+            errors2.emailError = "This email is reserved for the admin/official portal."
+            _validationErrors.value = errors2
             return
         }
 
