@@ -53,6 +53,7 @@ dependencies {
 
     // Circle ImageView for profile photo
     implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("com.github.yalantis:ucrop:2.2.8")
 
     // GridLayout for rewards grid - ADD THIS
     implementation("androidx.gridlayout:gridlayout:1.0.0")

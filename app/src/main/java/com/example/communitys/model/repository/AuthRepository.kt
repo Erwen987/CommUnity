@@ -376,7 +376,8 @@ class AuthRepository {
         return try {
             val path = "$userId/avatar.jpg"
             supabase.storage.from("avatars").upload(path, imageBytes, upsert = true)
-            val url = supabase.storage.from("avatars").publicUrl(path)
+            // Append timestamp so Coil doesn't serve the old cached image
+            val url = supabase.storage.from("avatars").publicUrl(path) + "?t=${System.currentTimeMillis()}"
             Result.success(url)
         } catch (e: Exception) {
             Result.failure(Exception("Failed to upload photo: ${e.message}"))

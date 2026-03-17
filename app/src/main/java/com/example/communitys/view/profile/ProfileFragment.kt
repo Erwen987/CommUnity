@@ -170,6 +170,8 @@ class ProfileFragment : Fragment() {
                     transformations(CircleCropTransformation())
                     placeholder(R.drawable.ic_profile)
                     error(R.drawable.ic_profile)
+                    memoryCachePolicy(coil.request.CachePolicy.DISABLED)
+                    diskCachePolicy(coil.request.CachePolicy.DISABLED)
                 }
             }
         }
