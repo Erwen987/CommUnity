@@ -37,7 +37,8 @@
       "Bash(cp \"$SRC\" \"$BASE/$dir/ic_launcher.png\")",
       "Bash(cp \"$SRC\" \"$BASE/$dir/ic_launcher_round.png\")",
       "Bash(echo \"Copied to $dir\")",
-      "Read(//c/Users/Jv/Downloads/Avatars/**)"
+      "Read(//c/Users/Jv/Downloads/Avatars/**)",
+      "Bash(find c:/Users/Jv/Downloads/CommUnityWeb/ -name *.html)"
     ]
   }
 }
