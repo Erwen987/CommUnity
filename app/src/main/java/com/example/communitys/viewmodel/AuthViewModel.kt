@@ -24,6 +24,10 @@ class AuthViewModel : ViewModel() {
     private val _validationErrors = MutableLiveData<ValidationErrors>()
     val validationErrors: LiveData<ValidationErrors> = _validationErrors
 
+    // LiveData for forgot password state
+    private val _resetPasswordState = MutableLiveData<AuthState>()
+    val resetPasswordState: LiveData<AuthState> = _resetPasswordState
+
     fun login(email: String, password: String) {
         // Validate inputs
         val emailValidation = ValidationHelper.validateEmail(email)
@@ -130,23 +134,21 @@ class AuthViewModel : ViewModel() {
 
     fun resetPassword(email: String) {
         val emailValidation = ValidationHelper.validateEmail(email)
-        
+
         if (emailValidation is ValidationHelper.ValidationResult.Error) {
-            val errors = ValidationErrors()
-            errors.emailError = emailValidation.message
-            _validationErrors.value = errors
+            _resetPasswordState.value = AuthState.Error(emailValidation.message)
             return
         }
 
-        _loginState.value = AuthState.Loading
+        _resetPasswordState.value = AuthState.Loading
 
         viewModelScope.launch {
             val result = authRepository.resetPassword(email.trim())
-            
+
             result.onSuccess {
-                _loginState.value = AuthState.Success("Password reset email sent!")
+                _resetPasswordState.value = AuthState.Success("Password reset email sent! Please check your inbox.")
             }.onFailure { exception ->
-                _loginState.value = AuthState.Error(exception.message ?: "Failed to send reset email")
+                _resetPasswordState.value = AuthState.Error(exception.message ?: "Failed to send reset email")
             }
         }
     }

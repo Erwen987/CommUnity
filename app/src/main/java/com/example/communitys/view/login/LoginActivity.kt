@@ -2,8 +2,10 @@ package com.example.communitys.view.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.communitys.view.signup.SignUpActivity
@@ -12,6 +14,7 @@ import com.example.communitys.R
 import com.example.communitys.SupabaseAuthHelper
 import com.example.communitys.viewmodel.AuthViewModel
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
@@ -54,6 +57,8 @@ class LoginActivity : AppCompatActivity() {
         setupClickListeners()
     }
 
+    private var forgotPasswordDialog: AlertDialog? = null
+
     private fun setupObservers() {
         // Observe validation errors
         viewModel.validationErrors.observe(this) { errors ->
@@ -64,6 +69,30 @@ class LoginActivity : AppCompatActivity() {
             when {
                 errors.emailError != null -> etEmail.requestFocus()
                 errors.passwordError != null -> etPassword.requestFocus()
+            }
+        }
+
+        // Observe reset password state
+        viewModel.resetPasswordState.observe(this) { state ->
+            when (state) {
+                is AuthViewModel.AuthState.Loading -> {
+                    forgotPasswordDialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
+                    forgotPasswordDialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.text = "Sending..."
+                }
+                is AuthViewModel.AuthState.Success -> {
+                    forgotPasswordDialog?.dismiss()
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("Email Sent")
+                        .setMessage("A password reset link has been sent to your email. Please check your inbox.")
+                        .setPositiveButton("OK", null)
+                        .show()
+                }
+                is AuthViewModel.AuthState.Error -> {
+                    forgotPasswordDialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = true
+                    forgotPasswordDialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.text = "Send"
+                    val tilEmail = forgotPasswordDialog?.findViewById<TextInputLayout>(R.id.tilForgotEmail)
+                    tilEmail?.error = state.message
+                }
             }
         }
 
@@ -132,16 +161,30 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun handleForgotPassword() {
-        val email = etEmail.text.toString()
-        tilEmail.error = null
-        
-        tvForgotPassword.isEnabled = false
-        viewModel.resetPassword(email)
-        
-        // Re-enable after a delay
-        tvForgotPassword.postDelayed({
-            tvForgotPassword.isEnabled = true
-        }, 3000)
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_forgot_password, null)
+        val tilEmail = dialogView.findViewById<TextInputLayout>(R.id.tilForgotEmail)
+        val etEmail  = dialogView.findViewById<TextInputEditText>(R.id.etForgotEmail)
+
+        // Pre-fill email if already typed in login field
+        val prefill = this.etEmail.text.toString()
+        if (prefill.isNotEmpty()) etEmail.setText(prefill)
+
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogView)
+            .setPositiveButton("Send", null)
+            .setNegativeButton("Cancel", null)
+            .create()
+
+        dialog.show()
+        dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        forgotPasswordDialog = dialog
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            tilEmail.error = null
+            viewModel.resetPassword(etEmail.text.toString())
+        }
+
+        dialog.setOnDismissListener { forgotPasswordDialog = null }
     }
 
     private fun navigateToWelcome() {
