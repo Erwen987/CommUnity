@@ -1,15 +1,16 @@
 package com.example.communitys.view.profile
 
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import coil.load
@@ -20,6 +21,7 @@ import com.example.communitys.utils.ValidationHelper
 import com.example.communitys.view.login.LoginActivity
 import com.example.communitys.viewmodel.ProfileViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 
 class ProfileFragment : Fragment() {
@@ -75,7 +77,7 @@ class ProfileFragment : Fragment() {
                 is ProfileViewModel.LogoutState.Error -> {
                     binding.btnLogOut.isEnabled = true
                     binding.btnLogOut.text = "LOG OUT"
-                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                    showErrorSnackbar(state.message)
                 }
             }
         }
@@ -83,9 +85,9 @@ class ProfileFragment : Fragment() {
         viewModel.changePasswordState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is ProfileViewModel.ActionState.Success ->
-                    showSuccessToast("✅ Password changed successfully!")
+                    showSuccessSnackbar("Password changed successfully!")
                 is ProfileViewModel.ActionState.Error ->
-                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
+                    showErrorSnackbar(state.message)
                 else -> {}
             }
         }
@@ -93,15 +95,11 @@ class ProfileFragment : Fragment() {
         viewModel.deleteAccountState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is ProfileViewModel.ActionState.Success -> {
-                    Toast.makeText(
-                        requireContext(),
-                        "Your account has been deleted. You may now register in a new barangay.",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    showSuccessSnackbar("Account deleted. You may register in a new barangay.")
                     navigateToLogin()
                 }
                 is ProfileViewModel.ActionState.Error ->
-                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
+                    showErrorSnackbar(state.message)
                 else -> {}
             }
         }
@@ -109,9 +107,9 @@ class ProfileFragment : Fragment() {
         viewModel.avatarUpdateState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is ProfileViewModel.ActionState.Success ->
-                    showSuccessToast("✅ Avatar updated!")
+                    showSuccessSnackbar("Avatar updated!")
                 is ProfileViewModel.ActionState.Error ->
-                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
+                    showErrorSnackbar(state.message)
                 else -> {}
             }
         }
@@ -328,8 +326,26 @@ class ProfileFragment : Fragment() {
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private fun showSuccessToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    private fun showSuccessSnackbar(message: String) {
+        val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT)
+        snackbar.setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.snackbar_success))
+        snackbar.setTextColor(Color.WHITE)
+        snackbar.setActionTextColor(Color.WHITE)
+        val tv = snackbar.view.findViewById<android.widget.TextView>(
+            com.google.android.material.R.id.snackbar_text
+        )
+        tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_check_circle, 0, 0, 0)
+        tv.compoundDrawablePadding = 16
+        snackbar.show()
+    }
+
+    private fun showErrorSnackbar(message: String) {
+        val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        snackbar.setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.snackbar_error))
+        snackbar.setTextColor(Color.WHITE)
+        snackbar.setAction("OK") { snackbar.dismiss() }
+        snackbar.setActionTextColor(Color.WHITE)
+        snackbar.show()
     }
 
     private fun navigateToLogin() {

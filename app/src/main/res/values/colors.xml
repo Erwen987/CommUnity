@@ -11,4 +11,7 @@
     <color name="input_background">#F5F5F5</color>
     <color name="input_text_color">#000000</color>
     <color name="hint_text_color">#666666</color>
+
+    <color name="snackbar_success">#2E7D32</color>
+    <color name="snackbar_error">#C62828</color>
 </resources>
