@@ -30,7 +30,13 @@
       "Bash(for density:*)",
       "Bash(rm -f \"$RES/$density/ic_launcher.webp\")",
       "Bash(rm -f \"$RES/$density/ic_launcher_round.webp\")",
-      "Read(//c/Users/Jv/AndroidStudioProjects/CommUnity/$RES/**)"
+      "Read(//c/Users/Jv/AndroidStudioProjects/CommUnity/$RES/**)",
+      "Bash(SRC=\"c:/Users/Jv/AndroidStudioProjects/CommUnity/app/src/main/res/drawable/communitylogoicon.png\")",
+      "Bash(BASE=\"c:/Users/Jv/AndroidStudioProjects/CommUnity/app/src/main/res\")",
+      "Bash(for dir:*)",
+      "Bash(cp \"$SRC\" \"$BASE/$dir/ic_launcher.png\")",
+      "Bash(cp \"$SRC\" \"$BASE/$dir/ic_launcher_round.png\")",
+      "Bash(echo \"Copied to $dir\")"
     ]
   }
 }
