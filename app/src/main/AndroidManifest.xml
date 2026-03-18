@@ -6,6 +6,11 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"
+        tools:ignore="ScopedStorage" />
 
 
     <application
@@ -51,6 +56,11 @@
         <!-- Report Issue -->
         <activity
             android:name=".view.reportissue.ReportIssueActivity"
+            android:exported="false" />
+
+        <!-- Map Picker -->
+        <activity
+            android:name=".view.reportissue.MapPickerActivity"
             android:exported="false" />
 
         <!-- Request Document -->

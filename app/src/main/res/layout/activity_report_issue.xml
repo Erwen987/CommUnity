@@ -236,32 +236,47 @@
                     <androidx.cardview.widget.CardView
                         android:id="@+id/cvMap"
                         android:layout_width="match_parent"
-                        android:layout_height="150dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         app:cardCornerRadius="12dp"
-                        app:cardElevation="2dp">
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/input_background">
 
-                        <FrameLayout
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent">
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="20dp">
 
-                            <!-- Placeholder for map -->
                             <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:scaleType="centerCrop"
-                                android:src="@android:color/darker_gray" />
+                                android:id="@+id/ivMapPin"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:src="@android:drawable/ic_menu_mylocation"
+                                app:tint="@color/primary_blue" />
 
                             <TextView
+                                android:id="@+id/tvMapStatus"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center"
+                                android:layout_marginTop="8dp"
                                 android:text="Tap to select location"
-                                android:textColor="@android:color/white"
+                                android:textColor="@color/hint_text_color"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
 
-                        </FrameLayout>
+                            <TextView
+                                android:id="@+id/tvMapCoords"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text=""
+                                android:textColor="@color/primary_blue"
+                                android:textSize="12sp"
+                                android:visibility="gone" />
+
+                        </LinearLayout>
 
                     </androidx.cardview.widget.CardView>
 

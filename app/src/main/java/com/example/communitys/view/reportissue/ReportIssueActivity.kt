@@ -1,6 +1,8 @@
 package com.example.communitys.view.reportissue
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -29,6 +31,24 @@ class ReportIssueActivity : AppCompatActivity() {
 
     private var selectedImageUri: Uri?    = null
     private var uploadedImageUrl: String? = null
+    private var selectedLat: Double?      = null
+    private var selectedLng: Double?      = null
+
+    private val mapPickerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val lat = result.data?.getDoubleExtra("lat", 0.0) ?: return@registerForActivityResult
+            val lng = result.data?.getDoubleExtra("lng", 0.0) ?: return@registerForActivityResult
+            selectedLat = lat
+            selectedLng = lng
+            binding.tvMapStatus.text = "Location pinned"
+            binding.tvMapStatus.setTextColor(ContextCompat.getColor(this, R.color.primary_blue))
+            binding.tvMapCoords.text = "%.5f, %.5f".format(lat, lng)
+            binding.tvMapCoords.visibility = View.VISIBLE
+            binding.ivMapPin.setColorFilter(ContextCompat.getColor(this, R.color.primary_blue))
+        }
+    }
 
     // Problem options — "Others" must stay last
     private val problemOptions = listOf(
@@ -95,7 +115,7 @@ class ReportIssueActivity : AppCompatActivity() {
         binding.cvUploadImage.setOnClickListener { checkPermissionAndPickImage() }
 
         binding.cvMap.setOnClickListener {
-            Toast.makeText(this, "Map selection coming soon", Toast.LENGTH_SHORT).show()
+            mapPickerLauncher.launch(Intent(this, MapPickerActivity::class.java))
         }
 
         binding.btnSubmitReport.setOnClickListener { submitReport() }
@@ -181,8 +201,8 @@ class ReportIssueActivity : AppCompatActivity() {
                     problem     = selectedProblem,
                     description = finalDescription,
                     imageUrl    = uploadedImageUrl,
-                    locationLat = null,
-                    locationLng = null,
+                    locationLat = selectedLat,
+                    locationLng = selectedLng,
                     barangay    = barangay
                 )
 
