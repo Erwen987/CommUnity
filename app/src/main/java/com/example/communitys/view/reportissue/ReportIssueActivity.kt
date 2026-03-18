@@ -1,9 +1,10 @@
 package com.example.communitys.view.reportissue
 
 import android.Manifest
-import android.app.Activity
-import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -31,24 +32,11 @@ class ReportIssueActivity : AppCompatActivity() {
 
     private var selectedImageUri: Uri?    = null
     private var uploadedImageUrl: String? = null
-    private var selectedLat: Double?      = null
-    private var selectedLng: Double?      = null
+    private var capturedLat: Double?      = null
+    private var capturedLng: Double?      = null
 
-    private val mapPickerLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val lat = result.data?.getDoubleExtra("lat", 0.0) ?: return@registerForActivityResult
-            val lng = result.data?.getDoubleExtra("lng", 0.0) ?: return@registerForActivityResult
-            selectedLat = lat
-            selectedLng = lng
-            binding.tvMapStatus.text = "Location pinned"
-            binding.tvMapStatus.setTextColor(ContextCompat.getColor(this, R.color.primary_blue))
-            binding.tvMapCoords.text = "%.5f, %.5f".format(lat, lng)
-            binding.tvMapCoords.visibility = View.VISIBLE
-            binding.ivMapPin.setColorFilter(ContextCompat.getColor(this, R.color.primary_blue))
-        }
-    }
+    private var locationManager: LocationManager? = null
+    private var locationListener: LocationListener? = null
 
     // Problem options — "Others" must stay last
     private val problemOptions = listOf(
@@ -82,6 +70,17 @@ class ReportIssueActivity : AppCompatActivity() {
         else Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
     }
 
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
+            startLocationCapture()
+        } else {
+            setLocationStatus("Location permission denied", false)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityReportIssueBinding.inflate(layoutInflater)
@@ -89,6 +88,118 @@ class ReportIssueActivity : AppCompatActivity() {
 
         setupProblemDropdown()
         setupClickListeners()
+        requestLocationCapture()
+    }
+
+    // ── Location auto-capture ─────────────────────────────────────────────────
+
+    private fun requestLocationCapture() {
+        val fineGranted = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val coarseGranted = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (fineGranted || coarseGranted) {
+            startLocationCapture()
+        } else {
+            setLocationStatus("Requesting location permission...", null)
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
+
+    private fun startLocationCapture() {
+        setLocationStatus("Getting your location...", null)
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+
+        try {
+            // Try last known first for instant result
+            val lastKnown =
+                locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                    ?: locationManager?.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+
+            if (lastKnown != null) {
+                onLocationCaptured(lastKnown)
+                return
+            }
+
+            // No cached — request fresh fix
+            locationListener = object : LocationListener {
+                override fun onLocationChanged(location: Location) {
+                    onLocationCaptured(location)
+                    stopLocationUpdates()
+                }
+                @Deprecated("Deprecated in Java")
+                override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+            }
+
+            val isGpsEnabled = locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) == true
+            val isNetEnabled = locationManager?.isProviderEnabled(LocationManager.NETWORK_PROVIDER) == true
+
+            if (isGpsEnabled) {
+                locationManager?.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER, 0L, 0f, locationListener!!
+                )
+            }
+            if (isNetEnabled) {
+                locationManager?.requestLocationUpdates(
+                    LocationManager.NETWORK_PROVIDER, 0L, 0f, locationListener!!
+                )
+            }
+
+            if (!isGpsEnabled && !isNetEnabled) {
+                setLocationStatus("Enable GPS to attach location", false)
+                return
+            }
+
+            // Timeout after 15 seconds
+            binding.root.postDelayed({
+                if (capturedLat == null) {
+                    stopLocationUpdates()
+                    setLocationStatus("Could not get location", false)
+                }
+            }, 15_000)
+
+        } catch (e: SecurityException) {
+            setLocationStatus("Location unavailable", false)
+        }
+    }
+
+    private fun onLocationCaptured(location: Location) {
+        capturedLat = location.latitude
+        capturedLng = location.longitude
+        setLocationStatus("Location captured", true)
+        binding.tvMapCoords.text = "%.5f, %.5f".format(location.latitude, location.longitude)
+        binding.tvMapCoords.visibility = View.VISIBLE
+    }
+
+    private fun setLocationStatus(message: String, success: Boolean?) {
+        binding.tvMapStatus.text = message
+        when (success) {
+            true  -> {
+                binding.tvMapStatus.setTextColor(ContextCompat.getColor(this, R.color.primary_blue))
+                binding.ivMapPin.setColorFilter(ContextCompat.getColor(this, R.color.primary_blue))
+            }
+            false -> {
+                binding.tvMapStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_light))
+                binding.ivMapPin.setColorFilter(ContextCompat.getColor(this, android.R.color.darker_gray))
+            }
+            null  -> {
+                binding.tvMapStatus.setTextColor(ContextCompat.getColor(this, R.color.hint_text_color))
+                binding.ivMapPin.setColorFilter(ContextCompat.getColor(this, R.color.hint_text_color))
+            }
+        }
+    }
+
+    private fun stopLocationUpdates() {
+        locationListener?.let { locationManager?.removeUpdates(it) }
+        locationListener = null
     }
 
     // ── Problem dropdown ──────────────────────────────────────────────────────
@@ -111,15 +222,8 @@ class ReportIssueActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         binding.btnBack.setOnClickListener { finish() }
-
         binding.cvUploadImage.setOnClickListener { checkPermissionAndPickImage() }
-
-        binding.cvMap.setOnClickListener {
-            mapPickerLauncher.launch(Intent(this, MapPickerActivity::class.java))
-        }
-
         binding.btnSubmitReport.setOnClickListener { submitReport() }
-
         binding.etDescription.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) binding.tilDescription.error = null
         }
@@ -135,13 +239,11 @@ class ReportIssueActivity : AppCompatActivity() {
         binding.tilProblem.error     = null
         binding.tilDescription.error = null
 
-        // Validate problem selection
         if (selectedProblem.isEmpty() || !problemOptions.contains(selectedProblem)) {
             binding.tilProblem.error = "Please select a problem"
             return
         }
 
-        // Validate description only when "Others" is selected
         if (isOthers) {
             when {
                 description.isEmpty() -> {
@@ -157,7 +259,6 @@ class ReportIssueActivity : AppCompatActivity() {
             }
         }
 
-        // Use description as-is for specific problems, require it only for Others
         val finalDescription = if (isOthers) description else selectedProblem
 
         binding.btnSubmitReport.isEnabled = false
@@ -172,10 +273,8 @@ class ReportIssueActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                // Fetch user's barangay for routing
                 val barangay = reportRepository.getUserBarangay(userId)
 
-                // Upload image if selected
                 if (selectedImageUri != null) {
                     val uploadResult = storageHelper.uploadImage(
                         bucketName = "issue-images",
@@ -201,15 +300,19 @@ class ReportIssueActivity : AppCompatActivity() {
                     problem     = selectedProblem,
                     description = finalDescription,
                     imageUrl    = uploadedImageUrl,
-                    locationLat = selectedLat,
-                    locationLng = selectedLng,
+                    locationLat = capturedLat,
+                    locationLng = capturedLng,
                     barangay    = barangay
                 )
 
                 val saveResult = reportRepository.createReport(report)
 
                 if (saveResult.isSuccess) {
-                    Toast.makeText(this@ReportIssueActivity, "Report submitted! Points will be awarded once officials review it.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this@ReportIssueActivity,
+                        "Report submitted! Points will be awarded once officials review it.",
+                        Toast.LENGTH_LONG
+                    ).show()
                     finish()
                 } else {
                     Toast.makeText(
@@ -247,5 +350,10 @@ class ReportIssueActivity : AppCompatActivity() {
 
     private fun openImagePicker() {
         imagePickerLauncher.launch("image/*")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopLocationUpdates()
     }
 }
