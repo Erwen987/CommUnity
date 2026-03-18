@@ -152,6 +152,9 @@ class ReportIssueActivity : AppCompatActivity() {
                     return@launch
                 }
 
+                // Fetch user's barangay for routing
+                val barangay = reportRepository.getUserBarangay(userId)
+
                 // Upload image if selected
                 if (selectedImageUri != null) {
                     val uploadResult = storageHelper.uploadImage(
@@ -179,7 +182,8 @@ class ReportIssueActivity : AppCompatActivity() {
                     description = finalDescription,
                     imageUrl    = uploadedImageUrl,
                     locationLat = null,
-                    locationLng = null
+                    locationLng = null,
+                    barangay    = barangay
                 )
 
                 val saveResult = reportRepository.createReport(report)

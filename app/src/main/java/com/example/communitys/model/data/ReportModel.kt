@@ -14,5 +14,6 @@ data class ReportModel(
     @SerialName("location_lng") val locationLng: Double? = null,
     @SerialName("status")         val status: String = "pending",
     @SerialName("created_at")     val createdAt: String = "",
-    @SerialName("points_awarded") val pointsAwarded: Int? = null
+    @SerialName("points_awarded") val pointsAwarded: Int? = null,
+    @SerialName("barangay")       val barangay: String? = null
 )

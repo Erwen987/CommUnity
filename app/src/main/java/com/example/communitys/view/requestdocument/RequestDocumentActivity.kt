@@ -227,6 +227,9 @@ class RequestDocumentActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
+                // Fetch user's barangay for routing
+                val barangay = repository.getUserBarangay(userId)
+
                 // Upload proof image if selected
                 if (selectedProofUri != null) {
                     val uploadResult = storageHelper.uploadImage(
@@ -253,7 +256,8 @@ class RequestDocumentActivity : AppCompatActivity() {
                     documentType  = finalDocumentType,
                     purpose       = purpose,
                     paymentMethod = selectedPayment,
-                    proofUrl      = uploadedProofUrl
+                    proofUrl      = uploadedProofUrl,
+                    barangay      = barangay
                 )
 
                 result.onSuccess {

@@ -72,6 +72,19 @@ class ReportRepository {
         }
     }
 
+    // ── Get user's barangay from users table ──────────────────────────────────
+
+    suspend fun getUserBarangay(userId: String): String? {
+        return try {
+            supabase.from("users")
+                .select { filter { eq("auth_id", userId) } }
+                .decodeList<com.example.communitys.model.data.UserModel>()
+                .firstOrNull()?.barangay
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     // ── Get all reports — for officials web dashboard later ───────────────────
 
     suspend fun getAllReports(): Result<List<ReportModel>> {

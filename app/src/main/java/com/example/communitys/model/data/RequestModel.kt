@@ -12,5 +12,6 @@ data class RequestModel(
     @SerialName("payment_method") val paymentMethod: String = "pay_on_site",
     val status: String = "reviewing",
     @SerialName("reference_number") val referenceNumber: String = "",
-    @SerialName("created_at") val createdAt: String = ""
+    @SerialName("created_at") val createdAt: String = "",
+    @SerialName("barangay") val barangay: String? = null
 )

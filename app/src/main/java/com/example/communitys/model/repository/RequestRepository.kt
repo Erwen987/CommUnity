@@ -11,12 +11,24 @@ class RequestRepository {
 
     // ── Submit a new document request ─────────────────────────────────────────
 
+    suspend fun getUserBarangay(userId: String): String? {
+        return try {
+            supabase.from("users")
+                .select { filter { eq("auth_id", userId) } }
+                .decodeList<com.example.communitys.model.data.UserModel>()
+                .firstOrNull()?.barangay
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     suspend fun submitRequest(
         userId: String,
         documentType: String,
         purpose: String,
         paymentMethod: String,
-        proofUrl: String? = null
+        proofUrl: String? = null,
+        barangay: String? = null
     ): Result<Unit> {
         return try {
             val data = buildMap {
@@ -25,6 +37,7 @@ class RequestRepository {
                 put("purpose", purpose)
                 put("payment_method", paymentMethod)
                 if (proofUrl != null) put("proof_url", proofUrl)
+                if (barangay != null) put("barangay", barangay)
             }
             supabase.from("requests").insert(data)
             Result.success(Unit)
