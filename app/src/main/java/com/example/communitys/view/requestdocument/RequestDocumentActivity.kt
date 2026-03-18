@@ -88,9 +88,11 @@ class RequestDocumentActivity : AppCompatActivity() {
             binding.tilDocument.isErrorEnabled = false
 
             if (selected == "Others") {
+                binding.tvOtherDocumentLabel.visibility = View.VISIBLE
                 binding.tilOtherDocument.visibility = View.VISIBLE
                 binding.etOtherDocument.requestFocus()
             } else {
+                binding.tvOtherDocumentLabel.visibility = View.GONE
                 binding.tilOtherDocument.visibility = View.GONE
                 binding.etOtherDocument.text?.clear()
                 binding.tilOtherDocument.error = null

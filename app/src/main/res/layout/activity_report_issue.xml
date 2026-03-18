@@ -110,12 +110,12 @@
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusTopStart="12dp"
-                        app:hintTextColor="@color/hint_text_color"
                         app:boxStrokeColor="@color/primary_blue"
                         app:boxStrokeWidth="2dp"
                         app:boxStrokeErrorColor="@android:color/holo_red_light"
                         app:errorTextColor="@android:color/holo_red_light"
-                        app:errorEnabled="true">
+                        app:errorEnabled="true"
+                        app:hintEnabled="false">
 
                         <AutoCompleteTextView
                             android:id="@+id/actvProblem"
@@ -124,13 +124,14 @@
                             android:hint="Select a problem..."
                             android:inputType="none"
                             android:focusable="false"
+                            android:cursorVisible="false"
                             android:textColor="@color/input_text_color"
                             android:textColorHint="@color/hint_text_color"
                             android:textSize="14sp"
                             android:paddingStart="16dp"
-                            android:paddingEnd="16dp"
-                            android:paddingTop="2dp"
-                            android:paddingBottom="16dp" />
+                            android:paddingEnd="48dp"
+                            android:paddingTop="18dp"
+                            android:paddingBottom="18dp" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 

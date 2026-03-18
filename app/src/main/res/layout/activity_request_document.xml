@@ -137,13 +137,24 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- "Others" specify field — hidden by default -->
+                    <TextView
+                        android:id="@+id/tvOtherDocumentLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Specify Document"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilOtherDocument"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="6dp"
                         android:visibility="gone"
-                        app:boxBackgroundMode="filled"
                         app:boxBackgroundColor="@color/input_background"
                         app:boxCornerRadiusBottomEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
@@ -153,14 +164,15 @@
                         app:boxStrokeWidth="2dp"
                         app:boxStrokeErrorColor="@android:color/holo_red_light"
                         app:errorTextColor="@android:color/holo_red_light"
-                        app:hintTextColor="@color/hint_text_color">
+                        app:hintEnabled="false">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etOtherDocument"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Please specify document"
+                            android:hint="Please specify document..."
                             android:inputType="textCapSentences"
+                            android:minLines="2"
                             android:padding="16dp"
                             android:textColor="@color/input_text_color"
                             android:textColorHint="@color/hint_text_color"
