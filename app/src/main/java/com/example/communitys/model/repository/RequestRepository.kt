@@ -4,6 +4,8 @@ import com.example.communitys.CommUnityApplication
 import com.example.communitys.model.data.RequestModel
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Order
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class RequestRepository {
 
@@ -31,7 +33,7 @@ class RequestRepository {
         barangay: String? = null
     ): Result<Unit> {
         return try {
-            val data = buildMap {
+            val data = buildJsonObject {
                 put("user_id", userId)
                 put("document_type", documentType)
                 put("purpose", purpose)

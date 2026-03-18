@@ -5,6 +5,8 @@ import com.example.communitys.model.data.ReportModel
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Order
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class ReportRepository {
 
@@ -15,7 +17,17 @@ class ReportRepository {
 
     suspend fun createReport(report: ReportModel): Result<String> {
         return try {
-            val inserted = supabase.from("reports").insert(report) {
+            val data = buildJsonObject {
+                put("user_id",     report.userId)
+                put("problem",     report.problem)
+                put("description", report.description)
+                put("status",      report.status)
+                if (report.imageUrl    != null) put("image_url",    report.imageUrl)
+                if (report.locationLat != null) put("location_lat", report.locationLat)
+                if (report.locationLng != null) put("location_lng", report.locationLng)
+                if (report.barangay   != null) put("barangay",     report.barangay)
+            }
+            val inserted = supabase.from("reports").insert(data) {
                 select()
             }.decodeSingle<ReportModel>()
             Result.success(inserted.id)
