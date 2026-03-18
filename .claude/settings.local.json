@@ -38,7 +38,8 @@
       "Bash(cp \"$SRC\" \"$BASE/$dir/ic_launcher_round.png\")",
       "Bash(echo \"Copied to $dir\")",
       "Read(//c/Users/Jv/Downloads/Avatars/**)",
-      "Bash(find c:/Users/Jv/Downloads/CommUnityWeb/ -name *.html)"
+      "Bash(find c:/Users/Jv/Downloads/CommUnityWeb/ -name *.html)",
+      "mcp__claude_ai_Supabase__execute_sql"
     ]
   }
 }
