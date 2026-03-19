@@ -3,8 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#5B9BD5">
+    android:layout_height="match_parent">
 
     <!-- Top Bar -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -42,7 +41,7 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Hint text -->
+    <!-- Hint -->
     <TextView
         android:id="@+id/tvHint"
         android:layout_width="wrap_content"
@@ -58,9 +57,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/topBar" />
 
-    <!-- OSMDroid Map -->
-    <org.osmdroid.views.MapView
-        android:id="@+id/mapView"
+    <!-- Google Map Fragment -->
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/bottomBar"
