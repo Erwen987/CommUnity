@@ -23,7 +23,13 @@ class LocationViewModel : ViewModel() {
     private val _error      = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
-    init { loadReports() }
+    private val _barangay   = MutableLiveData<String?>()
+    val barangay: LiveData<String?> = _barangay
+
+    init {
+        loadReports()
+        loadBarangay()
+    }
 
     fun loadReports() {
         val userId = authHelper.getCurrentUserId() ?: run {
@@ -36,6 +42,13 @@ class LocationViewModel : ViewModel() {
                 .onSuccess { _reports.value = it }
                 .onFailure { _error.value = it.message }
             _isLoading.value = false
+        }
+    }
+
+    fun loadBarangay() {
+        val userId = authHelper.getCurrentUserId() ?: return
+        viewModelScope.launch {
+            _barangay.value = reportRepo.getUserBarangay(userId)
         }
     }
 }

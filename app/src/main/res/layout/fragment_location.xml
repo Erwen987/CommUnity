@@ -31,13 +31,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Report Issues by Location"
+                android:text="See how far your Barangay Hall is"
                 android:textColor="@android:color/white"
                 android:textSize="14sp" />
 
         </LinearLayout>
 
-        <!-- Report Map Section -->
+        <!-- Map Card -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -52,45 +52,145 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Report Map"
-                    android:textColor="#1E3A5F"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <!-- Map Container -->
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/cvMap"
+                <!-- Card header: title + My Location button -->
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    android:layout_marginTop="12dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerCrop"
-                            android:src="@android:color/darker_gray" />
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="Map will be displayed here"
-                            android:textColor="@android:color/white"
-                            android:textSize="14sp"
+                            android:text="Barangay Hall"
+                            android:textColor="#1E3A5F"
+                            android:textSize="18sp"
                             android:textStyle="bold" />
 
-                    </FrameLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Your location to barangay hall"
+                            android:textColor="#9ca3af"
+                            android:textSize="12sp" />
 
-                </androidx.cardview.widget.CardView>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btnMyLocation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="My Location"
+                        android:textSize="11sp"
+                        android:textColor="#1E3A5F"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:backgroundTint="#EFF6FF"
+                        style="?attr/materialButtonOutlinedStyle"
+                        app:strokeColor="#BFDBFE"
+                        app:strokeWidth="1.5dp"
+                        app:cornerRadius="8dp" />
+
+                </LinearLayout>
+
+                <!-- Map container (SupportMapFragment added programmatically) -->
+                <FrameLayout
+                    android:id="@+id/mapContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="280dp"
+                    android:layout_marginTop="12dp"
+                    android:clipToOutline="true"
+                    android:background="#e5e7eb" />
+
+                <!-- Route info strip (shown after route is calculated) -->
+                <LinearLayout
+                    android:id="@+id/layoutRouteInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_route_info"
+                    android:padding="12dp"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvBarangayName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-- Barangay Hall"
+                            android:textColor="#1E3A5F"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvRouteInfo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Calculating route..."
+                            android:textColor="#6b7280"
+                            android:textSize="11sp" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvDistance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="-- km"
+                        android:textColor="#ffffff"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:background="@drawable/bg_distance_badge"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp" />
+
+                </LinearLayout>
+
+                <!-- Legend -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="● Your Location"
+                        android:textColor="#ef4444"
+                        android:textSize="11sp" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="● Barangay Hall"
+                        android:textColor="#3b82f6"
+                        android:textSize="11sp" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
