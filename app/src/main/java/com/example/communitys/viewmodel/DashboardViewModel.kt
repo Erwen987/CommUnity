@@ -5,7 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.communitys.CommUnityApplication
+import com.example.communitys.model.data.AnnouncementModel
 import com.example.communitys.model.data.ReportModel
+import com.example.communitys.model.repository.AnnouncementRepository
 import com.example.communitys.model.repository.AuthRepository
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
@@ -16,8 +18,9 @@ import java.util.Locale
 
 class DashboardViewModel : ViewModel() {
 
-    private val supabase = CommUnityApplication.supabase
-    private val authRepository = AuthRepository()
+    private val supabase             = CommUnityApplication.supabase
+    private val authRepository       = AuthRepository()
+    private val announcementRepo     = AnnouncementRepository()
 
     // ── LiveData ──────────────────────────────────────────────────────────────
 
@@ -42,6 +45,9 @@ class DashboardViewModel : ViewModel() {
     private val _pointsEarned = MutableLiveData<Int>(0)
     val pointsEarned: LiveData<Int> = _pointsEarned
 
+    private val _announcements = MutableLiveData<List<AnnouncementModel>>(emptyList())
+    val announcements: LiveData<List<AnnouncementModel>> = _announcements
+
     // ── Load all data ─────────────────────────────────────────────────────────
 
     fun loadUserData() {
@@ -61,6 +67,7 @@ class DashboardViewModel : ViewModel() {
                     _welcomeMessage.value = "$greeting, ${user.firstName}! 👋"
                     _locationDate.value = "${formatBarangay(user.barangay)} • ${getCurrentDate()}"
                     _pointsEarned.value = user.points
+                    loadAnnouncements(user.barangay)
 
                     // Mark as logged in before in DB (no-op if already true)
                     if (!user.hasLoggedInBefore) {
@@ -114,6 +121,14 @@ class DashboardViewModel : ViewModel() {
         } catch (e: Exception) {
             android.util.Log.e("DashboardViewModel", "Failed to load stats: ${e.message}")
         }
+    }
+
+    // ── Load announcements ────────────────────────────────────────────────────
+
+    private suspend fun loadAnnouncements(barangay: String) {
+        if (barangay.isBlank()) return
+        announcementRepo.getActiveAnnouncements(barangay)
+            .onSuccess { _announcements.value = it }
     }
 
     // ── Refresh stats (call this when returning to dashboard) ─────────────────

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Solid color background (shown when no image, or as placeholder color) -->
+    <View
+        android:id="@+id/vBgColor"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#1E3A5F" />
+
+    <!-- Image (shown when announcement has an image) -->
+    <ImageView
+        android:id="@+id/ivAnnouncementImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
+
+    <!-- Gradient scrim so text is readable over image -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/scrim_announcement" />
+
+    <!-- Text content at bottom -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvAnnouncementTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffff"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:shadowColor="#000"
+            android:shadowRadius="4"
+            android:shadowDx="0"
+            android:shadowDy="1" />
+
+        <TextView
+            android:id="@+id/tvAnnouncementBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#e0e0e0"
+            android:textSize="12sp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:shadowColor="#000"
+            android:shadowRadius="3"
+            android:shadowDx="0"
+            android:shadowDy="1" />
+
+    </LinearLayout>
+
+</FrameLayout>

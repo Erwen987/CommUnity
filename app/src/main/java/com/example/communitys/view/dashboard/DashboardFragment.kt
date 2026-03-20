@@ -12,12 +12,14 @@ import com.example.communitys.databinding.FragmentDashboardBinding
 import com.example.communitys.view.reportissue.ReportIssueActivity
 import com.example.communitys.view.requestdocument.RequestDocumentActivity
 import com.example.communitys.viewmodel.DashboardViewModel
+import com.google.android.material.tabs.TabLayoutMediator
 
 class DashboardFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
     private lateinit var viewModel: DashboardViewModel
+    private lateinit var announcementAdapter: AnnouncementAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,15 +33,22 @@ class DashboardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupAnnouncements()
         setupObservers()
         setupClickListeners()
         loadUserData()
     }
 
-    // Refresh stats every time user comes back to this tab
     override fun onResume() {
         super.onResume()
         viewModel.refreshStats()
+    }
+
+    private fun setupAnnouncements() {
+        announcementAdapter = AnnouncementAdapter()
+        binding.vpAnnouncements.adapter = announcementAdapter
+
+        TabLayoutMediator(binding.tlDots, binding.vpAnnouncements) { _, _ -> }.attach()
     }
 
     private fun setupObservers() {
@@ -67,7 +76,6 @@ class DashboardFragment : Fragment() {
             binding.tvLocationDate.text = locationDate
         }
 
-        // ✅ Real report stats
         viewModel.reportsSubmitted.observe(viewLifecycleOwner) { count ->
             binding.tvReportsCount.text = count.toString()
         }
@@ -82,6 +90,17 @@ class DashboardFragment : Fragment() {
 
         viewModel.pointsEarned.observe(viewLifecycleOwner) { points ->
             binding.tvPointsCount.text = points.toString()
+        }
+
+        // Announcements
+        viewModel.announcements.observe(viewLifecycleOwner) { list ->
+            announcementAdapter.submitList(list)
+
+            val hasAnnouncements = list.isNotEmpty()
+            binding.vpAnnouncements.visibility       = if (hasAnnouncements) View.VISIBLE else View.GONE
+            binding.tlDots.visibility                = if (hasAnnouncements) View.VISIBLE else View.GONE
+            binding.layoutNoAnnouncements.visibility = if (hasAnnouncements) View.GONE   else View.VISIBLE
+            binding.tvAnnouncementCount.text         = if (hasAnnouncements) "${list.size} post${if (list.size != 1) "s" else ""}" else ""
         }
     }
 

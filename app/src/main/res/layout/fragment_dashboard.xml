@@ -95,16 +95,99 @@
 
         </LinearLayout>
 
-        <!-- Empty Good Day Card -->
+        <!-- Announcements Slider -->
         <androidx.cardview.widget.CardView
-            android:id="@+id/cvGoodDay"
+            android:id="@+id/cvAnnouncements"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            app:cardBackgroundColor="#FFF8F0"
+            app:cardBackgroundColor="#1E3A5F"
             app:cardCornerRadius="20dp"
-            app:cardElevation="4dp" />
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="📢 Barangay Announcements"
+                        android:textColor="#ffffff"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvAnnouncementCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textColor="#a0c4ff"
+                        android:textSize="11sp" />
+
+                </LinearLayout>
+
+                <!-- ViewPager2 for slides -->
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/vpAnnouncements"
+                    android:layout_width="match_parent"
+                    android:layout_height="190dp" />
+
+                <!-- Dot indicators -->
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tlDots"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:background="@android:color/transparent"
+                    app:tabBackground="@drawable/dot_selector"
+                    app:tabGravity="center"
+                    app:tabIndicatorHeight="0dp"
+                    app:tabPaddingStart="4dp"
+                    app:tabPaddingEnd="4dp" />
+
+                <!-- Empty state (no announcements) -->
+                <LinearLayout
+                    android:id="@+id/layoutNoAnnouncements"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No announcements yet"
+                        android:textColor="#a0c4ff"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Check back later for barangay updates"
+                        android:textColor="#6b8fbe"
+                        android:textSize="11sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
 
         <!-- Stats Grid -->
         <GridLayout
