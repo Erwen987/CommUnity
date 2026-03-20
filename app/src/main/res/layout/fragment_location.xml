@@ -102,12 +102,45 @@
 
                 <!-- Map container (SupportMapFragment added programmatically) -->
                 <FrameLayout
-                    android:id="@+id/mapContainer"
+                    android:id="@+id/mapTapWrapper"
                     android:layout_width="match_parent"
                     android:layout_height="280dp"
                     android:layout_marginTop="12dp"
                     android:clipToOutline="true"
-                    android:background="#e5e7eb" />
+                    android:foreground="?attr/selectableItemBackground">
+
+                    <FrameLayout
+                        android:id="@+id/mapContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#e5e7eb" />
+
+                    <!-- Tap to expand hint -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="10dp"
+                        android:background="#33000000"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:text="⤢  Expand"
+                        android:textColor="#ffffff"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
+                    <!-- Transparent overlay to capture taps over the map -->
+                    <View
+                        android:id="@+id/mapClickOverlay"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:clickable="true"
+                        android:focusable="true" />
+
+                </FrameLayout>
 
                 <!-- Route info strip (shown after route is calculated) -->
                 <LinearLayout

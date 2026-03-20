@@ -121,6 +121,9 @@ class LocationFragment : Fragment(), OnMapReadyCallback {
         // My Location button
         binding.btnMyLocation.setOnClickListener { checkLocationPermission() }
 
+        // Tap map to open full-screen view
+        binding.mapClickOverlay.setOnClickListener { openFullMap() }
+
         // Observers
         viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
             binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
@@ -293,6 +296,18 @@ class LocationFragment : Fragment(), OnMapReadyCallback {
         b.tvBarangayName.text = if (barangay != null) "$barangay Barangay Hall" else "Barangay Hall"
         b.tvRouteInfo.text    = routeText
         b.tvDistance.text     = distKm ?: "--"
+    }
+
+    // ── Full map sheet ────────────────────────────────────────────────────────
+
+    private fun openFullMap() {
+        val barangay = currentBarangay ?: return
+        val userPos  = userLatLng
+        FullMapSheet.newInstance(
+            barangay  = barangay,
+            userLat   = userPos?.latitude,
+            userLng   = userPos?.longitude
+        ).show(childFragmentManager, "full_map")
     }
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
