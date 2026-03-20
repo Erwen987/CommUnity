@@ -63,14 +63,14 @@ class DashboardViewModel : ViewModel() {
 
                 result.onSuccess { user ->
                     // Use the DB flag: false = first ever login → "Welcome", true = returning → "Welcome Back"
-                    val greeting = if (user.hasLoggedInBefore) "Welcome Back" else "Welcome"
+                    val greeting = if (user.hasLoggedInBefore == true) "Welcome Back" else "Welcome"
                     _welcomeMessage.value = "$greeting, ${user.firstName}! 👋"
                     _locationDate.value = "${formatBarangay(user.barangay)} • ${getCurrentDate()}"
-                    _pointsEarned.value = user.points
+                    _pointsEarned.value = user.points ?: 0
                     loadAnnouncements(user.barangay)
 
                     // Mark as logged in before in DB (no-op if already true)
-                    if (!user.hasLoggedInBefore) {
+                    if (user.hasLoggedInBefore != true) {
                         try {
                             supabase.from("users")
                                 .update({ set("has_logged_in_before", true) }) {

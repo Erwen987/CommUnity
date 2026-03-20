@@ -3,6 +3,7 @@ package com.example.communitys.model.repository
 import com.example.communitys.CommUnityApplication
 import com.example.communitys.model.data.RequestModel
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -16,7 +17,9 @@ class RequestRepository {
     suspend fun getUserBarangay(userId: String): String? {
         return try {
             supabase.from("users")
-                .select { filter { eq("auth_id", userId) } }
+                .select(columns = Columns.list("barangay")) {
+                    filter { eq("auth_id", userId) }
+                }
                 .decodeList<com.example.communitys.model.data.UserModel>()
                 .firstOrNull()?.barangay
         } catch (e: Exception) {

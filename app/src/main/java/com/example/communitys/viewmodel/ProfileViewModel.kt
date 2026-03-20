@@ -42,7 +42,7 @@ class ProfileViewModel : ViewModel() {
                     lastName  = user.lastName,
                     email     = user.email,
                     barangay  = formatBarangay(user.barangay),
-                    points    = user.points,
+                    points    = user.points ?: 0,
                     avatarUrl = user.avatarUrl
                 )
             }

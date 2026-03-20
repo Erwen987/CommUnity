@@ -24,13 +24,13 @@ data class UserModel(
     val barangay: String = "",
 
     @SerialName("phone")
-    val phone: String = "",
+    val phone: String? = null,
 
     @SerialName("points")
-    val points: Int = 0,
+    val points: Int? = 0,
 
     @SerialName("has_logged_in_before")
-    val hasLoggedInBefore: Boolean = false,
+    val hasLoggedInBefore: Boolean? = false,
 
     @SerialName("avatar_url")
     val avatarUrl: String? = null
