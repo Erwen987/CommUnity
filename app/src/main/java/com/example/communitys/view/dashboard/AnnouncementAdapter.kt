@@ -13,7 +13,8 @@ import com.example.communitys.R
 import com.example.communitys.model.data.AnnouncementModel
 
 class AnnouncementAdapter(
-    private var items: List<AnnouncementModel> = emptyList()
+    private var items: List<AnnouncementModel> = emptyList(),
+    private val onItemClick: (AnnouncementModel, Int) -> Unit = { _, _ -> }
 ) : RecyclerView.Adapter<AnnouncementAdapter.VH>() {
 
     // Pairs of [start color, end color] for diagonal gradients
@@ -65,6 +66,8 @@ class AnnouncementAdapter(
         holder.tvTitle.text = item.title
         holder.tvBody.text  = item.body
         holder.tvBody.visibility = if (item.body.isBlank()) View.GONE else View.VISIBLE
+
+        holder.itemView.setOnClickListener { onItemClick(item, position) }
     }
 
     override fun getItemCount() = items.size

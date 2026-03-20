@@ -2,6 +2,8 @@ package com.example.communitys.view.dashboard
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +26,23 @@ class DashboardFragment : Fragment() {
     private lateinit var viewModel: DashboardViewModel
     private lateinit var announcementAdapter: AnnouncementAdapter
 
+    private val autoSlideHandler = Handler(Looper.getMainLooper())
+    private val autoSlideRunnable = object : Runnable {
+        override fun run() {
+            val vp = _binding?.vpAnnouncements ?: return
+            val count = announcementAdapter.itemCount
+            if (count > 1) {
+                val next = (vp.currentItem + 1) % count
+                vp.setCurrentItem(next, true)
+            }
+            autoSlideHandler.postDelayed(this, AUTO_SLIDE_INTERVAL_MS)
+        }
+    }
+
+    companion object {
+        private const val AUTO_SLIDE_INTERVAL_MS = 4000L
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -45,12 +64,21 @@ class DashboardFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         viewModel.refreshStats()
+        autoSlideHandler.postDelayed(autoSlideRunnable, AUTO_SLIDE_INTERVAL_MS)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        autoSlideHandler.removeCallbacks(autoSlideRunnable)
     }
 
     // ── Announcements ─────────────────────────────────────────────────────────
 
     private fun setupAnnouncements() {
-        announcementAdapter = AnnouncementAdapter()
+        announcementAdapter = AnnouncementAdapter { item, index ->
+            AnnouncementDetailSheet.newInstance(item, index)
+                .show(childFragmentManager, "announcement_detail")
+        }
         binding.vpAnnouncements.adapter = announcementAdapter
 
         binding.vpAnnouncements.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
