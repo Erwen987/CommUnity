@@ -3,6 +3,7 @@ package com.example.communitys.view.documents
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.communitys.databinding.ItemDocumentRequestBinding
@@ -39,6 +40,13 @@ class DocumentsAdapter(
                 setColor(statusColor(item.status))
             }
             tvStatus.background = badge
+
+            if (item.status == "rejected" && !item.rejectionReason.isNullOrBlank()) {
+                tvRejectionReason.visibility = View.VISIBLE
+                tvRejectionReason.text       = "Reason: ${item.rejectionReason}"
+            } else {
+                tvRejectionReason.visibility = View.GONE
+            }
 
             btnViewDetails.setOnClickListener { onViewDetails(item) }
         }

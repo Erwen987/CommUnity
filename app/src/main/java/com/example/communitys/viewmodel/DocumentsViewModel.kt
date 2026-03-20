@@ -12,10 +12,11 @@ class DocumentsViewModel : ViewModel() {
 
     data class DocumentItem(
         val id: String,
-        val title: String,      // document type
-        val reference: String,  // DR-001-2026
+        val title: String,
+        val reference: String,
         val status: String,
-        val date: String
+        val date: String,
+        val rejectionReason: String? = null
     )
 
     private val requestRepo = RequestRepository()
@@ -49,11 +50,12 @@ class DocumentsViewModel : ViewModel() {
             requestRepo.getUserRequests(userId).onSuccess { list ->
                 allRequests = list.map { r ->
                     DocumentItem(
-                        id        = r.id,
-                        title     = r.documentType,
-                        reference = r.referenceNumber.ifEmpty { "—" },
-                        status    = r.status,
-                        date      = r.createdAt
+                        id              = r.id,
+                        title           = r.documentType,
+                        reference       = r.referenceNumber.ifEmpty { "—" },
+                        status          = r.status,
+                        date            = r.createdAt,
+                        rejectionReason = r.rejectionReason
                     )
                 }
             }.onFailure { _error.value = it.message }
