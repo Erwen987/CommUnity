@@ -74,10 +74,8 @@ class DocumentsFragment : Fragment() {
     private fun setupChips() {
         binding.chipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
             val filter = when {
-                checkedIds.contains(binding.chipReviewing.id)      -> "reviewing"
-                checkedIds.contains(binding.chipProcessing.id)     -> "processing"
+                checkedIds.contains(binding.chipPending.id)        -> "pending"
                 checkedIds.contains(binding.chipReadyForPickup.id) -> "ready_for_pickup"
-                checkedIds.contains(binding.chipReleased.id)       -> "released"
                 else                                               -> "all"
             }
             viewModel.setFilter(filter)

@@ -52,20 +52,18 @@ class DocumentsAdapter(
     }
 
     private fun formatStatus(status: String): String = when (status) {
-        "reviewing"        -> "Reviewing"
-        "processing"       -> "Processing"
+        "pending"          -> "Pending"
         "ready_for_pickup" -> "Ready for Pickup"
-        "released"         -> "Released"
+        "claimed"          -> "Claimed"
         "rejected"         -> "Rejected"
         else               -> status.replace('_', ' ').replaceFirstChar { it.uppercase() }
     }
 
     private fun statusColor(status: String): Int = when (status) {
-        "reviewing"        -> Color.parseColor("#5B9BD5")
-        "processing"       -> Color.parseColor("#FF9800")
-        "ready_for_pickup" -> Color.parseColor("#9C27B0")
-        "released"         -> Color.parseColor("#4CAF50")
-        "rejected"         -> Color.parseColor("#F44336")
+        "pending"          -> Color.parseColor("#F59E0B")
+        "ready_for_pickup" -> Color.parseColor("#8B5CF6")
+        "claimed"          -> Color.parseColor("#16A34A")
+        "rejected"         -> Color.parseColor("#EF4444")
         else               -> Color.GRAY
     }
 

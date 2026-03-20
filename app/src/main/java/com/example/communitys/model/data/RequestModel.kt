@@ -10,7 +10,7 @@ data class RequestModel(
     @SerialName("document_type") val documentType: String = "",
     val purpose: String = "",
     @SerialName("payment_method") val paymentMethod: String = "pay_on_site",
-    val status: String = "reviewing",
+    val status: String = "pending",
     @SerialName("reference_number") val referenceNumber: String = "",
     @SerialName("created_at") val createdAt: String = "",
     @SerialName("barangay") val barangay: String? = null

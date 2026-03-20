@@ -76,7 +76,7 @@ class DocumentsViewModel : ViewModel() {
 
     private fun applyFilter() {
         _items.value = when (currentTab) {
-            "history" -> allRequests.filter { it.status == "released" || it.status == "rejected" }
+            "history" -> allRequests.filter { it.status == "claimed" || it.status == "rejected" }
             else -> { // "requests" with chip filter
                 if (currentFilter == "all") allRequests
                 else allRequests.filter { it.status == currentFilter }

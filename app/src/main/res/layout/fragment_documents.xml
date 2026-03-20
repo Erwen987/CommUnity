@@ -67,21 +67,13 @@
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="All" android:checked="true"
                         android:textColor="#7A7A7A" app:chipBackgroundColor="#E0E0E0" app:chipStrokeWidth="0dp" />
-                    <com.google.android.material.chip.Chip android:id="@+id/chipReviewing"
+                    <com.google.android.material.chip.Chip android:id="@+id/chipPending"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Reviewing" android:textColor="#7A7A7A"
-                        app:chipBackgroundColor="#E0E0E0" app:chipStrokeWidth="0dp" />
-                    <com.google.android.material.chip.Chip android:id="@+id/chipProcessing"
-                        android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Processing" android:textColor="#7A7A7A"
+                        android:text="Pending" android:textColor="#7A7A7A"
                         app:chipBackgroundColor="#E0E0E0" app:chipStrokeWidth="0dp" />
                     <com.google.android.material.chip.Chip android:id="@+id/chipReadyForPickup"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="Ready for Pickup" android:textColor="#7A7A7A"
-                        app:chipBackgroundColor="#E0E0E0" app:chipStrokeWidth="0dp" />
-                    <com.google.android.material.chip.Chip android:id="@+id/chipReleased"
-                        android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Released" android:textColor="#7A7A7A"
                         app:chipBackgroundColor="#E0E0E0" app:chipStrokeWidth="0dp" />
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
