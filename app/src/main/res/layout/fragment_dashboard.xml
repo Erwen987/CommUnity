@@ -148,16 +148,13 @@
                     android:layout_height="190dp" />
 
                 <!-- Dot indicators -->
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/tlDots"
+                <LinearLayout
+                    android:id="@+id/llDots"
                     android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:background="@android:color/transparent"
-                    app:tabBackground="@drawable/dot_selector"
-                    app:tabGravity="center"
-                    app:tabIndicatorHeight="0dp"
-                    app:tabPaddingStart="4dp"
-                    app:tabPaddingEnd="4dp" />
+                    android:layout_height="24dp"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:paddingBottom="4dp" />
 
                 <!-- Empty state (no announcements) -->
                 <LinearLayout

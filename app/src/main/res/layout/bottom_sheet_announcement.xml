@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#ffffff"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Drag handle -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="4dp"
+            android:background="#e5e7eb"
+            android:layout_marginStart="0dp"/>
+
+        <!-- Image (if any) -->
+        <ImageView
+            android:id="@+id/ivDetailImage"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:scaleType="centerCrop"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
+        <!-- No-image colored bar -->
+        <View
+            android:id="@+id/vDetailColorBar"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:visibility="gone" />
+
+        <!-- Content -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tvDetailTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#111827"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:lineSpacingMultiplier="1.2" />
+
+            <!-- Date row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvDetailDate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="#9ca3af"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvDetailExpiry"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#dcfce7"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
+                    android:textColor="#166534"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="#f1f5f9" />
+
+            <!-- Body text -->
+            <TextView
+                android:id="@+id/tvDetailBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#374151"
+                android:textSize="14sp"
+                android:lineSpacingMultiplier="1.6"
+                android:visibility="gone" />
+
+            <!-- No body placeholder -->
+            <TextView
+                android:id="@+id/tvDetailNoBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No additional message."
+                android:textColor="#9ca3af"
+                android:textSize="13sp"
+                android:fontStyle="italic"
+                android:visibility="gone" />
+
+            <!-- Bottom spacer -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="24dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>
