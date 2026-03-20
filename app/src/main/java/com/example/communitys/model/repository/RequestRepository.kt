@@ -38,6 +38,7 @@ class RequestRepository {
                 put("document_type", documentType)
                 put("purpose", purpose)
                 put("payment_method", paymentMethod)
+                put("status", "pending")
                 if (proofUrl != null) put("proof_url", proofUrl)
                 if (barangay != null) put("barangay", barangay)
             }

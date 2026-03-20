@@ -76,12 +76,16 @@ class DocumentsViewModel : ViewModel() {
         applyFilter()
     }
 
+    private val activeStatuses  = setOf("pending", "ready_for_pickup")
+    private val historyStatuses = setOf("claimed", "rejected")
+
     private fun applyFilter() {
         _items.value = when (currentTab) {
-            "history" -> allRequests.filter { it.status == "claimed" || it.status == "rejected" }
-            else -> { // "requests" with chip filter
-                if (currentFilter == "all") allRequests
-                else allRequests.filter { it.status == currentFilter }
+            "history" -> allRequests.filter { it.status in historyStatuses }
+            else -> {
+                val active = allRequests.filter { it.status in activeStatuses }
+                if (currentFilter == "all") active
+                else active.filter { it.status == currentFilter }
             }
         }
     }

@@ -56,7 +56,10 @@ class DocumentsFragment : Fragment() {
         binding.btnHistory.setOnClickListener   { setActiveTab("history") }
     }
 
+    private var currentTab = "requests"
+
     private fun setActiveTab(tab: String) {
+        currentTab = tab
         viewModel.setTab(tab)
 
         listOf(binding.btnMyRequest, binding.btnHistory).forEach { btn ->
@@ -89,8 +92,17 @@ class DocumentsFragment : Fragment() {
 
         viewModel.items.observe(viewLifecycleOwner) { list ->
             adapter.updateList(list)
-            binding.tvEmpty.visibility      = if (list.isEmpty()) View.VISIBLE else View.GONE
-            binding.recyclerView.visibility = if (list.isEmpty()) View.GONE   else View.VISIBLE
+            if (list.isEmpty()) {
+                binding.tvEmpty.visibility      = View.VISIBLE
+                binding.recyclerView.visibility = View.GONE
+                binding.tvEmpty.text = if (currentTab == "history")
+                    "No completed or rejected requests yet."
+                else
+                    "No active requests.\nTap 'Request Document' on the dashboard."
+            } else {
+                binding.tvEmpty.visibility      = View.GONE
+                binding.recyclerView.visibility = View.VISIBLE
+            }
         }
 
         viewModel.error.observe(viewLifecycleOwner) { err ->

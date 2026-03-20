@@ -40,7 +40,8 @@
       "Read(//c/Users/Jv/Downloads/Avatars/**)",
       "Bash(find c:/Users/Jv/Downloads/CommUnityWeb/ -name *.html)",
       "mcp__claude_ai_Supabase__execute_sql",
-      "mcp__claude_ai_Supabase__apply_migration"
+      "mcp__claude_ai_Supabase__apply_migration",
+      "mcp__claude_ai_Supabase__list_storage_buckets"
     ]
   }
 }
