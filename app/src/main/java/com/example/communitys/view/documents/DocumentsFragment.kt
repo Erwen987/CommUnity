@@ -41,11 +41,16 @@ class DocumentsFragment : Fragment() {
 
     private fun setupRecyclerView() {
         adapter = DocumentsAdapter(onViewDetails = { item ->
-            Toast.makeText(
-                requireContext(),
-                "Document Request\n${item.title}\n${item.reference} — ${item.status.replace('_', ' ')}",
-                Toast.LENGTH_LONG
-            ).show()
+            DocumentDetailSheet.newInstance(
+                title           = item.title,
+                reference       = item.reference,
+                status          = item.status,
+                date            = item.date,
+                purpose         = item.purpose,
+                paymentMethod   = item.paymentMethod,
+                proofUrl        = item.proofUrl,
+                rejectionReason = item.rejectionReason
+            ).show(childFragmentManager, "doc_detail")
         })
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
@@ -75,13 +80,32 @@ class DocumentsFragment : Fragment() {
     }
 
     private fun setupChips() {
+        // Set initial visual state
+        updateChipStyles(binding.chipAll.id)
+
         binding.chipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
-            val filter = when {
-                checkedIds.contains(binding.chipPending.id)        -> "pending"
-                checkedIds.contains(binding.chipReadyForPickup.id) -> "ready_for_pickup"
-                else                                               -> "all"
+            val checkedId = checkedIds.firstOrNull() ?: binding.chipAll.id
+            updateChipStyles(checkedId)
+
+            val filter = when (checkedId) {
+                binding.chipPending.id        -> "pending"
+                binding.chipReadyForPickup.id -> "ready_for_pickup"
+                else                          -> "all"
             }
             viewModel.setFilter(filter)
+        }
+    }
+
+    private fun updateChipStyles(activeId: Int) {
+        val chips = listOf(binding.chipAll, binding.chipPending, binding.chipReadyForPickup)
+        chips.forEach { chip ->
+            if (chip.id == activeId) {
+                chip.chipBackgroundColor = ColorStateList.valueOf(Color.parseColor("#2C5F7F"))
+                chip.setTextColor(Color.WHITE)
+            } else {
+                chip.chipBackgroundColor = ColorStateList.valueOf(Color.parseColor("#E0E0E0"))
+                chip.setTextColor(Color.parseColor("#7A7A7A"))
+            }
         }
     }
 

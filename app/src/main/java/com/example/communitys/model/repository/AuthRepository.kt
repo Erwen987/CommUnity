@@ -217,6 +217,13 @@ class AuthRepository {
                     }
                     throw Exception("Your account was deleted. Please sign up again.")
                 }
+
+                val user = users.first()
+                if (user.isBanned == true) {
+                    try { supabase.auth.signOut() } catch (_: Exception) {}
+                    val reason = if (!user.banReason.isNullOrBlank()) "\n\nReason: ${user.banReason}" else ""
+                    throw Exception("Your account has been suspended.$reason\n\nPlease contact your barangay official for more information.")
+                }
             }
 
             Result.success(Unit)

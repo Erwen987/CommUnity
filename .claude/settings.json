@@ -10,7 +10,19 @@
       "Read(//mnt/c/Users/Jv/Downloads/CommUnityWebss-main/CommUnityWebss-main/frontend/**)",
       "Read(//mnt/c/**)",
       "Read(//c/Users/Jv/Downloads/CommUnityWeb/**)",
-      "Bash(npx create-react-app:*)"
+      "Bash(npx create-react-app:*)",
+      "Bash(find c:/Users/Jv/Downloads/CommUnityWeb/community-web/src -type f \\\\\\(-name *.js -o -name *.jsx \\\\\\))",
+      "Bash(sed -i \"s|import OfficialTopbar from ''../../components/OfficialTopbar'';|import AdminTopbar from ''../../components/AdminTopbar'';|g\" AdminAnalytics.js AdminRequests.js AdminRewards.js UserManagement.js AdminReports.js AdminSettings.js AdminDashboard.js)",
+      "Bash(sed -i \"s|<OfficialTopbar[^/]*/> |<AdminTopbar />|g; s|<OfficialTopbar />|<AdminTopbar />|g; s|<OfficialTopbar badge />|<AdminTopbar />|g\" AdminAnalytics.js AdminRequests.js AdminRewards.js UserManagement.js AdminReports.js AdminSettings.js AdminDashboard.js)",
+      "Bash(find /c/Users/Jv/AndroidStudioProjects/CommUnity -type f \\\\\\(-name *.kt -o -name *.java \\\\\\))",
+      "Bash(ls \"c:/Users/Jv/Downloads/CommUnityWeb/community-web/public/avatar_preset_\"*.png)",
+      "Bash(\"c:\\\\Users\\\\Jv\\\\Downloads\\\\CommUnityWeb\\\\community-web\\\\src\\\\index.css\")",
+      "Bash(find c:UsersJvDownloadsCommUnityWebcommunity-websrcpagesofficials -type f -name *.js -o -name *.jsx)",
+      "Bash(find c:UsersJvDownloadsCommUnityWebcommunity-websrcpagesadmin -type f -name *.js -o -name *.jsx)",
+      "Bash(find c:UsersJvDownloadsCommUnityWebcommunity-websrccomponents -type f -name *.js -o -name *.jsx)",
+      "Bash(CI=false npm run build)",
+      "Bash(npm run:*)",
+      "Bash(grep -E \"\\\\.js$|\\\\.jsx$|\\\\.css$|^d\")"
     ]
   }
 }

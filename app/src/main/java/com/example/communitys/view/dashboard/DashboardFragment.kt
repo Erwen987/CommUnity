@@ -135,6 +135,7 @@ class DashboardFragment : Fragment() {
             if (message.isNotEmpty()) {
                 binding.tvWelcome.text = message
                 binding.cvHeader.visibility = View.VISIBLE
+                viewModel.clearWelcomeMessage()
                 binding.cvHeader.postDelayed({
                     _binding?.cvHeader?.animate()
                         ?.alpha(0f)?.setDuration(500)

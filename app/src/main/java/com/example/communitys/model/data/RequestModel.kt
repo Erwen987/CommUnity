@@ -13,6 +13,7 @@ data class RequestModel(
     val status: String = "pending",
     @SerialName("reference_number") val referenceNumber: String = "",
     @SerialName("created_at") val createdAt: String = "",
+    @SerialName("proof_url") val proofUrl: String? = null,
     @SerialName("barangay") val barangay: String? = null,
     @SerialName("rejection_reason") val rejectionReason: String? = null
 )

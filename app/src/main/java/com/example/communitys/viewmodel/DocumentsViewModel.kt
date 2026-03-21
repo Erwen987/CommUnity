@@ -16,6 +16,9 @@ class DocumentsViewModel : ViewModel() {
         val reference: String,
         val status: String,
         val date: String,
+        val purpose: String = "",
+        val paymentMethod: String = "",
+        val proofUrl: String? = null,
         val rejectionReason: String? = null
     )
 
@@ -55,6 +58,9 @@ class DocumentsViewModel : ViewModel() {
                         reference       = r.referenceNumber.ifEmpty { "—" },
                         status          = r.status,
                         date            = r.createdAt,
+                        purpose         = r.purpose,
+                        paymentMethod   = r.paymentMethod,
+                        proofUrl        = r.proofUrl,
                         rejectionReason = r.rejectionReason
                     )
                 }

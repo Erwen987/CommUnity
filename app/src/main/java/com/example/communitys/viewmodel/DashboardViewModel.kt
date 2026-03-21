@@ -131,6 +131,10 @@ class DashboardViewModel : ViewModel() {
             .onSuccess { _announcements.value = it }
     }
 
+    fun clearWelcomeMessage() {
+        _welcomeMessage.value = ""
+    }
+
     // ── Refresh stats (call this when returning to dashboard) ─────────────────
 
     fun refreshStats() {
