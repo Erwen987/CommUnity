@@ -34,21 +34,21 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <!-- 2 Tab Buttons -->
+            <!-- 3 Tab Buttons -->
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:orientation="horizontal" android:padding="12dp">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnMyRequest"
                     android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
-                    android:text="My Request" android:textSize="12sp"
+                    android:text="Requests" android:textSize="11sp"
                     android:textColor="@android:color/white" android:textStyle="bold"
                     android:backgroundTint="#2C5F7F" app:cornerRadius="12dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnHistory"
                     android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
-                    android:layout_marginStart="6dp" android:text="History" android:textSize="12sp"
+                    android:layout_marginStart="6dp" android:text="History" android:textSize="11sp"
                     android:textColor="#7A7A7A" android:textStyle="bold"
                     android:backgroundTint="#D3D3D3" app:cornerRadius="12dp" />
             </LinearLayout>
@@ -90,6 +90,7 @@
                 android:textSize="14sp" android:gravity="center"
                 android:padding="32dp" android:visibility="gone" />
 
+            <!-- Documents RecyclerView (My Request + History tabs) -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent" android:layout_height="0dp"

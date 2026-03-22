@@ -11,7 +11,8 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class LocationReportsAdapter(
-    private var items: List<ReportModel> = emptyList()
+    private var items: List<ReportModel> = emptyList(),
+    private val onViewDetails: (ReportModel) -> Unit = {}
 ) : RecyclerView.Adapter<LocationReportsAdapter.ViewHolder>() {
 
     inner class ViewHolder(val binding: ItemReportBinding) :
@@ -48,14 +49,14 @@ class LocationReportsAdapter(
             }
 
             val color = statusColor(item.status)
-
-            val badge = GradientDrawable().apply {
+            tvReportStatus.background = GradientDrawable().apply {
                 shape        = GradientDrawable.RECTANGLE
                 cornerRadius = 100f
                 setColor(color)
             }
-            tvReportStatus.background = badge
             viewStripe.setBackgroundColor(color)
+
+            btnViewReportDetails.setOnClickListener { onViewDetails(item) }
         }
     }
 

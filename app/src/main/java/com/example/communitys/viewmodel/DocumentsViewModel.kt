@@ -25,13 +25,13 @@ class DocumentsViewModel : ViewModel() {
     private val requestRepo = RequestRepository()
     private val authHelper  = SupabaseAuthHelper()
 
-    private val _items     = MutableLiveData<List<DocumentItem>>()
+    private val _items       = MutableLiveData<List<DocumentItem>>()
     val items: LiveData<List<DocumentItem>> = _items
 
-    private val _isLoading = MutableLiveData<Boolean>()
+    private val _isLoading   = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _error     = MutableLiveData<String?>()
+    private val _error       = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
     private var allRequests = listOf<DocumentItem>()

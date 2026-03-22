@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#ffffff">
+
+    <!-- Drag handle -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:background="#e5e7eb" />
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="All My Reports"
+            android:textColor="#111827"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvAllReportsCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#9ca3af"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#f1f5f9" />
+
+    <!-- Scrollable list -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerAllReports"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="520dp"
+        android:padding="12dp"
+        android:clipToPadding="false"
+        android:scrollbars="none" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="16dp" />
+
+</LinearLayout>

@@ -16,6 +16,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.communitys.databinding.FragmentLocationBinding
+import com.example.communitys.model.data.ReportModel
+import com.example.communitys.view.documents.ReportDetailSheet
 import com.example.communitys.viewmodel.LocationViewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -44,6 +46,7 @@ class LocationFragment : Fragment(), OnMapReadyCallback {
     private var googleMap: GoogleMap? = null
     private var userLatLng: LatLng? = null
     private var currentBarangay: String? = null
+    private var allReports: List<ReportModel> = emptyList()
 
     companion object {
         private val BARANGAY_HALLS = mapOf(
@@ -107,7 +110,18 @@ class LocationFragment : Fragment(), OnMapReadyCallback {
         super.onViewCreated(view, savedInstanceState)
 
         // RecyclerView
-        adapter = LocationReportsAdapter()
+        adapter = LocationReportsAdapter(onViewDetails = { item ->
+            ReportDetailSheet.newInstance(
+                problem       = item.problem,
+                description   = item.description,
+                status        = item.status,
+                date          = item.createdAt,
+                imageUrl      = item.imageUrl,
+                pointsAwarded = item.pointsAwarded,
+                locationLat   = item.locationLat,
+                locationLng   = item.locationLng
+            ).show(childFragmentManager, "report_detail")
+        })
         binding.recyclerReports.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerReports.adapter = adapter
 
@@ -130,9 +144,15 @@ class LocationFragment : Fragment(), OnMapReadyCallback {
         }
 
         viewModel.reports.observe(viewLifecycleOwner) { list ->
-            adapter.updateList(list)
+            allReports = list
+            adapter.updateList(list.take(3))
             binding.tvEmpty.visibility         = if (list.isEmpty()) View.VISIBLE else View.GONE
             binding.recyclerReports.visibility = if (list.isEmpty()) View.GONE   else View.VISIBLE
+            binding.tvViewAllReports.visibility = if (list.size > 3) View.VISIBLE else View.GONE
+        }
+
+        binding.tvViewAllReports.setOnClickListener {
+            AllReportsSheet.newInstance(allReports).show(childFragmentManager, "all_reports")
         }
 
         viewModel.error.observe(viewLifecycleOwner) { err ->

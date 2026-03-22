@@ -65,7 +65,6 @@ class DocumentsFragment : Fragment() {
 
     private fun setActiveTab(tab: String) {
         currentTab = tab
-        viewModel.setTab(tab)
 
         listOf(binding.btnMyRequest, binding.btnHistory).forEach { btn ->
             btn.backgroundTintList = ColorStateList.valueOf(colorInactive)
@@ -76,23 +75,33 @@ class DocumentsFragment : Fragment() {
         activeBtn.backgroundTintList = ColorStateList.valueOf(colorActive)
         activeBtn.setTextColor(textActive)
 
+        // Show/hide chips (only for requests tab)
         binding.chipScrollView.visibility = if (tab == "requests") View.VISIBLE else View.GONE
+
+        viewModel.setTab(tab)
+        if (tab == "requests") {
+            binding.chipAll.isChecked = true
+            updateChipStyles(binding.chipAll.id)
+        }
     }
 
     private fun setupChips() {
-        // Set initial visual state
         updateChipStyles(binding.chipAll.id)
 
-        binding.chipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
-            val checkedId = checkedIds.firstOrNull() ?: binding.chipAll.id
-            updateChipStyles(checkedId)
-
-            val filter = when (checkedId) {
-                binding.chipPending.id        -> "pending"
-                binding.chipReadyForPickup.id -> "ready_for_pickup"
-                else                          -> "all"
-            }
-            viewModel.setFilter(filter)
+        binding.chipAll.setOnClickListener {
+            binding.chipAll.isChecked = true
+            updateChipStyles(binding.chipAll.id)
+            viewModel.setFilter("all")
+        }
+        binding.chipPending.setOnClickListener {
+            binding.chipPending.isChecked = true
+            updateChipStyles(binding.chipPending.id)
+            viewModel.setFilter("pending")
+        }
+        binding.chipReadyForPickup.setOnClickListener {
+            binding.chipReadyForPickup.isChecked = true
+            updateChipStyles(binding.chipReadyForPickup.id)
+            viewModel.setFilter("ready_for_pickup")
         }
     }
 

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#ffffff"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Drag handle -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp"
+            android:background="#e5e7eb" />
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="16dp">
+
+            <TextView
+                android:id="@+id/tvRptDetailStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#ffffff"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp" />
+
+            <TextView
+                android:id="@+id/tvRptDetailProblem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#111827"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp"
+                android:lineSpacingMultiplier="1.2" />
+
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f1f5f9" />
+
+        <!-- Info rows -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp">
+
+            <!-- Date submitted -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="14dp">
+                <TextView
+                    android:layout_width="110dp"
+                    android:layout_height="wrap_content"
+                    android:text="Date Submitted"
+                    android:textColor="#9ca3af"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tvRptDetailDate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="#111827"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Description -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="top"
+                android:layout_marginBottom="14dp">
+                <TextView
+                    android:layout_width="110dp"
+                    android:layout_height="wrap_content"
+                    android:text="Description"
+                    android:textColor="#9ca3af"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tvRptDetailDescription"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="#111827"
+                    android:textSize="13sp"
+                    android:lineSpacingMultiplier="1.4" />
+            </LinearLayout>
+
+            <!-- Points awarded -->
+            <LinearLayout
+                android:id="@+id/layoutRptPoints"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="14dp"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="110dp"
+                    android:layout_height="wrap_content"
+                    android:text="Points Earned"
+                    android:textColor="#9ca3af"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tvRptDetailPoints"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="#16a34a"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Report location map -->
+        <LinearLayout
+            android:id="@+id/layoutRptMap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="16dp"
+            android:visibility="gone">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#f1f5f9"
+                android:layout_marginBottom="14dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Report Location"
+                android:textColor="#9ca3af"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="10dp" />
+
+            <FrameLayout
+                android:id="@+id/rptMapContainer"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:background="#f1f5f9" />
+
+        </LinearLayout>
+
+        <!-- Report image -->
+        <LinearLayout
+            android:id="@+id/layoutRptImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="16dp"
+            android:visibility="gone">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#f1f5f9"
+                android:layout_marginBottom="14dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Photo Evidence"
+                android:textColor="#9ca3af"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="10dp" />
+
+            <ImageView
+                android:id="@+id/ivRptDetailImage"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:background="#f1f5f9" />
+
+        </LinearLayout>
+
+        <!-- Bottom spacer -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="28dp" />
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

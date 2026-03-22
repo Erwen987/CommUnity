@@ -22,7 +22,12 @@
       "Bash(find c:UsersJvDownloadsCommUnityWebcommunity-websrccomponents -type f -name *.js -o -name *.jsx)",
       "Bash(CI=false npm run build)",
       "Bash(npm run:*)",
-      "Bash(grep -E \"\\\\.js$|\\\\.jsx$|\\\\.css$|^d\")"
+      "Bash(grep -E \"\\\\.js$|\\\\.jsx$|\\\\.css$|^d\")",
+      "Bash(find c:UsersJvAndroidStudioProjectsCommUnity -name *Activity.kt -o -name *Navigation*)",
+      "Bash(\"c:/Users/Jv/AndroidStudioProjects/CommUnity/app/src/main/res/layout/bottom_sheet_report_detail.xml\")",
+      "mcp__claude_ai_Supabase__deploy_edge_function",
+      "mcp__claude_ai_Supabase__get_logs",
+      "Bash(find c:/Users/Jv/Downloads/CommUnityWeb -name *.toml -o -name *.ts)"
     ]
   }
 }
