@@ -2,6 +2,7 @@ package com.example.communitys.view.profile
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -316,12 +317,25 @@ class ProfileFragment : Fragment() {
     // ── Logout Dialog ─────────────────────────────────────────────────────────
 
     private fun showLogoutDialog() {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Log Out")
-            .setMessage("Are you sure you want to log out?")
-            .setPositiveButton("Yes") { _, _ -> viewModel.logout() }
-            .setNegativeButton("Cancel", null)
-            .show()
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_logout, null)
+
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnLogoutCancel)
+            .setOnClickListener { dialog.dismiss() }
+
+        dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnLogoutConfirm)
+            .setOnClickListener {
+                dialog.dismiss()
+                viewModel.logout()
+            }
+
+        dialog.show()
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
