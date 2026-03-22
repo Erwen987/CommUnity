@@ -78,9 +78,8 @@ class AllReportsSheet : BottomSheetDialogFragment() {
         val chipAll        = view.findViewById<Chip>(R.id.chipFilterAll)
         val chipPending    = view.findViewById<Chip>(R.id.chipFilterPending)
         val chipInProgress = view.findViewById<Chip>(R.id.chipFilterInProgress)
-        val chipResolved   = view.findViewById<Chip>(R.id.chipFilterResolved)
         val chipHistory    = view.findViewById<Chip>(R.id.chipFilterHistory)
-        val chips = listOf(chipAll, chipPending, chipInProgress, chipResolved, chipHistory)
+        val chips = listOf(chipAll, chipPending, chipInProgress, chipHistory)
 
         tvCount.text = "${allReports.size} total report${if (allReports.size != 1) "s" else ""}"
 
@@ -88,14 +87,15 @@ class AllReportsSheet : BottomSheetDialogFragment() {
 
         adapter = LocationReportsAdapter(onViewDetails = { item ->
             ReportDetailSheet.newInstance(
-                problem       = item.problem,
-                description   = item.description,
-                status        = item.status,
-                date          = item.createdAt,
-                imageUrl      = item.imageUrl,
-                pointsAwarded = item.pointsAwarded,
-                locationLat   = item.locationLat,
-                locationLng   = item.locationLng
+                problem         = item.problem,
+                description     = item.description,
+                status          = item.status,
+                date            = item.createdAt,
+                imageUrl        = item.imageUrl,
+                pointsAwarded   = item.pointsAwarded,
+                locationLat     = item.locationLat,
+                locationLng     = item.locationLng,
+                rejectionReason = item.rejectionReason
             ).show(parentFragmentManager, "report_detail")
         })
         recycler.layoutManager = LinearLayoutManager(requireContext())
@@ -168,8 +168,7 @@ class AllReportsSheet : BottomSheetDialogFragment() {
             filteredList  = when (filter) {
                 "pending"     -> allReports.filter { it.status == "pending" }
                 "in_progress" -> allReports.filter { it.status == "in_progress" }
-                "resolved"    -> allReports.filter { it.status == "resolved" }
-                "history"     -> allReports.filter { it.status == "rejected" }
+                "history"     -> allReports.filter { it.status == "resolved" || it.status == "rejected" }
                 else          -> allReports
             }
             render()
@@ -180,7 +179,6 @@ class AllReportsSheet : BottomSheetDialogFragment() {
         chipAll.setOnClickListener        { styleChips(R.id.chipFilterAll);        applyFilter("all") }
         chipPending.setOnClickListener    { styleChips(R.id.chipFilterPending);    applyFilter("pending") }
         chipInProgress.setOnClickListener { styleChips(R.id.chipFilterInProgress); applyFilter("in_progress") }
-        chipResolved.setOnClickListener   { styleChips(R.id.chipFilterResolved);   applyFilter("resolved") }
         chipHistory.setOnClickListener    { styleChips(R.id.chipFilterHistory);    applyFilter("history") }
 
         // ── Pagination clicks ─────────────────────────────────────────────────

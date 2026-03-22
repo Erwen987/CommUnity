@@ -112,14 +112,15 @@ class LocationFragment : Fragment(), OnMapReadyCallback {
         // RecyclerView
         adapter = LocationReportsAdapter(onViewDetails = { item ->
             ReportDetailSheet.newInstance(
-                problem       = item.problem,
-                description   = item.description,
-                status        = item.status,
-                date          = item.createdAt,
-                imageUrl      = item.imageUrl,
-                pointsAwarded = item.pointsAwarded,
-                locationLat   = item.locationLat,
-                locationLng   = item.locationLng
+                problem         = item.problem,
+                description     = item.description,
+                status          = item.status,
+                date            = item.createdAt,
+                imageUrl        = item.imageUrl,
+                pointsAwarded   = item.pointsAwarded,
+                locationLat     = item.locationLat,
+                locationLng     = item.locationLng,
+                rejectionReason = item.rejectionReason
             ).show(childFragmentManager, "report_detail")
         })
         binding.recyclerReports.layoutManager = LinearLayoutManager(requireContext())

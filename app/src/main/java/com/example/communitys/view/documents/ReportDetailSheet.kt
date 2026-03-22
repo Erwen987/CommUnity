@@ -31,8 +31,9 @@ class ReportDetailSheet : BottomSheetDialogFragment(), OnMapReadyCallback {
         private const val ARG_DATE        = "date"
         private const val ARG_IMAGE_URL   = "image_url"
         private const val ARG_POINTS      = "points"
-        private const val ARG_LAT         = "location_lat"
-        private const val ARG_LNG         = "location_lng"
+        private const val ARG_LAT              = "location_lat"
+        private const val ARG_LNG              = "location_lng"
+        private const val ARG_REJECTION_REASON = "rejection_reason"
 
         fun newInstance(
             problem: String,
@@ -42,15 +43,17 @@ class ReportDetailSheet : BottomSheetDialogFragment(), OnMapReadyCallback {
             imageUrl: String?,
             pointsAwarded: Int?,
             locationLat: Double? = null,
-            locationLng: Double? = null
+            locationLng: Double? = null,
+            rejectionReason: String? = null
         ): ReportDetailSheet {
             return ReportDetailSheet().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PROBLEM,     problem)
-                    putString(ARG_DESCRIPTION, description)
-                    putString(ARG_STATUS,      status)
-                    putString(ARG_DATE,        date)
-                    putString(ARG_IMAGE_URL,   imageUrl)
+                    putString(ARG_PROBLEM,          problem)
+                    putString(ARG_DESCRIPTION,      description)
+                    putString(ARG_STATUS,           status)
+                    putString(ARG_DATE,             date)
+                    putString(ARG_IMAGE_URL,        imageUrl)
+                    putString(ARG_REJECTION_REASON, rejectionReason)
                     if (pointsAwarded != null) putInt(ARG_POINTS, pointsAwarded)
                     if (locationLat   != null) putDouble(ARG_LAT, locationLat)
                     if (locationLng   != null) putDouble(ARG_LNG, locationLng)
@@ -71,19 +74,22 @@ class ReportDetailSheet : BottomSheetDialogFragment(), OnMapReadyCallback {
         val status      = arguments?.getString(ARG_STATUS)      ?: ""
         val date        = arguments?.getString(ARG_DATE)        ?: ""
         val imageUrl    = arguments?.getString(ARG_IMAGE_URL)
-        val points      = if (arguments?.containsKey(ARG_POINTS) == true) arguments?.getInt(ARG_POINTS) else null
-        val lat         = if (arguments?.containsKey(ARG_LAT) == true) arguments?.getDouble(ARG_LAT) else null
-        val lng         = if (arguments?.containsKey(ARG_LNG) == true) arguments?.getDouble(ARG_LNG) else null
+        val points          = if (arguments?.containsKey(ARG_POINTS) == true) arguments?.getInt(ARG_POINTS) else null
+        val lat             = if (arguments?.containsKey(ARG_LAT) == true) arguments?.getDouble(ARG_LAT) else null
+        val lng             = if (arguments?.containsKey(ARG_LNG) == true) arguments?.getDouble(ARG_LNG) else null
+        val rejectionReason = arguments?.getString(ARG_REJECTION_REASON)
 
-        val tvStatus      = view.findViewById<TextView>(R.id.tvRptDetailStatus)
-        val tvProblem     = view.findViewById<TextView>(R.id.tvRptDetailProblem)
-        val tvDate        = view.findViewById<TextView>(R.id.tvRptDetailDate)
-        val tvDescription = view.findViewById<TextView>(R.id.tvRptDetailDescription)
-        val layoutPoints  = view.findViewById<LinearLayout>(R.id.layoutRptPoints)
-        val tvPoints      = view.findViewById<TextView>(R.id.tvRptDetailPoints)
-        val layoutImage   = view.findViewById<LinearLayout>(R.id.layoutRptImage)
-        val ivImage       = view.findViewById<ImageView>(R.id.ivRptDetailImage)
-        val layoutMap     = view.findViewById<LinearLayout>(R.id.layoutRptMap)
+        val tvStatus          = view.findViewById<TextView>(R.id.tvRptDetailStatus)
+        val tvProblem         = view.findViewById<TextView>(R.id.tvRptDetailProblem)
+        val tvDate            = view.findViewById<TextView>(R.id.tvRptDetailDate)
+        val tvDescription     = view.findViewById<TextView>(R.id.tvRptDetailDescription)
+        val layoutPoints      = view.findViewById<LinearLayout>(R.id.layoutRptPoints)
+        val tvPoints          = view.findViewById<TextView>(R.id.tvRptDetailPoints)
+        val layoutImage       = view.findViewById<LinearLayout>(R.id.layoutRptImage)
+        val ivImage           = view.findViewById<ImageView>(R.id.ivRptDetailImage)
+        val layoutMap         = view.findViewById<LinearLayout>(R.id.layoutRptMap)
+        val layoutRejection   = view.findViewById<LinearLayout>(R.id.layoutRejectionReason)
+        val tvRejectionReason = view.findViewById<TextView>(R.id.tvRejectionReason)
 
         // Status badge
         val (label, color) = statusInfo(status)
@@ -108,6 +114,12 @@ class ReportDetailSheet : BottomSheetDialogFragment(), OnMapReadyCallback {
         if (!imageUrl.isNullOrBlank()) {
             layoutImage.visibility = View.VISIBLE
             ivImage.load(imageUrl) { crossfade(300) }
+        }
+
+        // Rejection reason
+        if (status == "rejected" && !rejectionReason.isNullOrBlank()) {
+            layoutRejection.visibility = View.VISIBLE
+            tvRejectionReason.text = rejectionReason
         }
 
         // Map — show only if location was saved

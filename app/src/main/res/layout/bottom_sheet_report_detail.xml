@@ -144,6 +144,45 @@
 
         </LinearLayout>
 
+        <!-- Rejection reason box (shown only when rejected) -->
+        <LinearLayout
+            android:id="@+id/layoutRejectionReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="12dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#FEF2F2"
+                android:padding="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rejection Reason"
+                    android:textColor="#991B1B"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="6dp" />
+
+                <TextView
+                    android:id="@+id/tvRejectionReason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#B91C1C"
+                    android:textSize="13sp"
+                    android:lineSpacingMultiplier="1.4" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
         <!-- Report location map -->
         <LinearLayout
             android:id="@+id/layoutRptMap"
