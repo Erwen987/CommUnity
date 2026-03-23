@@ -36,14 +36,23 @@ class RequestRepository {
         barangay: String? = null
     ): Result<Unit> {
         return try {
+            val userData = supabase.from("users")
+                .select(columns = Columns.list("first_name", "last_name")) {
+                    filter { eq("auth_id", userId) }
+                }
+                .decodeList<com.example.communitys.model.data.UserModel>()
+                .firstOrNull()
+            val residentName = if (userData != null) "${userData.firstName} ${userData.lastName}".trim() else ""
+
             val data = buildJsonObject {
-                put("user_id", userId)
+                put("user_id",       userId)
                 put("document_type", documentType)
-                put("purpose", purpose)
+                put("purpose",       purpose)
                 put("payment_method", paymentMethod)
-                put("status", "pending")
+                put("status",        "pending")
+                put("resident_name", residentName)
                 if (proofUrl != null) put("proof_url", proofUrl)
-                if (barangay != null) put("barangay", barangay)
+                if (barangay != null) put("barangay",  barangay)
             }
             supabase.from("requests").insert(data)
             Result.success(Unit)

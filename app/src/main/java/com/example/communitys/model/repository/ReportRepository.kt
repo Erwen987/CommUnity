@@ -4,6 +4,7 @@ import com.example.communitys.CommUnityApplication
 import com.example.communitys.model.data.ReportModel
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -17,11 +18,20 @@ class ReportRepository {
 
     suspend fun createReport(report: ReportModel): Result<String> {
         return try {
+            val userData = supabase.from("users")
+                .select(columns = Columns.list("first_name", "last_name")) {
+                    filter { eq("auth_id", report.userId) }
+                }
+                .decodeList<com.example.communitys.model.data.UserModel>()
+                .firstOrNull()
+            val residentName = if (userData != null) "${userData.firstName} ${userData.lastName}".trim() else ""
+
             val data = buildJsonObject {
-                put("user_id",     report.userId)
-                put("problem",     report.problem)
-                put("description", report.description)
-                put("status",      report.status)
+                put("user_id",       report.userId)
+                put("problem",       report.problem)
+                put("description",   report.description)
+                put("status",        report.status)
+                put("resident_name", residentName)
                 if (report.imageUrl    != null) put("image_url",    report.imageUrl)
                 if (report.locationLat != null) put("location_lat", report.locationLat)
                 if (report.locationLng != null) put("location_lng", report.locationLng)
@@ -46,18 +56,25 @@ class ReportRepository {
         imageUrl: String?
     ): Result<Unit> {
         return try {
-            // Get current user ID
             val userId = supabase.auth.currentUserOrNull()?.id
                 ?: throw Exception("User not authenticated")
 
-            // Create report object
+            val userData = supabase.from("users")
+                .select(columns = Columns.list("first_name", "last_name")) {
+                    filter { eq("auth_id", userId) }
+                }
+                .decodeList<com.example.communitys.model.data.UserModel>()
+                .firstOrNull()
+            val residentName = if (userData != null) "${userData.firstName} ${userData.lastName}".trim() else ""
+
             val report = mapOf(
-                "user_id" to userId,
-                "category" to category,
-                "description" to description,
-                "location" to location,
-                "image_url" to imageUrl,
-                "status" to "pending"
+                "user_id"       to userId,
+                "category"      to category,
+                "description"   to description,
+                "location"      to location,
+                "image_url"     to imageUrl,
+                "status"        to "pending",
+                "resident_name" to residentName
             )
 
             supabase.from("reports").insert(report)
