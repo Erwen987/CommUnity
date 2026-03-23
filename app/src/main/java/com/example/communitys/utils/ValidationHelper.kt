@@ -13,8 +13,8 @@ object ValidationHelper {
 
     // ── Regex patterns ────────────────────────────────────────────────────────
 
-    // Letters + allowed punctuation: . - '  |  min 2 chars  |  no digits/spaces
-    private val NAME_REGEX = Regex("^[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ.'\\-]*\$")
+    // Letters + spaces + allowed punctuation: . - '  |  min 2 chars  |  no digits
+    private val NAME_REGEX = Regex("^[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ .'\\-]*\$")
 
     // @gmail.com only
     private val EMAIL_REGEX = Regex(
@@ -38,7 +38,7 @@ object ValidationHelper {
             name.isEmpty()            -> ValidationResult.Error("$fieldLabel is required")
             name.length < 2           -> ValidationResult.Error("$fieldLabel must be at least 2 characters")
             name.any { it.isDigit() } -> ValidationResult.Error("$fieldLabel cannot contain numbers")
-            !NAME_REGEX.matches(name) -> ValidationResult.Error("$fieldLabel: only letters and . - ' allowed")
+            !NAME_REGEX.matches(name) -> ValidationResult.Error("$fieldLabel: only letters, spaces, and . - ' allowed")
             else                      -> ValidationResult.Success
         }
     }
