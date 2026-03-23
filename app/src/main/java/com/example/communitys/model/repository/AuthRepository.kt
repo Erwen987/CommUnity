@@ -204,26 +204,20 @@ class AuthRepository {
 
     suspend fun lookupEmailByPhone(phone: String): Result<String> {
         return try {
-            val digits = phone.replace(Regex("[^0-9]"), "")
-            val users = supabase.from("users")
-                .select { filter { eq("phone", digits) } }
-                .decodeList<UserModel>()
+            val raw = supabase.postgrest.rpc(
+                "lookup_email_by_phone",
+                buildJsonObject { put("p_phone", phone.trim()) }
+            ).data
+            // Supabase returns "null" for SQL NULL, or "\"email@example.com\"" for a result
+            val email = if (raw == "null" || raw.isBlank()) null
+                        else raw.trim('"')
 
-            if (users.isEmpty()) {
-                // Also try with leading 0 stripped (e.g. 9171234567 vs 09171234567)
-                val alt = if (digits.startsWith("0")) digits.substring(1) else "0$digits"
-                val altUsers = supabase.from("users")
-                    .select { filter { eq("phone", alt) } }
-                    .decodeList<UserModel>()
-
-                if (altUsers.isEmpty())
-                    return Result.failure(Exception("No account found with this phone number."))
-                Result.success(altUsers.first().email)
-            } else {
-                Result.success(users.first().email)
-            }
+            if (email.isNullOrBlank())
+                Result.failure(Exception("No account found with this phone number."))
+            else
+                Result.success(email)
         } catch (e: Exception) {
-            Result.failure(Exception("Could not find account: ${e.message}"))
+            Result.failure(Exception("No account found with this phone number."))
         }
     }
 

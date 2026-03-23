@@ -41,6 +41,7 @@ class ProfileViewModel : ViewModel() {
                     firstName = user.firstName,
                     lastName  = user.lastName,
                     email     = user.email,
+                    phone     = user.phone ?: "",
                     barangay  = formatBarangay(user.barangay),
                     points    = user.points ?: 0,
                     avatarUrl = user.avatarUrl
@@ -146,6 +147,7 @@ class ProfileViewModel : ViewModel() {
         val firstName : String  = "",
         val lastName  : String  = "",
         val email     : String  = "",
+        val phone     : String  = "",
         val barangay  : String  = "",
         val points    : Int     = 0,
         val avatarUrl : String? = null

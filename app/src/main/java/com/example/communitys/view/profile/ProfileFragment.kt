@@ -63,6 +63,7 @@ class ProfileFragment : Fragment() {
             binding.tvUserName.text = profile.name
             binding.tvFullName.text = profile.name
             binding.tvEmail.text    = profile.email
+            binding.tvPhone.text    = profile.phone?.takeIf { it.isNotBlank() } ?: "—"
             binding.tvBarangay.text = profile.barangay
             binding.tvPoints.text   = profile.points.toString()
             loadAvatar(profile.avatarUrl)
@@ -128,6 +129,7 @@ class ProfileFragment : Fragment() {
             val intent = Intent(requireContext(), EditProfileActivity::class.java).apply {
                 putExtra("name",     profile.name)
                 putExtra("email",    profile.email)
+                putExtra("phone",    profile.phone ?: "")
                 putExtra("barangay", profile.barangay)
             }
             editProfileLauncher.launch(intent)
