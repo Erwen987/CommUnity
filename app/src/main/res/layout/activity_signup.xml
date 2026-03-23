@@ -188,6 +188,35 @@
                         android:padding="16dp"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Phone Number -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:boxBackgroundMode="filled"
+                    app:boxBackgroundColor="@color/input_background"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:hintTextColor="@color/hint_text_color"
+                    app:boxStrokeColor="@color/primary_blue"
+                    app:boxStrokeWidth="2dp"
+                    app:boxStrokeErrorColor="@android:color/holo_red_light"
+                    app:errorTextColor="@android:color/holo_red_light">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Phone number (e.g. 09171234567)"
+                        android:inputType="phone"
+                        android:textColor="@color/input_text_color"
+                        android:textColorHint="@color/hint_text_color"
+                        android:padding="16dp"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
                 <!-- Password -->
                 <!-- errorEnabled intentionally NOT set in XML -->
                 <!-- It is controlled dynamically so the eye toggle always stays visible -->

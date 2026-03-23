@@ -108,6 +108,20 @@ object ValidationHelper {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // PHONE   (used by SignUpActivity + AuthViewModel)
+    // Rules: not empty | digits only after stripping non-digits | length 10–13
+    // ─────────────────────────────────────────────────────────────────────────
+    fun validatePhone(value: String): ValidationResult {
+        val digits = value.trim().replace(Regex("[^0-9]"), "")
+        return when {
+            value.trim().isEmpty() -> ValidationResult.Error("Phone number is required")
+            digits.length < 10     -> ValidationResult.Error("Phone number must be at least 10 digits")
+            digits.length > 13     -> ValidationResult.Error("Phone number must not exceed 13 digits")
+            else                   -> ValidationResult.Success
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // CONFIRM PASSWORD   (used by SignUpActivity)
     // ─────────────────────────────────────────────────────────────────────────
     fun validateConfirmPassword(password: String, confirm: String): ValidationResult {

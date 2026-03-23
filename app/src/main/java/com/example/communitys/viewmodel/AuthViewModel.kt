@@ -28,47 +28,76 @@ class AuthViewModel : ViewModel() {
     private val _resetPasswordState = MutableLiveData<AuthState>()
     val resetPasswordState: LiveData<AuthState> = _resetPasswordState
 
-    fun login(email: String, password: String) {
-        // Validate inputs
-        val emailValidation = ValidationHelper.validateEmail(email)
-        val passwordValidation = ValidationHelper.validatePassword(password)
+    fun login(emailOrPhone: String, password: String) {
+        val input = emailOrPhone.trim()
 
+        // Basic empty checks
         val errors = ValidationErrors()
-        
-        if (emailValidation is ValidationHelper.ValidationResult.Error) {
-            errors.emailError = emailValidation.message
+        if (input.isEmpty()) {
+            errors.emailError = "Email or phone number is required"
         }
-        
-        if (passwordValidation is ValidationHelper.ValidationResult.Error) {
-            errors.passwordError = passwordValidation.message
+        if (password.isEmpty()) {
+            errors.passwordError = "Password is required"
         }
-
         if (errors.hasErrors()) {
             _validationErrors.value = errors
             return
         }
 
-        // Block admin and official accounts from logging into the resident app
-        val blockedEmails = listOf(
-            "pandahuntergamer09@gmail.com",  // admin
-            "jerwenbacani80@gmail.com"       // official
-        )
-        if (email.trim().lowercase() in blockedEmails) {
-            _loginState.value = AuthState.Error(
-                "This account is for the admin/official portal only. Please use the web portal to log in."
-            )
+        // Detect if input is a phone number (only digits, +, spaces, dashes after trim)
+        val isPhone = input.replace(Regex("[^0-9]"), "").length >= 10 &&
+                      input.all { it.isDigit() || it == '+' || it == '-' || it == ' ' }
+
+        // If email: validate format; if phone: validate phone format
+        if (!isPhone) {
+            val emailValidation = ValidationHelper.validateEmail(input)
+            if (emailValidation is ValidationHelper.ValidationResult.Error) {
+                errors.emailError = emailValidation.message
+            }
+        } else {
+            val phoneValidation = ValidationHelper.validatePhone(input)
+            if (phoneValidation is ValidationHelper.ValidationResult.Error) {
+                errors.emailError = phoneValidation.message
+            }
+        }
+        if (errors.hasErrors()) {
+            _validationErrors.value = errors
             return
         }
 
-        // Clear errors and start loading
         _validationErrors.value = ValidationErrors()
         _loginState.value = AuthState.Loading
 
         viewModelScope.launch {
-            val result = authRepository.signIn(email.trim(), password)
-            
+            // If phone, look up the email first
+            val resolvedEmail: String = if (isPhone) {
+                val lookup = authRepository.lookupEmailByPhone(input)
+                if (lookup.isFailure) {
+                    _loginState.value = AuthState.Error(
+                        lookup.exceptionOrNull()?.message ?: "No account found with this phone number."
+                    )
+                    return@launch
+                }
+                lookup.getOrThrow()
+            } else {
+                input
+            }
+
+            // Block admin/official accounts
+            val blockedEmails = listOf(
+                "pandahuntergamer09@gmail.com",
+                "jerwenbacani80@gmail.com"
+            )
+            if (resolvedEmail.lowercase() in blockedEmails) {
+                _loginState.value = AuthState.Error(
+                    "This account is for the admin/official portal only. Please use the web portal to log in."
+                )
+                return@launch
+            }
+
+            val result = authRepository.signIn(resolvedEmail, password)
             result.onSuccess {
-                _loginState.value = AuthState.Success("Login successful!")
+                _loginState.value = AuthState.Success("Login successful!", resolvedEmail)
             }.onFailure { exception ->
                 _loginState.value = AuthState.Error(exception.message ?: "Login failed")
             }
@@ -80,6 +109,7 @@ class AuthViewModel : ViewModel() {
         lastName: String,
         barangay: String,
         email: String,
+        phone: String,
         password: String,
         confirmPassword: String
     ) {
@@ -88,6 +118,7 @@ class AuthViewModel : ViewModel() {
         val lastNameValidation = ValidationHelper.validateName(lastName, "Last name")
         val barangayValidation = ValidationHelper.validateBarangay(barangay)
         val emailValidation = ValidationHelper.validateEmail(email)
+        val phoneValidation = ValidationHelper.validatePhone(phone)
         val passwordValidation = ValidationHelper.validatePassword(password)
 
         val errors = ValidationErrors()
@@ -106,6 +137,10 @@ class AuthViewModel : ViewModel() {
 
         if (emailValidation is ValidationHelper.ValidationResult.Error) {
             errors.emailError = emailValidation.message
+        }
+
+        if (phoneValidation is ValidationHelper.ValidationResult.Error) {
+            errors.phoneError = phoneValidation.message
         }
 
         if (passwordValidation is ValidationHelper.ValidationResult.Error) {
@@ -145,7 +180,8 @@ class AuthViewModel : ViewModel() {
                 password = password,
                 firstName = firstName.trim(),
                 lastName = lastName.trim(),
-                barangay = barangay
+                barangay = barangay,
+                phone = phone.trim()
             )
 
             result.onSuccess { message ->
@@ -188,13 +224,15 @@ class AuthViewModel : ViewModel() {
         var lastNameError: String? = null,
         var barangayError: String? = null,
         var emailError: String? = null,
+        var phoneError: String? = null,
         var passwordError: String? = null,
         var confirmPasswordError: String? = null
     ) {
         fun hasErrors(): Boolean {
-            return firstNameError != null || lastNameError != null || 
-                   barangayError != null || emailError != null || 
-                   passwordError != null || confirmPasswordError != null
+            return firstNameError != null || lastNameError != null ||
+                   barangayError != null || emailError != null ||
+                   phoneError != null || passwordError != null ||
+                   confirmPasswordError != null
         }
     }
 }

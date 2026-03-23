@@ -106,28 +106,24 @@ class LoginActivity : AppCompatActivity() {
                 is AuthViewModel.AuthState.Success -> {
                     btnLogin.isEnabled = true
                     btnLogin.text = "LOGIN"
-                    
-                    // Save user name
-                    saveUserName(etEmail.text.toString())
-                    
+
+                    // state.email holds the resolved email (even if user typed a phone)
+                    saveUserName(state.email ?: etEmail.text.toString())
+
                     Toast.makeText(this, state.message, Toast.LENGTH_SHORT).show()
                     navigateToWelcome()
                 }
                 is AuthViewModel.AuthState.Error -> {
                     btnLogin.isEnabled = true
                     btnLogin.text = "LOGIN"
-                    
-                    // Show error on appropriate field
+
                     when {
-                        state.message.contains("email", ignoreCase = true) -> {
-                            tilEmail.error = state.message
-                        }
-                        state.message.contains("password", ignoreCase = true) -> {
+                        state.message.contains("password", ignoreCase = true) ->
                             tilPassword.error = state.message
-                        }
-                        else -> {
+                        state.message.contains("portal", ignoreCase = true) ->
                             Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
-                        }
+                        else ->
+                            tilEmail.error = state.message
                     }
                 }
             }
@@ -193,8 +189,12 @@ class LoginActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun saveUserName(email: String) {
-        val userName = email.substringBefore("@").replaceFirstChar { it.uppercase() }
+    private fun saveUserName(emailOrPhone: String) {
+        val userName = if (emailOrPhone.contains("@")) {
+            emailOrPhone.substringBefore("@").replaceFirstChar { it.uppercase() }
+        } else {
+            "User"
+        }
         val sharedPreferences = getSharedPreferences("CommUnityPrefs", MODE_PRIVATE)
         sharedPreferences.edit().putString("userName", userName).apply()
     }

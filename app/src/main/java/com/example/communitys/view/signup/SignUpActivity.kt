@@ -248,6 +248,19 @@ By registering, you confirm that you have read, understood, and agreed to this P
             if ("confirmPassword" in touchedFields) validateConfirmPasswordField()
         })
 
+        // ── Phone ─────────────────────────────────────────────────────────────
+        binding.etPhone.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                touchedFields.add("phone")
+                validatePhoneField()
+            } else {
+                clearError(binding.tilPhone)
+            }
+        }
+        binding.etPhone.addTextChangedListener(afterChanged {
+            if ("phone" in touchedFields) validatePhoneField()
+        })
+
         // ── Confirm Password ──────────────────────────────────────────────────
         binding.etConfirmPassword.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
@@ -301,6 +314,13 @@ By registering, you confirm that you have read, understood, and agreed to this P
         setError(binding.tilPassword, error)
     }
 
+    private fun validatePhoneField() {
+        val error = ValidationHelper.validatePhone(
+            binding.etPhone.text.toString()
+        ).errorMessage()
+        setError(binding.tilPhone, error)
+    }
+
     private fun validateConfirmPasswordField() {
         val error = ValidationHelper.validateConfirmPassword(
             binding.etPassword.text.toString(),
@@ -330,12 +350,13 @@ By registering, you confirm that you have read, understood, and agreed to this P
 
     private fun validateAll(): Boolean {
         touchedFields.addAll(
-            listOf("firstName", "lastName", "barangay", "email", "password", "confirmPassword")
+            listOf("firstName", "lastName", "barangay", "email", "phone", "password", "confirmPassword")
         )
         validateFirstNameField()
         validateLastNameField()
         validateBarangayField()
         validateEmailField()
+        validatePhoneField()
         validatePasswordField()
         validateConfirmPasswordField()
 
@@ -344,6 +365,7 @@ By registering, you confirm that you have read, understood, and agreed to this P
             binding.tilLastName.error,
             binding.tilBarangay.error,
             binding.tilEmail.error,
+            binding.tilPhone.error,
             binding.tilPassword.error,
             binding.tilConfirmPassword.error
         ).all { it == null }
@@ -364,6 +386,7 @@ By registering, you confirm that you have read, understood, and agreed to this P
                     lastName        = binding.etLastName.text.toString().trim(),
                     barangay        = binding.actvBarangay.text.toString().trim(),
                     email           = binding.etEmail.text.toString().trim(),
+                    phone           = binding.etPhone.text.toString().trim(),
                     password        = binding.etPassword.text.toString(),
                     confirmPassword = binding.etConfirmPassword.text.toString()
                 )

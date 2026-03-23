@@ -26,7 +26,8 @@ class AuthRepository {
         password: String,
         firstName: String,
         lastName: String,
-        barangay: String
+        barangay: String,
+        phone: String = ""
     ): Result<String> {
         return try {
             // Validate
@@ -50,10 +51,16 @@ class AuthRepository {
                 if (it is ValidationHelper.ValidationResult.Error)
                     return Result.failure(Exception(it.message))
             }
+            if (phone.isNotBlank()) {
+                ValidationHelper.validatePhone(phone).let {
+                    if (it is ValidationHelper.ValidationResult.Error)
+                        return Result.failure(Exception(it.message))
+                }
+            }
 
             // ✅ Pass user details as metadata — trigger will use these
             android.util.Log.d("AuthRepository", "Signing up user: $email")
-            android.util.Log.d("AuthRepository", "Metadata - firstName: $firstName, lastName: $lastName, barangay: $barangay")
+            android.util.Log.d("AuthRepository", "Metadata - firstName: $firstName, lastName: $lastName, barangay: $barangay, phone: $phone")
 
             supabase.auth.signUpWith(Email) {
                 this.email = email
@@ -62,6 +69,7 @@ class AuthRepository {
                     put("first_name", firstName)
                     put("last_name", lastName)
                     put("barangay", barangay)
+                    if (phone.isNotBlank()) put("phone", phone)
                 }
             }
 
@@ -189,6 +197,33 @@ class AuthRepository {
                 else -> "Login failed: ${e.message ?: "Please check your credentials"}"
             }
             Result.failure(Exception(errorMsg))
+        }
+    }
+
+    // ── Look Up Email by Phone ────────────────────────────────────────────────
+
+    suspend fun lookupEmailByPhone(phone: String): Result<String> {
+        return try {
+            val digits = phone.replace(Regex("[^0-9]"), "")
+            val users = supabase.from("users")
+                .select { filter { eq("phone", digits) } }
+                .decodeList<UserModel>()
+
+            if (users.isEmpty()) {
+                // Also try with leading 0 stripped (e.g. 9171234567 vs 09171234567)
+                val alt = if (digits.startsWith("0")) digits.substring(1) else "0$digits"
+                val altUsers = supabase.from("users")
+                    .select { filter { eq("phone", alt) } }
+                    .decodeList<UserModel>()
+
+                if (altUsers.isEmpty())
+                    return Result.failure(Exception("No account found with this phone number."))
+                Result.success(altUsers.first().email)
+            } else {
+                Result.success(users.first().email)
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Could not find account: ${e.message}"))
         }
     }
 
