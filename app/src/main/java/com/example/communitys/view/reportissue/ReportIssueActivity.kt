@@ -19,6 +19,7 @@ import com.example.communitys.R
 import com.example.communitys.SupabaseAuthHelper
 import com.example.communitys.SupabaseStorageHelper
 import com.example.communitys.databinding.ActivityReportIssueBinding
+import com.example.communitys.model.data.ReportCategoryModel
 import com.example.communitys.model.data.ReportModel
 import com.example.communitys.model.repository.ReportRepository
 import kotlinx.coroutines.launch
@@ -38,19 +39,9 @@ class ReportIssueActivity : AppCompatActivity() {
     private var locationManager: LocationManager? = null
     private var locationListener: LocationListener? = null
 
-    // Problem options — "Others" must stay last
-    private val problemOptions = listOf(
-        "Broken Road / Pothole",
-        "Broken Street Light",
-        "Clogged Drainage / Flood",
-        "Illegal Dumping / Garbage",
-        "Damaged Bridge / Footpath",
-        "Broken Water Pipe / No Water Supply",
-        "Stray Animals",
-        "Noise Complaint",
-        "Illegal Construction",
-        "Others"
-    )
+    // Categories loaded from DB
+    private var categories: List<ReportCategoryModel> = emptyList()
+    private var selectedCategory: ReportCategoryModel? = null
 
     private val imagePickerLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
@@ -86,9 +77,33 @@ class ReportIssueActivity : AppCompatActivity() {
         binding = ActivityReportIssueBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupProblemDropdown()
+        // Show loading state while categories load
+        binding.actvProblem.hint = "Loading categories..."
+        binding.actvProblem.isEnabled = false
+
         setupClickListeners()
         requestLocationCapture()
+        loadCategories()
+    }
+
+    // ── Load categories from DB ───────────────────────────────────────────────
+
+    private fun loadCategories() {
+        lifecycleScope.launch {
+            val result = reportRepository.getCategories()
+            if (result.isSuccess) {
+                categories = result.getOrThrow()
+                setupProblemDropdown()
+            } else {
+                binding.actvProblem.hint = "Select a problem"
+                Toast.makeText(
+                    this@ReportIssueActivity,
+                    "Could not load categories. Please try again.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            binding.actvProblem.isEnabled = true
+        }
     }
 
     // ── Location auto-capture ─────────────────────────────────────────────────
@@ -119,7 +134,6 @@ class ReportIssueActivity : AppCompatActivity() {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
 
         try {
-            // Try last known first for instant result
             val lastKnown =
                 locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
                     ?: locationManager?.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
@@ -129,7 +143,6 @@ class ReportIssueActivity : AppCompatActivity() {
                 return
             }
 
-            // No cached — request fresh fix
             locationListener = object : LocationListener {
                 override fun onLocationChanged(location: Location) {
                     onLocationCaptured(location)
@@ -158,7 +171,6 @@ class ReportIssueActivity : AppCompatActivity() {
                 return
             }
 
-            // Timeout after 15 seconds
             binding.root.postDelayed({
                 if (capturedLat == null) {
                     stopLocationUpdates()
@@ -205,12 +217,18 @@ class ReportIssueActivity : AppCompatActivity() {
     // ── Problem dropdown ──────────────────────────────────────────────────────
 
     private fun setupProblemDropdown() {
-        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, problemOptions)
+        val displayOptions = categories.map { cat ->
+            if (cat.points > 0) "${cat.name} — ${cat.points} pts"
+            else "${cat.name} — awarded by official"
+        }
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, displayOptions)
         binding.actvProblem.setAdapter(adapter)
+        binding.actvProblem.hint = "Select a problem"
 
         binding.actvProblem.setOnItemClickListener { _, _, position, _ ->
             binding.tilProblem.error = null
-            val isOthers = problemOptions[position] == "Others"
+            selectedCategory = categories.getOrNull(position)
+            val isOthers = selectedCategory?.name?.equals("Others", ignoreCase = true) == true
             val visibility = if (isOthers) View.VISIBLE else View.GONE
             binding.tvDescriptionLabel.visibility = visibility
             binding.tilDescription.visibility     = visibility
@@ -232,17 +250,18 @@ class ReportIssueActivity : AppCompatActivity() {
     // ── Submit ────────────────────────────────────────────────────────────────
 
     private fun submitReport() {
-        val selectedProblem = binding.actvProblem.text.toString().trim()
-        val description     = binding.etDescription.text.toString().trim()
-        val isOthers        = selectedProblem == "Others"
+        val category = selectedCategory
+        val description = binding.etDescription.text.toString().trim()
 
         binding.tilProblem.error     = null
         binding.tilDescription.error = null
 
-        if (selectedProblem.isEmpty() || !problemOptions.contains(selectedProblem)) {
+        if (category == null) {
             binding.tilProblem.error = "Please select a problem"
             return
         }
+
+        val isOthers = category.name.equals("Others", ignoreCase = true)
 
         if (isOthers) {
             when {
@@ -259,7 +278,7 @@ class ReportIssueActivity : AppCompatActivity() {
             }
         }
 
-        val finalDescription = if (isOthers) description else selectedProblem
+        val finalDescription = if (isOthers) description else category.name
 
         binding.btnSubmitReport.isEnabled = false
         binding.btnSubmitReport.text      = "Submitting..."
@@ -297,7 +316,7 @@ class ReportIssueActivity : AppCompatActivity() {
 
                 val report = ReportModel(
                     userId      = userId,
-                    problem     = selectedProblem,
+                    problem     = category.name,
                     description = finalDescription,
                     imageUrl    = uploadedImageUrl,
                     locationLat = capturedLat,
@@ -308,11 +327,24 @@ class ReportIssueActivity : AppCompatActivity() {
                 val saveResult = reportRepository.createReport(report)
 
                 if (saveResult.isSuccess) {
-                    Toast.makeText(
-                        this@ReportIssueActivity,
-                        "Report submitted! Points will be awarded once officials review it.",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    val reportId = saveResult.getOrThrow()
+
+                    // Auto-award points for non-Others categories
+                    if (!isOthers && category.points > 0) {
+                        reportRepository.awardPoints(
+                            userId   = userId,
+                            reportId = reportId,
+                            points   = category.points,
+                            reason   = "Reported: ${category.name}"
+                        )
+                    }
+
+                    val msg = if (!isOthers && category.points > 0)
+                        "Report submitted! You earned ${category.points} pts!"
+                    else
+                        "Report submitted! Points will be awarded after official review."
+
+                    Toast.makeText(this@ReportIssueActivity, msg, Toast.LENGTH_LONG).show()
                     finish()
                 } else {
                     Toast.makeText(

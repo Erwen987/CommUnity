@@ -1,6 +1,7 @@
 package com.example.communitys.model.repository
 
 import com.example.communitys.CommUnityApplication
+import com.example.communitys.model.data.ReportCategoryModel
 import com.example.communitys.model.data.ReportModel
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
@@ -194,6 +195,20 @@ class ReportRepository {
         } catch (e: Exception) {
             android.util.Log.e("ReportRepository", "awardPoints failed: ${e.message}")
             Result.failure(Exception(e.message ?: "Failed to award points"))
+        }
+    }
+
+    // ── Get report categories from DB ────────────────────────────────────────
+
+    suspend fun getCategories(): Result<List<ReportCategoryModel>> {
+        return try {
+            val categories = supabase.from("report_categories")
+                .select { order(column = "sort_order", order = Order.ASCENDING) }
+                .decodeList<ReportCategoryModel>()
+            Result.success(categories)
+        } catch (e: Exception) {
+            android.util.Log.e("ReportRepository", "getCategories failed: ${e.message}")
+            Result.failure(e)
         }
     }
 
