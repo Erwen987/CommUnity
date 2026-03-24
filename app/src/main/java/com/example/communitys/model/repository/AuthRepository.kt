@@ -252,7 +252,19 @@ class AuthRepository {
                 if (user.isBanned == true) {
                     try { supabase.auth.signOut() } catch (_: Exception) {}
                     val reason = if (!user.banReason.isNullOrBlank()) "\n\nReason: ${user.banReason}" else ""
-                    throw Exception("Your account has been permanently banned.$reason\n\nPlease contact your barangay official for more information.")
+                    // Check appeal status
+                    val appealStatus = try {
+                        supabase.from("appeals")
+                            .select { filter { eq("email", email) } }
+                            .decodeList<com.example.communitys.model.data.AppealModel>()
+                            .firstOrNull()?.status
+                    } catch (_: Exception) { null }
+                    val appealSuffix = when (appealStatus) {
+                        "pending"  -> "\n\nYour appeal is currently under review. Please wait for admin response."
+                        "rejected" -> "\n\nYour appeal was rejected. This ban is permanent."
+                        else       -> "\n##CAN_APPEAL##"
+                    }
+                    throw Exception("Your account has been permanently banned.$reason$appealSuffix")
                 }
                 // Check temporary suspension
                 if (!user.suspendedUntil.isNullOrBlank()) {
@@ -290,6 +302,35 @@ class AuthRepository {
                 else -> e.message ?: "Login failed"
             }
             Result.failure(Exception(errorMsg))
+        }
+    }
+
+    // ── Submit Appeal (for permanently banned users) ──────────────────────────
+
+    suspend fun submitAppeal(email: String, reason: String): Result<Unit> {
+        return try {
+            val existing = supabase.from("appeals")
+                .select { filter { eq("email", email) } }
+                .decodeList<com.example.communitys.model.data.AppealModel>()
+            if (existing.isNotEmpty()) {
+                val existingStatus = existing.first().status
+                return Result.failure(Exception(
+                    when (existingStatus) {
+                        "pending"  -> "You already have an appeal under review. Please wait for admin response."
+                        "rejected" -> "Your appeal was already rejected. This ban is permanent."
+                        else       -> "You have already submitted an appeal."
+                    }
+                ))
+            }
+            supabase.from("appeals").insert(mapOf(
+                "email"  to email,
+                "reason" to reason,
+                "status" to "pending"
+            ))
+            Result.success(Unit)
+        } catch (e: Exception) {
+            if (e.message?.contains("already") == true || e.message?.contains("appeal") == true) throw e
+            Result.failure(Exception(e.message ?: "Failed to submit appeal"))
         }
     }
 

@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.communitys.view.signup.SignUpActivity
 import com.example.communitys.view.welcome.WelcomeActivity
 import com.example.communitys.R
@@ -17,6 +18,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
 
@@ -117,13 +119,24 @@ class LoginActivity : AppCompatActivity() {
                     btnLogin.isEnabled = true
                     btnLogin.text = "LOGIN"
 
+                    val msg = state.message
                     when {
-                        state.message.contains("password", ignoreCase = true) ->
-                            tilPassword.error = state.message
-                        state.message.contains("portal", ignoreCase = true) ->
-                            Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
+                        msg.contains("##CAN_APPEAL##") -> {
+                            val display = msg.replace("##CAN_APPEAL##", "You may submit one appeal for admin review.")
+                            showBannedDialog(display, canAppeal = true)
+                        }
+                        msg.contains("permanently banned", ignoreCase = true) ->
+                            showBannedDialog(msg, canAppeal = false)
+                        msg.contains("temporarily suspended", ignoreCase = true) ->
+                            showInfoDialog("Account Suspended", msg)
+                        msg.contains("deleted", ignoreCase = true) ->
+                            showInfoDialog("Account Deleted", msg)
+                        msg.contains("password", ignoreCase = true) ->
+                            tilPassword.error = msg
+                        msg.contains("portal", ignoreCase = true) ->
+                            Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
                         else ->
-                            tilEmail.error = state.message
+                            tilEmail.error = msg
                     }
                 }
             }
@@ -181,6 +194,77 @@ class LoginActivity : AppCompatActivity() {
         }
 
         dialog.setOnDismissListener { forgotPasswordDialog = null }
+    }
+
+    private fun showInfoDialog(title: String, message: String) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    private fun showBannedDialog(message: String, canAppeal: Boolean) {
+        val email = etEmail.text.toString().trim()
+        val builder = MaterialAlertDialogBuilder(this)
+            .setTitle("Account Permanently Banned")
+            .setMessage(message)
+            .setNegativeButton("Close", null)
+        if (canAppeal) {
+            builder.setPositiveButton("Submit Appeal") { _, _ ->
+                showAppealDialog(email)
+            }
+        }
+        builder.show()
+    }
+
+    private fun showAppealDialog(email: String) {
+        val px = (resources.displayMetrics.density * 20).toInt()
+        val container = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(px, px / 2, px, 0)
+        }
+        val editText = android.widget.EditText(this).apply {
+            hint = "Explain why this ban should be lifted..."
+            minLines = 4
+            maxLines = 8
+            gravity = android.view.Gravity.TOP or android.view.Gravity.START
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                        android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                        android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+        }
+        container.addView(editText)
+
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle("Submit Appeal")
+            .setMessage("Describe why you believe this ban should be lifted. You can only submit one appeal.")
+            .setView(container)
+            .setPositiveButton("Submit", null)
+            .setNegativeButton("Cancel", null)
+            .create()
+
+        dialog.show()
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val reason = editText.text.toString().trim()
+            if (reason.isBlank()) { editText.error = "Please describe your reason"; return@setOnClickListener }
+            dialog.dismiss()
+            lifecycleScope.launch {
+                val result = viewModel.submitAppeal(email, reason)
+                result.onSuccess {
+                    MaterialAlertDialogBuilder(this@LoginActivity)
+                        .setTitle("Appeal Submitted")
+                        .setMessage("Your appeal has been submitted and will be reviewed by an admin. You will be notified at $email.")
+                        .setPositiveButton("OK", null)
+                        .show()
+                }.onFailure { e ->
+                    MaterialAlertDialogBuilder(this@LoginActivity)
+                        .setTitle("Could Not Submit")
+                        .setMessage(e.message ?: "Please try again later.")
+                        .setPositiveButton("OK", null)
+                        .show()
+                }
+            }
+        }
     }
 
     private fun navigateToWelcome() {

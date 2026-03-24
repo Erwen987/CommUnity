@@ -104,6 +104,10 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    suspend fun submitAppeal(email: String, reason: String): Result<Unit> {
+        return authRepository.submitAppeal(email, reason)
+    }
+
     fun signUp(
         firstName: String,
         lastName: String,
