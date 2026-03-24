@@ -252,17 +252,21 @@ class AuthRepository {
                 if (user.isBanned == true) {
                     try { supabase.auth.signOut() } catch (_: Exception) {}
                     val reason = if (!user.banReason.isNullOrBlank()) "\n\nReason: ${user.banReason}" else ""
-                    // Check appeal status
+                    // Check appeal status (most recent first)
                     val appealStatus = try {
                         supabase.from("appeals")
-                            .select { filter { eq("email", email) } }
+                            .select {
+                                filter { eq("email", email) }
+                                order("created_at", io.github.jan.supabase.postgrest.query.Order.DESCENDING)
+                            }
                             .decodeList<com.example.communitys.model.data.AppealModel>()
                             .firstOrNull()?.status
                     } catch (_: Exception) { null }
                     val appealSuffix = when (appealStatus) {
                         "pending"  -> "\n\nYour appeal is currently under review. Please wait for admin response."
                         "rejected" -> "\n\nYour appeal was rejected. This ban is permanent."
-                        else       -> "\n##CAN_APPEAL##"
+                        "approved" -> "\n\nYour appeal was approved but your account may have an issue. Please contact your barangay administrator."
+                        else       -> ""
                     }
                     throw Exception("Your account has been permanently banned.$reason$appealSuffix")
                 }

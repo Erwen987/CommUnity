@@ -121,10 +121,6 @@ class LoginActivity : AppCompatActivity() {
 
                     val msg = state.message
                     when {
-                        msg.contains("##CAN_APPEAL##") -> {
-                            val display = msg.replace("##CAN_APPEAL##", "You may submit one appeal for admin review.")
-                            showBannedDialog(display, canAppeal = true)
-                        }
                         msg.contains("permanently banned", ignoreCase = true) ->
                             showBannedDialog(msg, canAppeal = false)
                         msg.contains("temporarily suspended", ignoreCase = true) ->
