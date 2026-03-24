@@ -16,8 +16,28 @@ class ReportRepository {
     // ── Create report — used by ReportIssueActivity ───────────────────────────
     // Returns Result<String> with the new report's UUID
 
+    private suspend fun countActiveReports(userId: String): Int {
+        return try {
+            supabase.from("reports")
+                .select(columns = Columns.list("id", "status")) {
+                    filter { eq("user_id", userId) }
+                }
+                .decodeList<ReportModel>()
+                .count { it.status != "resolved" }
+        } catch (e: Exception) { 0 }
+    }
+
     suspend fun createReport(report: ReportModel): Result<String> {
         return try {
+            val activeCount = countActiveReports(report.userId)
+            if (activeCount >= 5) {
+                return Result.failure(Exception(
+                    "You have $activeCount unresolved report${if (activeCount != 1) "s" else ""}. " +
+                    "You can only have 5 active reports at a time. " +
+                    "Please wait for your reports to be resolved before submitting a new one."
+                ))
+            }
+
             val userData = supabase.from("users")
                 .select(columns = Columns.list("first_name", "last_name")) {
                     filter { eq("auth_id", report.userId) }
@@ -58,6 +78,15 @@ class ReportRepository {
         return try {
             val userId = supabase.auth.currentUserOrNull()?.id
                 ?: throw Exception("User not authenticated")
+
+            val activeCount = countActiveReports(userId)
+            if (activeCount >= 5) {
+                return Result.failure(Exception(
+                    "You have $activeCount unresolved report${if (activeCount != 1) "s" else ""}. " +
+                    "You can only have 5 active reports at a time. " +
+                    "Please wait for your reports to be resolved before submitting a new one."
+                ))
+            }
 
             val userData = supabase.from("users")
                 .select(columns = Columns.list("first_name", "last_name")) {

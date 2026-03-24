@@ -39,7 +39,13 @@ data class UserModel(
     val isBanned: Boolean? = false,
 
     @SerialName("ban_reason")
-    val banReason: String? = null
+    val banReason: String? = null,
+
+    @SerialName("offense_count")
+    val offenseCount: Int? = 0,
+
+    @SerialName("suspended_until")
+    val suspendedUntil: String? = null
 ) {
     // Full name helper used by ProfileFragment
     val name: String get() = "$firstName $lastName".trim()

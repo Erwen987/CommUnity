@@ -252,7 +252,29 @@ class AuthRepository {
                 if (user.isBanned == true) {
                     try { supabase.auth.signOut() } catch (_: Exception) {}
                     val reason = if (!user.banReason.isNullOrBlank()) "\n\nReason: ${user.banReason}" else ""
-                    throw Exception("Your account has been suspended.$reason\n\nPlease contact your barangay official for more information.")
+                    throw Exception("Your account has been permanently banned.$reason\n\nPlease contact your barangay official for more information.")
+                }
+                // Check temporary suspension
+                if (!user.suspendedUntil.isNullOrBlank()) {
+                    try {
+                        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.US)
+                        sdf.timeZone = java.util.TimeZone.getTimeZone("UTC")
+                        // Strip trailing timezone info for SimpleDateFormat compatibility
+                        val cleanDate = user.suspendedUntil.substringBefore("+").substringBefore("Z").let {
+                            if (it.length > 19) it.substring(0, 19) else it
+                        }
+                        val suspendedDate = sdf.parse(cleanDate)
+                        if (suspendedDate != null && suspendedDate.time > System.currentTimeMillis()) {
+                            try { supabase.auth.signOut() } catch (_: Exception) {}
+                            val displaySdf = java.text.SimpleDateFormat("MMMM d, yyyy", java.util.Locale.US)
+                            displaySdf.timeZone = java.util.TimeZone.getDefault()
+                            val dateStr = displaySdf.format(suspendedDate)
+                            throw Exception("Your account has been temporarily suspended until $dateStr.\n\nThis is due to policy violations flagged by a barangay official. Please contact your barangay for more information.")
+                        }
+                    } catch (e: Exception) {
+                        if (e.message?.contains("suspended") == true) throw e
+                        android.util.Log.w("AuthRepository", "Could not parse suspended_until: ${user.suspendedUntil}")
+                    }
                 }
             }
 

@@ -36,6 +36,22 @@ class RequestRepository {
         barangay: String? = null
     ): Result<Unit> {
         return try {
+            // Check active request limit (max 5 unresolved)
+            val activeCount = supabase.from("requests")
+                .select(columns = Columns.list("id", "status")) {
+                    filter { eq("user_id", userId) }
+                }
+                .decodeList<RequestModel>()
+                .count { it.status != "claimed" && it.status != "rejected" }
+
+            if (activeCount >= 5) {
+                return Result.failure(Exception(
+                    "You have $activeCount active document request${if (activeCount != 1) "s" else ""}. " +
+                    "You can only have 5 active requests at a time. " +
+                    "Please wait for your requests to be completed before submitting a new one."
+                ))
+            }
+
             val userData = supabase.from("users")
                 .select(columns = Columns.list("first_name", "last_name")) {
                     filter { eq("auth_id", userId) }
