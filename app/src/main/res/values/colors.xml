@@ -14,4 +14,14 @@
 
     <color name="snackbar_success">#2E7D32</color>
     <color name="snackbar_error">#C62828</color>
+
+    <!-- Maintenance dialog -->
+    <color name="maintenance_header">#E65100</color>
+    <color name="maintenance_info_bg">#FFF3E0</color>
+    <color name="maintenance_info_text">#BF360C</color>
+    <color name="maintenance_body_text">#1C1B1F</color>
+    <color name="maintenance_sub_text">#6B6B6B</color>
+    <color name="maintenance_divider">#EDEDED</color>
+    <color name="maintenance_tag_bg">#FFE0B2</color>
+    <color name="maintenance_tag_text">#E65100</color>
 </resources>

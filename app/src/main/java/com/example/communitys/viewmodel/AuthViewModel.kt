@@ -69,6 +69,14 @@ class AuthViewModel : ViewModel() {
         _loginState.value = AuthState.Loading
 
         viewModelScope.launch {
+            // Check maintenance mode before anything else
+            if (authRepository.isMaintenanceModeOn()) {
+                _loginState.value = AuthState.Error(
+                    "The system is currently under maintenance. Please try again later."
+                )
+                return@launch
+            }
+
             // If phone, look up the email first
             val resolvedEmail: String = if (isPhone) {
                 val lookup = authRepository.lookupEmailByPhone(input)

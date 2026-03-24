@@ -13,6 +13,7 @@ import com.example.communitys.view.signup.SignUpActivity
 import com.example.communitys.view.welcome.WelcomeActivity
 import com.example.communitys.R
 import com.example.communitys.SupabaseAuthHelper
+import com.example.communitys.model.repository.AuthRepository
 import com.example.communitys.viewmodel.AuthViewModel
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -31,6 +32,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var tvSignUp: TextView
 
     private val authHelper = SupabaseAuthHelper()
+    private val authRepository = AuthRepository()
     private lateinit var viewModel: AuthViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,23 +42,23 @@ class LoginActivity : AppCompatActivity() {
         // Initialize ViewModel
         viewModel = ViewModelProvider(this).get(AuthViewModel::class.java)
 
-        // Check if user is already logged in
+        // Check maintenance mode first, then session — both require network so run in coroutine
         if (authHelper.isUserLoggedIn()) {
-            navigateToWelcome()
+            lifecycleScope.launch {
+                val isMaintenance = authRepository.isMaintenanceModeOn()
+                if (isMaintenance) {
+                    authHelper.signOut()  // kill session so they can't bypass
+                    initViews()           // show login form behind the dialog
+                    showMaintenanceDialog()
+                } else {
+                    navigateToWelcome()
+                }
+            }
             return
         }
 
         // Initialize views
-        tilEmail = findViewById(R.id.tilEmail)
-        tilPassword = findViewById(R.id.tilPassword)
-        etEmail = findViewById(R.id.etEmail)
-        etPassword = findViewById(R.id.etPassword)
-        btnLogin = findViewById(R.id.btnLogin)
-        tvForgotPassword = findViewById(R.id.tvForgotPassword)
-        tvSignUp = findViewById(R.id.tvSignUp)
-
-        setupObservers()
-        setupClickListeners()
+        initViews()
     }
 
     private var forgotPasswordDialog: AlertDialog? = null
@@ -121,6 +123,8 @@ class LoginActivity : AppCompatActivity() {
 
                     val msg = state.message
                     when {
+                        msg.contains("maintenance", ignoreCase = true) ->
+                            showMaintenanceDialog()
                         msg.contains("permanently banned", ignoreCase = true) ->
                             showBannedDialog(msg, canAppeal = false)
                         msg.contains("temporarily suspended", ignoreCase = true) ->
@@ -261,6 +265,27 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun showMaintenanceDialog() {
+        val view = LayoutInflater.from(this).inflate(R.layout.dialog_maintenance, null)
+        MaterialAlertDialogBuilder(this)
+            .setView(view)
+            .setPositiveButton("Understood", null)
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun initViews() {
+        tilEmail    = findViewById(R.id.tilEmail)
+        tilPassword = findViewById(R.id.tilPassword)
+        etEmail     = findViewById(R.id.etEmail)
+        etPassword  = findViewById(R.id.etPassword)
+        btnLogin    = findViewById(R.id.btnLogin)
+        tvForgotPassword = findViewById(R.id.tvForgotPassword)
+        tvSignUp    = findViewById(R.id.tvSignUp)
+        setupObservers()
+        setupClickListeners()
     }
 
     private fun navigateToWelcome() {

@@ -10,12 +10,37 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.rpc
 import io.github.jan.supabase.storage.storage
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+
+@Serializable
+private data class SystemSetting(
+    @SerialName("key")   val key: String   = "",
+    @SerialName("value") val value: String = ""
+)
 
 class AuthRepository {
 
     private val supabase = CommUnityApplication.supabase
+
+    // ── Maintenance Mode ──────────────────────────────────────────────────────
+
+    suspend fun isMaintenanceModeOn(): Boolean {
+        return try {
+            val rows = supabase.from("system_settings")
+                .select {
+                    filter { eq("key", "maintenance_mode") }
+                }
+                .decodeList<SystemSetting>()
+            android.util.Log.d("AuthRepository", "Maintenance rows: $rows")
+            rows.firstOrNull()?.value == "true"
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepository", "Maintenance check error: ${e.message}")
+            false
+        }
+    }
 
     // ── Sign Up ───────────────────────────────────────────────────────────────
     // Passes firstName, lastName, barangay as metadata so the DB trigger

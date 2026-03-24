@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- ── Header ── -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/maintenance_header"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="28dp"
+        android:paddingBottom="22dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp">
+
+        <!-- Wrench icon circle -->
+        <FrameLayout
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@drawable/circle_white_20_alpha"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="🔧"
+                android:textSize="30sp"
+                android:gravity="center" />
+
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="System Under Maintenance"
+            android:textColor="#FFFFFF"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.01"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CommUnity Barangay App"
+            android:textColor="#FFCCBC"
+            android:textSize="11sp"
+            android:layout_marginTop="3dp"
+            android:gravity="center"
+            android:letterSpacing="0.05" />
+
+    </LinearLayout>
+
+    <!-- ── Body ── -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="?attr/colorSurface"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="22dp"
+        android:paddingBottom="8dp">
+
+        <!-- Main message -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="We are currently performing scheduled maintenance to improve your experience."
+            android:textColor="@color/maintenance_body_text"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:lineSpacingExtra="3dp"
+            android:layout_marginBottom="18dp" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/maintenance_divider"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Info row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/maintenance_info_bg"
+            android:padding="14dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⏳"
+                android:textSize="20sp"
+                android:layout_marginEnd="12dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Back Soon"
+                    android:textColor="@color/maintenance_info_text"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="2dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Please try again later. We apologize for any inconvenience."
+                    android:textColor="@color/maintenance_info_text"
+                    android:textSize="12sp"
+                    android:lineSpacingExtra="2dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Status tag -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/maintenance_tag_bg"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="18dp">
+
+            <TextView
+                android:layout_width="7dp"
+                android:layout_height="7dp"
+                android:background="@color/maintenance_tag_text"
+                android:layout_marginEnd="7dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MAINTENANCE IN PROGRESS"
+                android:textColor="@color/maintenance_tag_text"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
