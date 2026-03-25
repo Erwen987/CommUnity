@@ -149,7 +149,7 @@ class LocationFragment : Fragment(), OnMapReadyCallback {
             adapter.updateList(list.take(3))
             binding.tvEmpty.visibility         = if (list.isEmpty()) View.VISIBLE else View.GONE
             binding.recyclerReports.visibility = if (list.isEmpty()) View.GONE   else View.VISIBLE
-            binding.tvViewAllReports.visibility = if (list.size > 3) View.VISIBLE else View.GONE
+            binding.tvViewAllReports.visibility = if (list.isNotEmpty()) View.VISIBLE else View.GONE
         }
 
         binding.tvViewAllReports.setOnClickListener {

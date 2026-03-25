@@ -223,6 +223,16 @@
 
                     </androidx.cardview.widget.CardView>
 
+                    <TextView
+                        android:id="@+id/tvImageError"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginStart="4dp"
+                        android:textColor="#B00020"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
+
                     <!-- Location -->
                     <TextView
                         android:layout_width="wrap_content"

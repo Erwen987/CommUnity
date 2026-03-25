@@ -51,6 +51,7 @@ class ReportIssueActivity : AppCompatActivity() {
             binding.ivPreview.setImageURI(it)
             binding.ivPreview.visibility    = View.VISIBLE
             binding.ivUploadIcon.visibility = View.GONE
+            binding.tvImageError.visibility = View.GONE
         }
     }
 
@@ -261,9 +262,17 @@ class ReportIssueActivity : AppCompatActivity() {
 
         binding.tilProblem.error     = null
         binding.tilDescription.error = null
+        binding.tvImageError.visibility = android.view.View.GONE
 
         if (category == null) {
             binding.tilProblem.error = "Please select a problem"
+            return
+        }
+
+        if (selectedImageUri == null) {
+            binding.tvImageError.text       = "Please upload an image of the issue"
+            binding.tvImageError.visibility = android.view.View.VISIBLE
+            binding.cvUploadImage.requestFocus()
             return
         }
 
@@ -333,24 +342,11 @@ class ReportIssueActivity : AppCompatActivity() {
                 val saveResult = reportRepository.createReport(report)
 
                 if (saveResult.isSuccess) {
-                    val reportId = saveResult.getOrThrow()
-
-                    // Auto-award points for non-Others categories
-                    if (!isOthers && category.points > 0) {
-                        reportRepository.awardPoints(
-                            userId   = userId,
-                            reportId = reportId,
-                            points   = category.points,
-                            reason   = "Reported: ${category.name}"
-                        )
-                    }
-
-                    val msg = if (!isOthers && category.points > 0)
-                        "Report submitted! You earned ${category.points} pts!"
-                    else
-                        "Report submitted! Points will be awarded after official review."
-
-                    Toast.makeText(this@ReportIssueActivity, msg, Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this@ReportIssueActivity,
+                        "Report submitted! Points will be awarded after official review.",
+                        Toast.LENGTH_LONG
+                    ).show()
                     finish()
                 } else {
                     Toast.makeText(
