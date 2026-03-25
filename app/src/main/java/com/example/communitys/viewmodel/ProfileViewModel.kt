@@ -7,6 +7,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.communitys.CommUnityApplication
 import com.example.communitys.model.repository.AuthRepository
 import io.github.jan.supabase.gotrue.auth
+import io.github.jan.supabase.realtime.PostgresAction
+import io.github.jan.supabase.realtime.channel
+import io.github.jan.supabase.realtime.postgresChangeFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class ProfileViewModel : ViewModel() {
@@ -30,6 +35,7 @@ class ProfileViewModel : ViewModel() {
 
     init {
         loadUserProfile()
+        observeRealtimeChanges()
     }
 
     fun loadUserProfile() {
@@ -46,6 +52,22 @@ class ProfileViewModel : ViewModel() {
                     points    = user.points ?: 0,
                     avatarUrl = user.avatarUrl
                 )
+            }
+        }
+    }
+
+    private fun observeRealtimeChanges() {
+        viewModelScope.launch {
+            try {
+                val channel = CommUnityApplication.supabase.channel("profile_users_changes")
+                channel.postgresChangeFlow<PostgresAction>(schema = "public") {
+                    table = "users"
+                }.onEach {
+                    loadUserProfile()
+                }.launchIn(viewModelScope)
+                channel.subscribe()
+            } catch (e: Exception) {
+                android.util.Log.e("ProfileViewModel", "Realtime subscription failed: ${e.message}")
             }
         }
     }

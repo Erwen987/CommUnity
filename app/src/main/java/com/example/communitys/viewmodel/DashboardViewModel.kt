@@ -174,6 +174,11 @@ class DashboardViewModel : ViewModel() {
     fun refreshStats() {
         viewModelScope.launch {
             loadReportStats()
+            // Also refresh points in case an official awarded them
+            try {
+                val result = authRepository.getCurrentUser()
+                result.onSuccess { _pointsEarned.value = it.points ?: 0 }
+            } catch (_: Exception) {}
         }
     }
 
