@@ -11,6 +11,11 @@ import com.example.communitys.model.repository.AnnouncementRepository
 import com.example.communitys.model.repository.AuthRepository
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.realtime.PostgresAction
+import io.github.jan.supabase.realtime.channel
+import io.github.jan.supabase.realtime.postgresChangeFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -26,6 +31,7 @@ class DashboardViewModel : ViewModel() {
 
     // Once true, the welcome card will never be shown again within this ViewModel's lifetime
     private var welcomeCardShown = false
+    private var userBarangay = ""
 
     private val _welcomeMessage = MutableLiveData<String>()
     val welcomeMessage: LiveData<String> = _welcomeMessage
@@ -67,7 +73,9 @@ class DashboardViewModel : ViewModel() {
                     _welcomeMessage.value = "$greeting, ${user.firstName}! 👋"
                     _locationDate.value = "${formatBarangay(user.barangay)} • ${getCurrentDate()}"
                     _pointsEarned.value = user.points ?: 0
-                    loadAnnouncements(user.barangay)
+                    userBarangay = user.barangay
+                    loadAnnouncements()
+                    observeRealtimeChanges()
 
                     // Mark as logged in before in DB (no-op if already true)
                     if (user.hasLoggedInBefore != true) {
@@ -125,10 +133,36 @@ class DashboardViewModel : ViewModel() {
 
     // ── Load announcements ────────────────────────────────────────────────────
 
-    private suspend fun loadAnnouncements(barangay: String) {
-        if (barangay.isBlank()) return
-        announcementRepo.getActiveAnnouncements(barangay)
+    private suspend fun loadAnnouncements() {
+        if (userBarangay.isBlank()) return
+        announcementRepo.getActiveAnnouncements(userBarangay)
             .onSuccess { _announcements.value = it }
+    }
+
+    fun refreshAnnouncements() {
+        viewModelScope.launch { loadAnnouncements() }
+    }
+
+    // ── Realtime ──────────────────────────────────────────────────────────────
+
+    private var realtimeObserving = false
+
+    private fun observeRealtimeChanges() {
+        if (realtimeObserving) return
+        realtimeObserving = true
+        viewModelScope.launch {
+            try {
+                val channel = supabase.channel("announcements_changes")
+                channel.postgresChangeFlow<PostgresAction>(schema = "public") {
+                    table = "announcements"
+                }.onEach {
+                    loadAnnouncements()
+                }.launchIn(viewModelScope)
+                channel.subscribe()
+            } catch (e: Exception) {
+                android.util.Log.e("DashboardViewModel", "Realtime subscription failed: ${e.message}")
+            }
+        }
     }
 
     fun clearWelcomeMessage() {

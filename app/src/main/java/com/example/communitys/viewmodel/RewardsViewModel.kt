@@ -10,6 +10,12 @@ import com.example.communitys.model.data.RewardItemModel
 import com.example.communitys.model.data.UserModel
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.realtime.PostgresAction
+import io.github.jan.supabase.realtime.Realtime
+import io.github.jan.supabase.realtime.channel
+import io.github.jan.supabase.realtime.postgresChangeFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class RewardsViewModel : ViewModel() {
@@ -28,6 +34,7 @@ class RewardsViewModel : ViewModel() {
     init {
         loadUserPoints()
         loadRewardItems()
+        observeRealtimeChanges()
     }
 
     fun loadUserPoints() {
@@ -49,8 +56,17 @@ class RewardsViewModel : ViewModel() {
     fun loadRewardItems() {
         viewModelScope.launch {
             try {
+                val authId = supabase.auth.currentUserOrNull()?.id ?: return@launch
+                val user = supabase.from("users")
+                    .select { filter { eq("auth_id", authId) } }
+                    .decodeList<UserModel>()
+                    .firstOrNull()
+                val userBarangay = user?.barangay ?: return@launch
                 val items = supabase.from("reward_items")
-                    .select { filter { eq("is_active", true) } }
+                    .select { filter {
+                        eq("is_active", true)
+                        eq("barangay", userBarangay)
+                    } }
                     .decodeList<RewardItemModel>()
                 _rewardItems.value = items
             } catch (e: Exception) {
@@ -100,6 +116,30 @@ class RewardsViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e("RewardsViewModel", "claimReward failed: ${e.message}")
                 _claimState.value = ClaimState.Error(e.message ?: "Failed to request redemption")
+            }
+        }
+    }
+
+    private fun observeRealtimeChanges() {
+        viewModelScope.launch {
+            try {
+                val rewardItemsChannel = supabase.channel("reward_items_changes")
+                rewardItemsChannel.postgresChangeFlow<PostgresAction>(schema = "public") {
+                    table = "reward_items"
+                }.onEach {
+                    loadRewardItems()
+                }.launchIn(viewModelScope)
+                rewardItemsChannel.subscribe()
+
+                val usersChannel = supabase.channel("users_points_changes")
+                usersChannel.postgresChangeFlow<PostgresAction>(schema = "public") {
+                    table = "users"
+                }.onEach {
+                    loadUserPoints()
+                }.launchIn(viewModelScope)
+                usersChannel.subscribe()
+            } catch (e: Exception) {
+                Log.e("RewardsViewModel", "Realtime subscription failed: ${e.message}")
             }
         }
     }

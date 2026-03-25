@@ -42,22 +42,11 @@ class LoginActivity : AppCompatActivity() {
         // Initialize ViewModel
         viewModel = ViewModelProvider(this).get(AuthViewModel::class.java)
 
-        // Check maintenance mode first, then session — both require network so run in coroutine
+        // Always require manual login — clear any saved session on startup
         if (authHelper.isUserLoggedIn()) {
-            lifecycleScope.launch {
-                val isMaintenance = authRepository.isMaintenanceModeOn()
-                if (isMaintenance) {
-                    authHelper.signOut()  // kill session so they can't bypass
-                    initViews()           // show login form behind the dialog
-                    showMaintenanceDialog()
-                } else {
-                    navigateToWelcome()
-                }
-            }
-            return
+            lifecycleScope.launch { authHelper.signOut() }
         }
 
-        // Initialize views
         initViews()
     }
 

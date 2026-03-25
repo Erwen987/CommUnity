@@ -11,5 +11,6 @@ data class RewardItemModel(
     @SerialName("category")        val category: String = "",
     @SerialName("points_required") val pointsRequired: Int = 0,
     @SerialName("stock")           val stock: Int = 0,
-    @SerialName("is_active")       val isActive: Boolean = true
+    @SerialName("is_active")       val isActive: Boolean = true,
+    @SerialName("barangay")        val barangay: String? = null
 )

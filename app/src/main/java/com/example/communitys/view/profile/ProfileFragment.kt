@@ -55,6 +55,11 @@ class ProfileFragment : Fragment() {
         setupClickListeners()
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadUserProfile()
+    }
+
     // ── Observers ─────────────────────────────────────────────────────────────
 
     private fun setupObservers() {
@@ -136,7 +141,8 @@ class ProfileFragment : Fragment() {
         }
 
         binding.btnClaimReward.setOnClickListener {
-            showSuccessSnackbar("Rewards feature coming soon!")
+            (requireActivity() as? com.example.communitys.view.MainContainerActivity)
+                ?.navigateToTab(3)
         }
 
         binding.btnChangePassword.setOnClickListener { showChangePasswordDialog() }

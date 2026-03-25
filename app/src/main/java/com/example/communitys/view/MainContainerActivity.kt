@@ -71,6 +71,10 @@ class MainContainerActivity : AppCompatActivity() {
         }
     }
 
+    fun navigateToTab(position: Int) {
+        binding.viewPager.setCurrentItem(position, false)
+    }
+
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (binding.viewPager.currentItem == 0) {

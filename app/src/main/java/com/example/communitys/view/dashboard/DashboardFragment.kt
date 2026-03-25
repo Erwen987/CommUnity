@@ -64,6 +64,7 @@ class DashboardFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         viewModel.refreshStats()
+        viewModel.refreshAnnouncements()
         autoSlideHandler.postDelayed(autoSlideRunnable, AUTO_SLIDE_INTERVAL_MS)
     }
 

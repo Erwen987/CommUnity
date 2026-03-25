@@ -46,6 +46,7 @@ class RewardsFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         viewModel.loadUserPoints()
+        viewModel.loadRewardItems()
     }
 
     // ── RecyclerView ──────────────────────────────────────────────────────────
