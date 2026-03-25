@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.communitys.CommUnityApplication
 import com.example.communitys.model.repository.AuthRepository
 import io.github.jan.supabase.gotrue.auth
+import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.realtime.PostgresAction
 import io.github.jan.supabase.realtime.channel
 import io.github.jan.supabase.realtime.postgresChangeFlow
@@ -43,15 +44,47 @@ class ProfileViewModel : ViewModel() {
             val result = authRepository.getCurrentUser()
             result.onSuccess { user ->
                 _userProfile.value = UserProfile(
-                    name      = "${user.firstName} ${user.lastName}".trim(),
-                    firstName = user.firstName,
-                    lastName  = user.lastName,
-                    email     = user.email,
-                    phone     = user.phone ?: "",
-                    barangay  = formatBarangay(user.barangay),
-                    points    = user.points ?: 0,
-                    avatarUrl = user.avatarUrl
+                    name         = "${user.firstName} ${user.lastName}".trim(),
+                    firstName    = user.firstName,
+                    lastName     = user.lastName,
+                    email        = user.email,
+                    phone        = user.phone ?: "",
+                    barangay     = formatBarangay(user.barangay),
+                    points       = user.points ?: 0,
+                    rewardPoints = user.rewardPoints ?: 0,
+                    avatarUrl    = user.avatarUrl
                 )
+            }
+        }
+    }
+
+    private val _claimPointsState = MutableLiveData<ActionState>()
+    val claimPointsState: LiveData<ActionState> = _claimPointsState
+
+    fun claimPoints() {
+        val earned = _userProfile.value?.points ?: 0
+        if (earned <= 0) return
+        _claimPointsState.value = ActionState.Loading
+        viewModelScope.launch {
+            try {
+                val userId = CommUnityApplication.supabase.auth.currentUserOrNull()?.id
+                    ?: throw Exception("Not authenticated")
+                val user = CommUnityApplication.supabase.from("users")
+                    .select { filter { eq("auth_id", userId) } }
+                    .decodeList<com.example.communitys.model.data.UserModel>()
+                    .firstOrNull() ?: throw Exception("User not found")
+                val currentEarned = user.points ?: 0
+                val currentReward = user.rewardPoints ?: 0
+                CommUnityApplication.supabase.from("users")
+                    .update({
+                        set("points", 0 as Int)
+                        set("reward_points", (currentReward + currentEarned) as Int)
+                    }) { filter { eq("auth_id", userId) } }
+                _userProfile.value = _userProfile.value?.copy(points = 0, rewardPoints = currentReward + currentEarned)
+                _claimPointsState.value = ActionState.Success
+            } catch (e: Exception) {
+                android.util.Log.e("ProfileViewModel", "claimPoints failed: ${e.message}")
+                _claimPointsState.value = ActionState.Error(e.message ?: "Failed to claim points")
             }
         }
     }
@@ -165,14 +198,15 @@ class ProfileViewModel : ViewModel() {
     // ── Data classes ──────────────────────────────────────────────────────────
 
     data class UserProfile(
-        val name      : String  = "",
-        val firstName : String  = "",
-        val lastName  : String  = "",
-        val email     : String  = "",
-        val phone     : String  = "",
-        val barangay  : String  = "",
-        val points    : Int     = 0,
-        val avatarUrl : String? = null
+        val name         : String  = "",
+        val firstName    : String  = "",
+        val lastName     : String  = "",
+        val email        : String  = "",
+        val phone        : String  = "",
+        val barangay     : String  = "",
+        val points       : Int     = 0,
+        val rewardPoints : Int     = 0,
+        val avatarUrl    : String? = null
     )
 
     sealed class LogoutState {

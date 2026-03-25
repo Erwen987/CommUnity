@@ -71,7 +71,28 @@ class ProfileFragment : Fragment() {
             binding.tvPhone.text    = profile.phone?.takeIf { it.isNotBlank() } ?: "—"
             binding.tvBarangay.text = profile.barangay
             binding.tvPoints.text   = profile.points.toString()
+            binding.btnClaimReward.isEnabled = profile.points > 0
+            binding.btnClaimReward.alpha     = if (profile.points > 0) 1f else 0.4f
             loadAvatar(profile.avatarUrl)
+        }
+
+        viewModel.claimPointsState.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is ProfileViewModel.ActionState.Loading -> {
+                    binding.btnClaimReward.isEnabled = false
+                    binding.btnClaimReward.text = "Claiming..."
+                }
+                is ProfileViewModel.ActionState.Success -> {
+                    binding.btnClaimReward.text = "Claim Reward"
+                    (requireActivity() as? com.example.communitys.view.MainContainerActivity)
+                        ?.navigateToTab(3)
+                }
+                is ProfileViewModel.ActionState.Error -> {
+                    binding.btnClaimReward.isEnabled = true
+                    binding.btnClaimReward.text = "Claim Reward"
+                    showErrorSnackbar(state.message)
+                }
+            }
         }
 
         viewModel.logoutState.observe(viewLifecycleOwner) { state ->
@@ -141,8 +162,7 @@ class ProfileFragment : Fragment() {
         }
 
         binding.btnClaimReward.setOnClickListener {
-            (requireActivity() as? com.example.communitys.view.MainContainerActivity)
-                ?.navigateToTab(3)
+            viewModel.claimPoints()
         }
 
         binding.btnChangePassword.setOnClickListener { showChangePasswordDialog() }

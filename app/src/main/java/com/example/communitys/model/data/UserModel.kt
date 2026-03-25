@@ -29,6 +29,9 @@ data class UserModel(
     @SerialName("points")
     val points: Int? = 0,
 
+    @SerialName("reward_points")
+    val rewardPoints: Int? = 0,
+
     @SerialName("has_logged_in_before")
     val hasLoggedInBefore: Boolean? = false,
 

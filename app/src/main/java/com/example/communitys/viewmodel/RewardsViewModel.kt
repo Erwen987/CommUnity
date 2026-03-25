@@ -11,7 +11,6 @@ import com.example.communitys.model.data.UserModel
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.realtime.PostgresAction
-import io.github.jan.supabase.realtime.Realtime
 import io.github.jan.supabase.realtime.channel
 import io.github.jan.supabase.realtime.postgresChangeFlow
 import kotlinx.coroutines.flow.launchIn
@@ -45,7 +44,7 @@ class RewardsViewModel : ViewModel() {
                     .select { filter { eq("auth_id", authId) } }
                     .decodeList<UserModel>()
                     .firstOrNull()
-                _totalPoints.value = user?.points ?: 0
+                _totalPoints.value = user?.rewardPoints ?: 0
             } catch (e: Exception) {
                 Log.e("RewardsViewModel", "loadUserPoints failed: ${e.message}")
                 _totalPoints.value = 0
@@ -88,7 +87,7 @@ class RewardsViewModel : ViewModel() {
                     .decodeList<UserModel>()
                     .firstOrNull() ?: throw Exception("User not found")
 
-                val currentPts = user.points ?: 0
+                val currentPts = user.rewardPoints ?: 0
                 if (currentPts < pointsRequired) {
                     _claimState.value = ClaimState.Error("Not enough points")
                     return@launch
@@ -104,10 +103,10 @@ class RewardsViewModel : ViewModel() {
                     )
                 )
 
-                // Deduct points from user
+                // Deduct from reward_points
                 val newPts = currentPts - pointsRequired
                 supabase.from("users")
-                    .update({ set("points", newPts) }) {
+                    .update({ set("reward_points", newPts) }) {
                         filter { eq("auth_id", authId) }
                     }
 
