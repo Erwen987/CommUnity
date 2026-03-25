@@ -1,6 +1,7 @@
 package com.example.communitys.view.verification
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -19,17 +20,18 @@ class VerifyEmailActivity : AppCompatActivity() {
     private var firstName: String = ""
     private var lastName: String = ""
     private var barangay: String = ""
+    private var idImageUriStr: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityVerifyEmailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // ✅ Receive all user details from SignUpActivity
-        email     = intent.getStringExtra("email")     ?: ""
-        firstName = intent.getStringExtra("firstName") ?: ""
-        lastName  = intent.getStringExtra("lastName")  ?: ""
-        barangay  = intent.getStringExtra("barangay")  ?: ""
+        email         = intent.getStringExtra("email")       ?: ""
+        firstName     = intent.getStringExtra("firstName")   ?: ""
+        lastName      = intent.getStringExtra("lastName")    ?: ""
+        barangay      = intent.getStringExtra("barangay")    ?: ""
+        idImageUriStr = intent.getStringExtra("idImageUri")
 
         binding.tvEmail.text = email
 
@@ -37,13 +39,8 @@ class VerifyEmailActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        binding.btnVerify.setOnClickListener {
-            verifyOTP()
-        }
-
-        binding.tvResendOTP.setOnClickListener {
-            resendOTP()
-        }
+        binding.btnVerify.setOnClickListener { verifyOTP() }
+        binding.tvResendOTP.setOnClickListener { resendOTP() }
 
         binding.etOTP.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) binding.tilOTP.error = null
@@ -80,19 +77,27 @@ class VerifyEmailActivity : AppCompatActivity() {
         binding.btnVerify.text = "Verifying..."
 
         lifecycleScope.launch {
-            // ✅ Pass firstName, lastName, barangay so profile gets saved
+            // Read ID image bytes if URI was provided
+            val idImageBytes: ByteArray? = idImageUriStr?.let { uriStr ->
+                try {
+                    val uri = Uri.parse(uriStr)
+                    contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                } catch (_: Exception) { null }
+            }
+
             val result = authRepository.verifyEmail(
-                email     = email,
-                otp       = otp,
-                firstName = firstName,
-                lastName  = lastName,
-                barangay  = barangay
+                email         = email,
+                otp           = otp,
+                firstName     = firstName,
+                lastName      = lastName,
+                barangay      = barangay,
+                idImageBytes  = idImageBytes
             )
 
             result.onSuccess {
                 Toast.makeText(
                     this@VerifyEmailActivity,
-                    "Email verified! You can now log in.",
+                    "Email verified! Your account is pending approval from your barangay officials.",
                     Toast.LENGTH_LONG
                 ).show()
 

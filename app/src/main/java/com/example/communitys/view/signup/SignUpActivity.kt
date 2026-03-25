@@ -1,6 +1,7 @@
 package com.example.communitys.view.signup
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.SpannableString
@@ -12,6 +13,7 @@ import android.text.style.UnderlineSpan
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -27,9 +29,9 @@ class SignUpActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySignupBinding
     private lateinit var viewModel: AuthViewModel
 
-    // Track which fields have been "touched" (lost focus at least once)
-    // Errors only show on fields the user has already interacted with
     private val touchedFields = mutableSetOf<String>()
+    private var selectedIdUri: Uri? = null
+    private var barangayHasOfficials: Boolean = true // optimistic default
 
     private val barangayList = listOf(
         "Bacayao Norte", "Bacayao Sur", "Barangay I (Pob.)", "Barangay II (Pob.)",
@@ -40,6 +42,16 @@ class SignUpActivity : AppCompatActivity() {
         "Pogo Chico", "Pogo Grande", "Pugaro Suit", "Quezon", "San Jose",
         "San Lázaro", "Salapingao", "Taloy", "Tebeng"
     )
+
+    private val pickIdLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            selectedIdUri = uri
+            binding.ivIdPreview.setImageURI(uri)
+            binding.ivIdPreview.visibility = View.VISIBLE
+            binding.llIdPlaceholder.visibility = View.GONE
+            binding.tvIdImageError.visibility = View.GONE
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,8 +67,6 @@ class SignUpActivity : AppCompatActivity() {
         observeViewModel()
     }
 
-    // ── Observe signup state ──────────────────────────────────────────────────
-
     private fun observeViewModel() {
         viewModel.signupState.observe(this) { state ->
             when (state) {
@@ -69,11 +79,12 @@ class SignUpActivity : AppCompatActivity() {
                     binding.btnSignUp.text = "SIGN UP"
                     Toast.makeText(this, "Account created! Check your email for the OTP code.", Toast.LENGTH_LONG).show()
                     val intent = Intent(this, VerifyEmailActivity::class.java).apply {
-                        putExtra("email",     binding.etEmail.text.toString().trim())
-                        putExtra("firstName", binding.etFirstName.text.toString().trim())
-                        putExtra("lastName",  binding.etLastName.text.toString().trim())
-                        putExtra("barangay",  binding.actvBarangay.text.toString().trim())
-                        putExtra("password",  binding.etPassword.text.toString())
+                        putExtra("email",       binding.etEmail.text.toString().trim())
+                        putExtra("firstName",   binding.etFirstName.text.toString().trim())
+                        putExtra("lastName",    binding.etLastName.text.toString().trim())
+                        putExtra("barangay",    binding.actvBarangay.text.toString().trim())
+                        putExtra("password",    binding.etPassword.text.toString())
+                        putExtra("idImageUri",  selectedIdUri?.toString())
                     }
                     startActivity(intent)
                 }
@@ -84,16 +95,26 @@ class SignUpActivity : AppCompatActivity() {
                 }
             }
         }
+
+        viewModel.barangayCheckState.observe(this) { hasOfficials ->
+            if (hasOfficials == false) {
+                barangayHasOfficials = false
+                setError(binding.tilBarangay, "This barangay has no registered officials yet. Registration is not available.")
+            } else if (hasOfficials == true) {
+                barangayHasOfficials = true
+                if (binding.tilBarangay.error?.contains("no registered officials") == true) {
+                    clearError(binding.tilBarangay)
+                }
+            }
+        }
     }
 
-    // ── Privacy Agreement ─────────────────────────────────────────────────────
-
     private fun setupPrivacyAgreement() {
-        val full   = "I have read and agree to the Privacy Policy"
-        val link   = "Privacy Policy"
-        val start  = full.indexOf(link)
-        val end    = start + link.length
-        val blue   = 0xFF1565C0.toInt()
+        val full  = "I have read and agree to the Privacy Policy"
+        val link  = "Privacy Policy"
+        val start = full.indexOf(link)
+        val end   = start + link.length
+        val blue  = 0xFF1565C0.toInt()
 
         val spannable = SpannableString(full)
         spannable.setSpan(object : ClickableSpan() {
@@ -102,10 +123,9 @@ class SignUpActivity : AppCompatActivity() {
         spannable.setSpan(UnderlineSpan(), start, end, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
         spannable.setSpan(ForegroundColorSpan(blue), start, end, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-        binding.tvPrivacyText.text           = spannable
+        binding.tvPrivacyText.text = spannable
         binding.tvPrivacyText.movementMethod = LinkMovementMethod.getInstance()
 
-        // Hide error as soon as checkbox is checked
         binding.cbPrivacy.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) binding.tvPrivacyError.visibility = View.GONE
         }
@@ -172,8 +192,6 @@ By registering, you confirm that you have read, understood, and agreed to this P
             .show()
     }
 
-    // ── Barangay dropdown ─────────────────────────────────────────────────────
-
     private fun setupBarangayDropdown() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, barangayList)
         binding.actvBarangay.setAdapter(adapter)
@@ -181,177 +199,103 @@ By registering, you confirm that you have read, understood, and agreed to this P
         binding.actvBarangay.setOnItemClickListener { _, _, _, _ ->
             touchedFields.add("barangay")
             validateBarangayField()
+            val selected = binding.actvBarangay.text.toString().trim()
+            if (selected.isNotEmpty()) {
+                barangayHasOfficials = true // reset while checking
+                viewModel.checkBarangayOfficials(selected)
+            }
         }
     }
 
-    // ── Validation — errors show on focus lost only ───────────────────────────
-
     private fun setupValidation() {
-
-        // ── First Name ────────────────────────────────────────────────────────
         binding.etFirstName.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                touchedFields.add("firstName")
-                validateFirstNameField()
-            } else {
-                clearError(binding.tilFirstName)
-            }
+            if (!hasFocus) { touchedFields.add("firstName"); validateFirstNameField() }
+            else clearError(binding.tilFirstName)
         }
         binding.etFirstName.addTextChangedListener(afterChanged {
             if ("firstName" in touchedFields) validateFirstNameField()
         })
 
-        // ── Last Name ─────────────────────────────────────────────────────────
         binding.etLastName.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                touchedFields.add("lastName")
-                validateLastNameField()
-            } else {
-                clearError(binding.tilLastName)
-            }
+            if (!hasFocus) { touchedFields.add("lastName"); validateLastNameField() }
+            else clearError(binding.tilLastName)
         }
         binding.etLastName.addTextChangedListener(afterChanged {
             if ("lastName" in touchedFields) validateLastNameField()
         })
 
-        // ── Email ─────────────────────────────────────────────────────────────
         binding.etEmail.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                touchedFields.add("email")
-                validateEmailField()
-            } else {
-                clearError(binding.tilEmail)
-            }
+            if (!hasFocus) { touchedFields.add("email"); validateEmailField() }
+            else clearError(binding.tilEmail)
         }
         binding.etEmail.addTextChangedListener(afterChanged {
             if ("email" in touchedFields) validateEmailField()
         })
 
-        // ── Password ──────────────────────────────────────────────────────────
-        // KEY FIX: No live error while typing — only validates after focus leaves
-        // This keeps the eye icon (password_toggle) always visible and clickable
         binding.etPassword.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 touchedFields.add("password")
                 validatePasswordField()
                 if ("confirmPassword" in touchedFields) validateConfirmPasswordField()
             } else {
-                // When tapping into password field — clear error so eye icon shows
                 clearError(binding.tilPassword)
             }
         }
         binding.etPassword.addTextChangedListener(afterChanged {
-            // Only re-validate after focus has left the field
-            if ("password" in touchedFields && !binding.etPassword.hasFocus()) {
-                validatePasswordField()
-            }
+            if ("password" in touchedFields && !binding.etPassword.hasFocus()) validatePasswordField()
             if ("confirmPassword" in touchedFields) validateConfirmPasswordField()
         })
 
-        // ── Phone ─────────────────────────────────────────────────────────────
         binding.etPhone.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                touchedFields.add("phone")
-                validatePhoneField()
-            } else {
-                clearError(binding.tilPhone)
-            }
+            if (!hasFocus) { touchedFields.add("phone"); validatePhoneField() }
+            else clearError(binding.tilPhone)
         }
         binding.etPhone.addTextChangedListener(afterChanged {
             if ("phone" in touchedFields) validatePhoneField()
         })
 
-        // ── Confirm Password ──────────────────────────────────────────────────
         binding.etConfirmPassword.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                touchedFields.add("confirmPassword")
-                validateConfirmPasswordField()
-            } else {
-                clearError(binding.tilConfirmPassword)
-            }
+            if (!hasFocus) { touchedFields.add("confirmPassword"); validateConfirmPasswordField() }
+            else clearError(binding.tilConfirmPassword)
         }
         binding.etConfirmPassword.addTextChangedListener(afterChanged {
-            if ("confirmPassword" in touchedFields && !binding.etConfirmPassword.hasFocus()) {
-                validateConfirmPasswordField()
-            }
+            if ("confirmPassword" in touchedFields && !binding.etConfirmPassword.hasFocus()) validateConfirmPasswordField()
         })
     }
 
-    // ── Individual field validators ───────────────────────────────────────────
-
     private fun validateFirstNameField() {
-        val error = ValidationHelper.validateName(
-            binding.etFirstName.text.toString(), "First name"
-        ).errorMessage()
-        setError(binding.tilFirstName, error)
+        setError(binding.tilFirstName, ValidationHelper.validateName(binding.etFirstName.text.toString(), "First name").errorMessage())
     }
-
     private fun validateLastNameField() {
-        val error = ValidationHelper.validateName(
-            binding.etLastName.text.toString(), "Last name"
-        ).errorMessage()
-        setError(binding.tilLastName, error)
+        setError(binding.tilLastName, ValidationHelper.validateName(binding.etLastName.text.toString(), "Last name").errorMessage())
     }
-
     private fun validateBarangayField() {
-        val error = ValidationHelper.validateBarangay(
-            binding.actvBarangay.text.toString()
-        ).errorMessage()
-        setError(binding.tilBarangay, error)
+        setError(binding.tilBarangay, ValidationHelper.validateBarangay(binding.actvBarangay.text.toString()).errorMessage())
     }
-
     private fun validateEmailField() {
-        val error = ValidationHelper.validateEmail(
-            binding.etEmail.text.toString()
-        ).errorMessage()
-        setError(binding.tilEmail, error)
+        setError(binding.tilEmail, ValidationHelper.validateEmail(binding.etEmail.text.toString()).errorMessage())
     }
-
     private fun validatePasswordField() {
-        val error = ValidationHelper.validatePassword(
-            binding.etPassword.text.toString()
-        ).errorMessage()
-        setError(binding.tilPassword, error)
+        setError(binding.tilPassword, ValidationHelper.validatePassword(binding.etPassword.text.toString()).errorMessage())
     }
-
     private fun validatePhoneField() {
-        val error = ValidationHelper.validatePhone(
-            binding.etPhone.text.toString()
-        ).errorMessage()
-        setError(binding.tilPhone, error)
+        setError(binding.tilPhone, ValidationHelper.validatePhone(binding.etPhone.text.toString()).errorMessage())
     }
-
     private fun validateConfirmPasswordField() {
-        val error = ValidationHelper.validateConfirmPassword(
-            binding.etPassword.text.toString(),
-            binding.etConfirmPassword.text.toString()
-        ).errorMessage()
-        setError(binding.tilConfirmPassword, error)
+        setError(binding.tilConfirmPassword, ValidationHelper.validateConfirmPassword(binding.etPassword.text.toString(), binding.etConfirmPassword.text.toString()).errorMessage())
     }
 
-    // ── Error helpers ─────────────────────────────────────────────────────────
-
-    private fun setError(
-        til: com.google.android.material.textfield.TextInputLayout,
-        error: String?
-    ) {
+    private fun setError(til: com.google.android.material.textfield.TextInputLayout, error: String?) {
         til.error = error
         til.isErrorEnabled = error != null
     }
-
-    private fun clearError(
-        til: com.google.android.material.textfield.TextInputLayout
-    ) {
+    private fun clearError(til: com.google.android.material.textfield.TextInputLayout) {
         til.error = null
         til.isErrorEnabled = false
     }
 
-    // ── Full validation on submit (marks all fields as touched) ───────────────
-
     private fun validateAll(): Boolean {
-        touchedFields.addAll(
-            listOf("firstName", "lastName", "barangay", "email", "phone", "password", "confirmPassword")
-        )
+        touchedFields.addAll(listOf("firstName", "lastName", "barangay", "email", "phone", "password", "confirmPassword"))
         validateFirstNameField()
         validateLastNameField()
         validateBarangayField()
@@ -359,6 +303,18 @@ By registering, you confirm that you have read, understood, and agreed to this P
         validatePhoneField()
         validatePasswordField()
         validateConfirmPasswordField()
+
+        // Barangay officials check
+        if (!barangayHasOfficials) {
+            setError(binding.tilBarangay, "This barangay has no registered officials yet. Registration is not available.")
+        }
+
+        // ID image required
+        if (selectedIdUri == null) {
+            binding.tvIdImageError.visibility = View.VISIBLE
+        } else {
+            binding.tvIdImageError.visibility = View.GONE
+        }
 
         val fieldsValid = listOf(
             binding.tilFirstName.error,
@@ -373,12 +329,14 @@ By registering, you confirm that you have read, understood, and agreed to this P
         val privacyAccepted = binding.cbPrivacy.isChecked
         binding.tvPrivacyError.visibility = if (privacyAccepted) View.GONE else View.VISIBLE
 
-        return fieldsValid && privacyAccepted
+        return fieldsValid && privacyAccepted && selectedIdUri != null
     }
 
-    // ── Click listeners ───────────────────────────────────────────────────────
-
     private fun setupClickListeners() {
+        binding.cvUploadId.setOnClickListener {
+            pickIdLauncher.launch("image/*")
+        }
+
         binding.btnSignUp.setOnClickListener {
             if (validateAll()) {
                 viewModel.signUp(
@@ -398,8 +356,6 @@ By registering, you confirm that you have read, understood, and agreed to this P
             finish()
         }
     }
-
-    // ── TextWatcher helper ────────────────────────────────────────────────────
 
     private fun afterChanged(block: (String) -> Unit) = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}

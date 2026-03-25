@@ -283,6 +283,76 @@
                         android:padding="16dp"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Government ID Upload -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Government ID (Required)"
+                    android:textSize="13sp"
+                    android:textColor="@color/hint_text_color"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cvUploadId"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_marginTop="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardCornerRadius="12dp"
+                    app:cardBackgroundColor="@color/input_background"
+                    app:strokeWidth="1.5dp"
+                    app:strokeColor="@color/primary_blue">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <LinearLayout
+                            android:id="@+id/llIdPlaceholder"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="📷"
+                                android:textSize="28sp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Tap to upload Government ID"
+                                android:textSize="13sp"
+                                android:textColor="@color/hint_text_color"/>
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/ivIdPreview"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:visibility="gone"
+                            tools:ignore="ContentDescription"
+                            xmlns:tools="http://schemas.android.com/tools"/>
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:id="@+id/tvIdImageError"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginStart="8dp"
+                    android:text="Please upload your Government ID"
+                    android:textColor="#F44336"
+                    android:textSize="12sp"
+                    android:visibility="gone"/>
+
                 <!-- Privacy Agreement -->
                 <LinearLayout
                     android:layout_width="match_parent"

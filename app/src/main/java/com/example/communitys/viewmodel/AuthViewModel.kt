@@ -28,6 +28,17 @@ class AuthViewModel : ViewModel() {
     private val _resetPasswordState = MutableLiveData<AuthState>()
     val resetPasswordState: LiveData<AuthState> = _resetPasswordState
 
+    // LiveData for barangay officials check (null = not checked yet, true = has officials, false = none)
+    private val _barangayCheckState = MutableLiveData<Boolean?>()
+    val barangayCheckState: LiveData<Boolean?> = _barangayCheckState
+
+    fun checkBarangayOfficials(barangay: String) {
+        viewModelScope.launch {
+            val hasOfficials = authRepository.checkBarangayHasOfficials(barangay)
+            _barangayCheckState.value = hasOfficials
+        }
+    }
+
     fun login(emailOrPhone: String, password: String) {
         val input = emailOrPhone.trim()
 

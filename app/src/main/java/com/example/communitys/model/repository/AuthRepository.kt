@@ -121,12 +121,61 @@ class AuthRepository {
 
     // ── Verify OTP ────────────────────────────────────────────────────────────
 
+    // ── Check Barangay Officials ───────────────────────────────────────────────
+
+    suspend fun checkBarangayHasOfficials(barangay: String): Boolean {
+        return try {
+            val result = supabase.from("officials")
+                .select(columns = io.github.jan.supabase.postgrest.query.Columns.list("id")) {
+                    filter {
+                        eq("barangay", barangay)
+                        eq("status", "approved")
+                    }
+                    limit(1)
+                }
+                .decodeList<kotlinx.serialization.json.JsonObject>()
+            result.isNotEmpty()
+        } catch (e: Exception) {
+            true // fail open — don't block sign-up if check errors
+        }
+    }
+
+    // ── Upload Resident ID to Storage ─────────────────────────────────────────
+
+    suspend fun uploadResidentId(userId: String, imageBytes: ByteArray): Result<String> {
+        return try {
+            val path = "$userId/id.jpg"
+            supabase.storage.from("resident-ids").upload(path, imageBytes, upsert = true)
+            val url = supabase.storage.from("resident-ids").publicUrl(path)
+            Result.success(url)
+        } catch (e: Exception) {
+            Result.failure(Exception("Failed to upload ID: ${e.message}"))
+        }
+    }
+
+    // ── Update Resident id_image_url ──────────────────────────────────────────
+
+    suspend fun updateResidentIdUrl(idImageUrl: String): Result<Unit> {
+        return try {
+            val userId = supabase.auth.currentUserOrNull()?.id
+                ?: throw Exception("Not authenticated")
+            supabase.from("users")
+                .update({ set("id_image_url", idImageUrl) }) {
+                    filter { eq("auth_id", userId) }
+                }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun verifyEmail(
         email: String,
         otp: String,
         firstName: String = "",
         lastName: String = "",
-        barangay: String = ""
+        barangay: String = "",
+        idImageBytes: ByteArray? = null
     ): Result<Unit> {
         return try {
             when (val result = ValidationHelper.validateOTP(otp)) {
@@ -150,6 +199,18 @@ class AuthRepository {
 
             // Wait a moment for the trigger to complete
             kotlinx.coroutines.delay(1000)
+
+            // Upload Government ID if provided
+            if (idImageBytes != null) {
+                val userId = supabase.auth.currentUserOrNull()?.id
+                if (userId != null) {
+                    try {
+                        uploadResidentId(userId, idImageBytes).onSuccess { url ->
+                            updateResidentIdUrl(url)
+                        }
+                    } catch (_: Exception) {}
+                }
+            }
 
             // Sign out — user must log in manually
             try {
@@ -274,6 +335,11 @@ class AuthRepository {
                 }
 
                 val user = users.first()
+                if (user.status == "pending") {
+                    try { supabase.auth.signOut() } catch (_: Exception) {}
+                    throw Exception("Your account is pending approval from your barangay officials. You will be notified once it's approved.")
+                }
+
                 if (user.isBanned == true) {
                     try { supabase.auth.signOut() } catch (_: Exception) {}
                     val reason = if (!user.banReason.isNullOrBlank()) "\n\nReason: ${user.banReason}" else ""
