@@ -223,7 +223,13 @@ class ReportIssueActivity : AppCompatActivity() {
         }
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, displayOptions)
         binding.actvProblem.setAdapter(adapter)
+        binding.actvProblem.threshold = 0   // show all items without needing to type
         binding.actvProblem.hint = "Select a problem"
+
+        // Show full list when tapped
+        binding.actvProblem.setOnClickListener {
+            binding.actvProblem.showDropDown()
+        }
 
         binding.actvProblem.setOnItemClickListener { _, _, position, _ ->
             binding.tilProblem.error = null

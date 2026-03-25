@@ -165,14 +165,18 @@ class ReportRepository {
 
     suspend fun awardPoints(userId: String, reportId: String, points: Int, reason: String): Result<Unit> {
         return try {
-            // Insert rewards record
-            supabase.from("rewards").insert(
-                mapOf(
-                    "user_id" to userId,
-                    "points"  to points,
-                    "reason"  to reason
+            // Insert rewards record (non-fatal — just a log entry)
+            try {
+                supabase.from("rewards").insert(
+                    mapOf(
+                        "user_id" to userId,
+                        "points"  to points,
+                        "reason"  to reason
+                    )
                 )
-            )
+            } catch (e: Exception) {
+                android.util.Log.w("ReportRepository", "rewards log insert failed (non-fatal): ${e.message}")
+            }
 
             // Stamp points on the report
             supabase.from("reports")
