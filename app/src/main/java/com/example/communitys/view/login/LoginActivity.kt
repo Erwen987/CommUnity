@@ -260,7 +260,7 @@ class LoginActivity : AppCompatActivity() {
         val view = LayoutInflater.from(this).inflate(R.layout.dialog_maintenance, null)
         MaterialAlertDialogBuilder(this)
             .setView(view)
-            .setPositiveButton("Understood", null)
+            .setPositiveButton("I Understand", null)
             .setCancelable(false)
             .show()
     }
