@@ -227,15 +227,30 @@ class ReportIssueActivity : AppCompatActivity() {
         binding.actvProblem.threshold = 0   // show all items without needing to type
         binding.actvProblem.hint = "Select a problem"
 
-        // Show full list when tapped
+        // Show full list when tapped or focused
         binding.actvProblem.setOnClickListener {
             binding.actvProblem.showDropDown()
+        }
+        
+        binding.actvProblem.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                binding.actvProblem.showDropDown()
+            }
         }
 
         binding.actvProblem.setOnItemClickListener { _, _, position, _ ->
             binding.tilProblem.error = null
             selectedCategory = categories.getOrNull(position)
+            
+            // Show description if available (except for "Others")
             val isOthers = selectedCategory?.name?.equals("Others", ignoreCase = true) == true
+            if (!isOthers && !selectedCategory?.description.isNullOrBlank()) {
+                binding.tvCategoryDescription.text = selectedCategory?.description
+                binding.tvCategoryDescription.visibility = View.VISIBLE
+            } else {
+                binding.tvCategoryDescription.visibility = View.GONE
+            }
+            
             val visibility = if (isOthers) View.VISIBLE else View.GONE
             binding.tvDescriptionLabel.visibility = visibility
             binding.tilDescription.visibility     = visibility

@@ -72,6 +72,11 @@
             android:name=".view.requestdocument.RequestDocumentActivity"
             android:exported="false" />
 
+        <!-- Notifications -->
+        <activity
+            android:name=".view.notifications.NotificationsActivity"
+            android:exported="false" />
+
         <!-- Reset Password (handles deep link from email) -->
         <activity
             android:name=".view.resetpassword.ResetPasswordActivity"
@@ -92,6 +97,12 @@
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <!-- Maintenance Mode Service -->
+        <service
+            android:name=".service.MaintenanceModeService"
+            android:enabled="true"
+            android:exported="false" />
 
     </application>
 

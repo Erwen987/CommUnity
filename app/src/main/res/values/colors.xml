@@ -37,4 +37,7 @@
     <color name="maintenance_divider">#EDEDED</color>
     <color name="maintenance_tag_bg">#FFE0B2</color>
     <color name="maintenance_tag_text">#E65100</color>
+    
+    <!-- Notifications -->
+    <color name="notification_unread_bg">#EFF6FF</color>
 </resources>

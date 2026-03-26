@@ -1,10 +1,12 @@
 package com.example.communitys.view
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.communitys.R
 import com.example.communitys.databinding.ActivityMainContainerBinding
+import com.example.communitys.service.MaintenanceModeService
 
 class MainContainerActivity : AppCompatActivity() {
 
@@ -15,8 +17,16 @@ class MainContainerActivity : AppCompatActivity() {
         binding = ActivityMainContainerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Start maintenance mode monitoring service
+        startMaintenanceModeService()
+
         setupViewPager()
         setupBottomNavigation()
+    }
+
+    private fun startMaintenanceModeService() {
+        val serviceIntent = Intent(this, MaintenanceModeService::class.java)
+        startService(serviceIntent)
     }
 
     private fun setupViewPager() {
@@ -73,6 +83,13 @@ class MainContainerActivity : AppCompatActivity() {
 
     fun navigateToTab(position: Int) {
         binding.viewPager.setCurrentItem(position, false)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Stop the maintenance mode service
+        val serviceIntent = Intent(this, MaintenanceModeService::class.java)
+        stopService(serviceIntent)
     }
 
     @Deprecated("Deprecated in Java")

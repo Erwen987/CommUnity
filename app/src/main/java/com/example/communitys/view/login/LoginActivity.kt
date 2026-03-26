@@ -7,6 +7,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.communitys.view.signup.SignUpActivity
@@ -48,6 +49,11 @@ class LoginActivity : AppCompatActivity() {
         }
 
         initViews()
+        
+        // Check if redirected due to maintenance mode
+        if (intent.getBooleanExtra("MAINTENANCE_MODE", false)) {
+            showMaintenanceModeDialog()
+        }
     }
 
     private var forgotPasswordDialog: AlertDialog? = null
@@ -291,5 +297,23 @@ class LoginActivity : AppCompatActivity() {
         }
         val sharedPreferences = getSharedPreferences("CommUnityPrefs", MODE_PRIVATE)
         sharedPreferences.edit().putString("userName", userName).apply()
+    }
+
+    private fun showMaintenanceModeDialog() {
+        val builder = MaterialAlertDialogBuilder(this)
+            .setTitle("⚠️ System Maintenance")
+            .setMessage("The system administrator has enabled maintenance mode. All users must log out now. The system will be unavailable until maintenance is complete.")
+            .setCancelable(false)
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+            }
+        
+        val dialog = builder.create()
+        dialog.show()
+        
+        // Style the dialog
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(
+            ContextCompat.getColor(this, R.color.maintenance_header)
+        )
     }
 }

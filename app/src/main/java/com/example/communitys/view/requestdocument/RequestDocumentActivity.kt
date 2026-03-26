@@ -40,9 +40,22 @@ class RequestDocumentActivity : AppCompatActivity() {
         "Others"
     )
 
+    private val documentPrices = mapOf(
+        "Barangay Clearance" to 50.0,
+        "Certificate of Residency" to 30.0,
+        "Certificate of Indigency" to 0.0,
+        "Barangay Business Permit" to 500.0,
+        "Certificate of Good Moral Character" to 50.0,
+        "Certificate of Late Registration" to 100.0,
+        "Barangay ID" to 100.0,
+        "Barangay Certification" to 50.0,
+        "Others" to 0.0
+    )
+
     private var selectedPayment: String = "gcash"
     private var selectedProofUri: Uri?  = null
     private var uploadedProofUrl: String? = null
+    private var currentQuantity: Int = 1
 
     // ── Image picker ──────────────────────────────────────────────────────────
 
@@ -73,6 +86,7 @@ class RequestDocumentActivity : AppCompatActivity() {
 
         setupDocumentDropdown()
         setupPaymentSelection()
+        setupQuantityControls()
         setupClickListeners()
     }
 
@@ -86,6 +100,19 @@ class RequestDocumentActivity : AppCompatActivity() {
             val selected = documentTypes[position]
             binding.tilDocument.error = null
             binding.tilDocument.isErrorEnabled = false
+
+            // Show price
+            val price = documentPrices[selected] ?: 0.0
+            if (price > 0) {
+                binding.tvDocumentPrice.visibility = View.VISIBLE
+                binding.tvDocumentPrice.text = "Price: ₱${String.format("%.2f", price)}"
+            } else {
+                binding.tvDocumentPrice.visibility = View.VISIBLE
+                binding.tvDocumentPrice.text = "Price: FREE"
+            }
+            
+            // Update total price
+            updateTotalPrice()
 
             if (selected == "Others") {
                 binding.tvOtherDocumentLabel.visibility = View.VISIBLE
@@ -101,6 +128,52 @@ class RequestDocumentActivity : AppCompatActivity() {
     }
 
     // ── Payment selection ─────────────────────────────────────────────────────
+
+    private fun setupQuantityControls() {
+        binding.btnDecreaseQty.setOnClickListener {
+            if (currentQuantity > 1) {
+                currentQuantity--
+                binding.etQuantity.setText(currentQuantity.toString())
+                updateTotalPrice()
+            }
+        }
+        
+        binding.btnIncreaseQty.setOnClickListener {
+            if (currentQuantity < 10) {
+                currentQuantity++
+                binding.etQuantity.setText(currentQuantity.toString())
+                updateTotalPrice()
+            } else {
+                Toast.makeText(this, "Maximum quantity is 10", Toast.LENGTH_SHORT).show()
+            }
+        }
+        
+        binding.etQuantity.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val text = binding.etQuantity.text.toString()
+                val qty = text.toIntOrNull() ?: 1
+                currentQuantity = qty.coerceIn(1, 10)
+                binding.etQuantity.setText(currentQuantity.toString())
+                updateTotalPrice()
+            }
+        }
+    }
+    
+    private fun updateTotalPrice() {
+        val selectedDoc = binding.actvDocument.text.toString().trim()
+        if (selectedDoc.isNotEmpty() && selectedDoc in documentTypes) {
+            val price = documentPrices[selectedDoc] ?: 0.0
+            val total = price * currentQuantity
+            
+            if (total > 0) {
+                binding.tvTotalPrice.visibility = View.VISIBLE
+                binding.tvTotalPrice.text = "Total: ₱${String.format("%.2f", total)}"
+            } else {
+                binding.tvTotalPrice.visibility = View.VISIBLE
+                binding.tvTotalPrice.text = "Total: FREE"
+            }
+        }
+    }
 
     private fun setupPaymentSelection() {
         setPaymentSelected("gcash")
@@ -197,6 +270,19 @@ class RequestDocumentActivity : AppCompatActivity() {
             binding.tilPurpose.error = null
             binding.tilPurpose.isErrorEnabled = false
         }
+        
+        // Validate quantity
+        val qtyText = binding.etQuantity.text.toString()
+        val qty = qtyText.toIntOrNull()
+        if (qty == null || qty < 1 || qty > 10) {
+            binding.tilQuantity.error = "Quantity must be between 1 and 10"
+            binding.tilQuantity.isErrorEnabled = true
+            isValid = false
+        } else {
+            binding.tilQuantity.error = null
+            binding.tilQuantity.isErrorEnabled = false
+            currentQuantity = qty
+        }
 
         // Require proof of payment when GCash is selected
         if (selectedPayment == "gcash" && selectedProofUri == null) {
@@ -259,7 +345,8 @@ class RequestDocumentActivity : AppCompatActivity() {
                     purpose       = purpose,
                     paymentMethod = selectedPayment,
                     proofUrl      = uploadedProofUrl,
-                    barangay      = barangay
+                    barangay      = barangay,
+                    quantity      = currentQuantity
                 )
 
                 result.onSuccess {

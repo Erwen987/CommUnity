@@ -33,7 +33,8 @@ class RequestRepository {
         purpose: String,
         paymentMethod: String,
         proofUrl: String? = null,
-        barangay: String? = null
+        barangay: String? = null,
+        quantity: Int = 1
     ): Result<Unit> {
         return try {
             // Check active request limit (max 5 unresolved)
@@ -67,6 +68,7 @@ class RequestRepository {
                 put("payment_method", paymentMethod)
                 put("status",        "pending")
                 put("resident_name", residentName)
+                put("quantity",      quantity)
                 if (proofUrl != null) put("proof_url", proofUrl)
                 if (barangay != null) put("barangay",  barangay)
             }

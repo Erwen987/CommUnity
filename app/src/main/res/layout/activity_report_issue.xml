@@ -126,8 +126,6 @@
                             android:layout_height="wrap_content"
                             android:hint="Select a problem..."
                             android:inputType="none"
-                            android:focusable="false"
-                            android:cursorVisible="false"
                             android:textColor="@color/input_text_color"
                             android:textColorHint="@color/hint_text_color"
                             android:textSize="14sp"
@@ -137,6 +135,20 @@
                             android:paddingBottom="18dp" />
 
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Category Description -->
+                    <TextView
+                        android:id="@+id/tvCategoryDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:padding="12dp"
+                        android:background="@color/input_background"
+                        android:text=""
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        android:lineSpacingExtra="2dp"
+                        android:visibility="gone" />
 
                     <!-- Brief Description — only shown when "Others" is selected -->
                     <TextView

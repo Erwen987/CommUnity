@@ -291,7 +291,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="In Progress\nReport"
+                            android:text="In Progress\nReports"
                             android:textColor="@color/text_secondary"
                             android:textSize="11sp"
                             android:lineSpacingMultiplier="1.2" />
@@ -348,7 +348,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Resolved\nReport"
+                            android:text="Resolved\nReports"
                             android:textColor="@color/text_secondary"
                             android:textSize="11sp" />
 
