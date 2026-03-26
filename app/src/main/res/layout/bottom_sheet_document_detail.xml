@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#ffffff"
+    android:background="@color/surface_card"
     android:fillViewport="true">
 
     <LinearLayout
@@ -48,7 +48,7 @@
                 android:id="@+id/tvDetailTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#111827"
+                android:textColor="@color/text_primary"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:layout_marginTop="10dp"
@@ -59,7 +59,7 @@
                 android:id="@+id/tvDetailRef"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#6b7280"
+                android:textColor="@color/text_secondary"
                 android:textSize="12sp"
                 android:fontFamily="monospace"
                 android:layout_marginTop="4dp" />
@@ -93,7 +93,7 @@
                     android:layout_width="110dp"
                     android:layout_height="wrap_content"
                     android:text="Date Submitted"
-                    android:textColor="#9ca3af"
+                    android:textColor="@color/text_hint"
                     android:textSize="12sp"
                     android:textStyle="bold" />
                 <TextView
@@ -101,7 +101,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="#111827"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp" />
             </LinearLayout>
 
@@ -116,7 +116,7 @@
                     android:layout_width="110dp"
                     android:layout_height="wrap_content"
                     android:text="Purpose"
-                    android:textColor="#9ca3af"
+                    android:textColor="@color/text_hint"
                     android:textSize="12sp"
                     android:textStyle="bold" />
                 <TextView
@@ -124,7 +124,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="#111827"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp"
                     android:lineSpacingMultiplier="1.4" />
             </LinearLayout>
@@ -140,7 +140,7 @@
                     android:layout_width="110dp"
                     android:layout_height="wrap_content"
                     android:text="Payment"
-                    android:textColor="#9ca3af"
+                    android:textColor="@color/text_hint"
                     android:textSize="12sp"
                     android:textStyle="bold" />
                 <TextView
@@ -148,7 +148,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="#111827"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp" />
             </LinearLayout>
 
@@ -175,7 +175,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Proof of Payment"
-                android:textColor="#9ca3af"
+                android:textColor="@color/text_hint"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="10dp" />

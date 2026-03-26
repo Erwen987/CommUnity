@@ -4,98 +4,171 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#5B9BD5">
+    android:background="@color/app_bg_blue">
 
+    <!-- ── Header ── -->
     <LinearLayout
         android:id="@+id/headerSection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="28dp"
+        android:paddingBottom="16dp"
         app:layout_constraintTop_toTopOf="parent">
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="Document Request" android:textColor="@android:color/white"
-            android:textSize="24sp" android:textStyle="bold" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="Tracking" android:textColor="@android:color/white"
-            android:textSize="24sp" android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Document Request"
+            android:textColor="@android:color/white"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tracking"
+            android:textColor="#CCE4FF"
+            android:textSize="16sp" />
+
     </LinearLayout>
 
+    <!-- ── Content Card ── -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        app:cardBackgroundColor="#FFF8F0"
+        android:layout_marginTop="8dp"
+        app:cardBackgroundColor="@color/surface_cream"
         app:cardCornerRadius="24dp"
-        app:cardElevation="4dp"
+        app:cardElevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headerSection">
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <!-- 3 Tab Buttons -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="horizontal" android:padding="12dp">
+            <!-- ── Tab Buttons ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnMyRequest"
-                    android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
-                    android:text="Requests" android:textSize="11sp"
-                    android:textColor="@android:color/white" android:textStyle="bold"
-                    android:backgroundTint="#2C5F7F" app:cornerRadius="12dp" />
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:text="Requests"
+                    android:textSize="13sp"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold"
+                    android:backgroundTint="@color/btn_primary"
+                    app:cornerRadius="12dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnHistory"
-                    android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
-                    android:layout_marginStart="6dp" android:text="History" android:textSize="11sp"
-                    android:textColor="#7A7A7A" android:textStyle="bold"
-                    android:backgroundTint="#D3D3D3" app:cornerRadius="12dp" />
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
+                    android:text="History"
+                    android:textSize="13sp"
+                    android:textAllCaps="false"
+                    android:textColor="#6B7280"
+                    android:textStyle="bold"
+                    android:backgroundTint="#E5E7EB"
+                    app:cornerRadius="12dp" />
+
             </LinearLayout>
 
-            <!-- Filter Chips (only visible on My Request tab) -->
+            <!-- ── Filter Chips ── -->
             <HorizontalScrollView
                 android:id="@+id/chipScrollView"
-                android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:scrollbars="none" android:paddingStart="12dp"
-                android:paddingEnd="12dp" android:paddingBottom="8dp">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="8dp">
+
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chipGroup"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     app:singleSelection="true"
                     app:selectionRequired="true">
-                    <com.google.android.material.chip.Chip android:id="@+id/chipAll"
-                        android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="All" android:checked="true"
-                        android:textColor="#7A7A7A" app:chipBackgroundColor="#E0E0E0" app:chipStrokeWidth="0dp" />
-                    <com.google.android.material.chip.Chip android:id="@+id/chipPending"
-                        android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Pending" android:textColor="#7A7A7A"
-                        app:chipBackgroundColor="#E0E0E0" app:chipStrokeWidth="0dp" />
-                    <com.google.android.material.chip.Chip android:id="@+id/chipReadyForPickup"
-                        android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Ready for Pickup" android:textColor="#7A7A7A"
-                        app:chipBackgroundColor="#E0E0E0" app:chipStrokeWidth="0dp" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="All"
+                        android:checked="true"
+                        android:textSize="12sp"
+                        app:chipBackgroundColor="#E5E7EB"
+                        app:checkedIconVisible="false"
+                        app:chipStrokeWidth="0dp" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipPending"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pending"
+                        android:textSize="12sp"
+                        app:chipBackgroundColor="#E5E7EB"
+                        app:checkedIconVisible="false"
+                        app:chipStrokeWidth="0dp" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipReadyForPickup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ready for Pickup"
+                        android:textSize="12sp"
+                        app:chipBackgroundColor="#E5E7EB"
+                        app:checkedIconVisible="false"
+                        app:chipStrokeWidth="0dp" />
+
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
 
-            <ProgressBar android:id="@+id/progressBar"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal" android:layout_marginTop="16dp"
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
                 android:visibility="gone" />
 
-            <TextView android:id="@+id/tvEmpty"
-                android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="No items found." android:textColor="#9E9E9E"
-                android:textSize="14sp" android:gravity="center"
-                android:padding="32dp" android:visibility="gone" />
+            <TextView
+                android:id="@+id/tvEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No items found."
+                android:textColor="@color/text_hint"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:padding="32dp"
+                android:visibility="gone" />
 
-            <!-- Documents RecyclerView (My Request + History tabs) -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
-                android:layout_width="match_parent" android:layout_height="0dp"
-                android:layout_weight="1" android:padding="12dp"
-                android:clipToPadding="false" android:scrollbars="none" />
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:padding="12dp"
+                android:clipToPadding="false"
+                android:scrollbars="none" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

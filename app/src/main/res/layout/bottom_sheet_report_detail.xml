@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#ffffff"
+    android:background="@color/surface_card"
     android:fillViewport="true">
 
     <LinearLayout
@@ -45,7 +45,7 @@
                 android:id="@+id/tvRptDetailProblem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#111827"
+                android:textColor="@color/text_primary"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:layout_marginTop="10dp"
@@ -80,7 +80,7 @@
                     android:layout_width="110dp"
                     android:layout_height="wrap_content"
                     android:text="Date Submitted"
-                    android:textColor="#9ca3af"
+                    android:textColor="@color/text_hint"
                     android:textSize="12sp"
                     android:textStyle="bold" />
                 <TextView
@@ -88,7 +88,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="#111827"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp" />
             </LinearLayout>
 
@@ -103,7 +103,7 @@
                     android:layout_width="110dp"
                     android:layout_height="wrap_content"
                     android:text="Description"
-                    android:textColor="#9ca3af"
+                    android:textColor="@color/text_hint"
                     android:textSize="12sp"
                     android:textStyle="bold" />
                 <TextView
@@ -111,7 +111,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="#111827"
+                    android:textColor="@color/text_primary"
                     android:textSize="13sp"
                     android:lineSpacingMultiplier="1.4" />
             </LinearLayout>
@@ -129,7 +129,7 @@
                     android:layout_width="110dp"
                     android:layout_height="wrap_content"
                     android:text="Points Earned"
-                    android:textColor="#9ca3af"
+                    android:textColor="@color/text_hint"
                     android:textSize="12sp"
                     android:textStyle="bold" />
                 <TextView
@@ -204,7 +204,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Report Location"
-                android:textColor="#9ca3af"
+                android:textColor="@color/text_hint"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="10dp" />
@@ -238,7 +238,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Photo Evidence"
-                android:textColor="#9ca3af"
+                android:textColor="@color/text_hint"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="10dp" />

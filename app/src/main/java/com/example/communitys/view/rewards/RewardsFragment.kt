@@ -1,12 +1,16 @@
 package com.example.communitys.view.rewards
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.communitys.R
 import com.example.communitys.databinding.FragmentRewardsBinding
 import com.example.communitys.model.data.RewardItemModel
 import com.example.communitys.viewmodel.RewardsViewModel
@@ -160,31 +164,56 @@ class RewardsFragment : Fragment() {
 
     private fun showConfirmDialog(item: RewardItemModel) {
         val fmt = NumberFormat.getNumberInstance(Locale.US)
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Redeem \"${item.name}\"?")
-            .setMessage(
-                "This costs ${fmt.format(item.pointsRequired)} points.\n" +
-                "You'll have ${fmt.format(currentPoints - item.pointsRequired)} points remaining.\n\n" +
-                "You must pick up the reward in person at the barangay hall."
-            )
-            .setPositiveButton("Yes, Request!") { _, _ ->
-                viewModel.claimReward(item.id, item.name, item.pointsRequired)
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_redeem_confirm, null)
+
+        dialogView.findViewById<TextView>(R.id.tvRedeemTitle).text =
+            "Redeem \"${item.name}\"?"
+        dialogView.findViewById<TextView>(R.id.tvRedeemCost).text =
+            "${fmt.format(item.pointsRequired)} pts"
+        dialogView.findViewById<TextView>(R.id.tvRedeemRemaining).text =
+            "${fmt.format(currentPoints - item.pointsRequired)} pts"
+
+        val dialog = Dialog(requireContext())
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(dialogView)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.88).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        dialogView.findViewById<MaterialButton>(R.id.btnRedeemCancel).setOnClickListener {
+            dialog.dismiss()
+        }
+        dialogView.findViewById<MaterialButton>(R.id.btnRedeemConfirm).setOnClickListener {
+            dialog.dismiss()
+            viewModel.claimReward(item.id, item.name, item.pointsRequired)
+        }
+        dialog.show()
     }
 
     private fun showSuccessDialog(itemName: String) {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("✅ Redemption Requested!")
-            .setMessage(
-                "Your request for \"$itemName\" has been submitted.\n\n" +
-                "Please visit the barangay hall in person with a valid ID to claim your reward. " +
-                "An official will verify and process your request within 3–5 business days."
-            )
-            .setPositiveButton("Got it!", null)
-            .show()
-        viewModel.loadRewardItems()  // refresh stock
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_redeem_success, null)
+
+        dialogView.findViewById<TextView>(R.id.tvSuccessItemName).text = itemName
+
+        val dialog = Dialog(requireContext())
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(dialogView)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.88).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        dialog.setCancelable(false)
+
+        dialogView.findViewById<MaterialButton>(R.id.btnSuccessOk).setOnClickListener {
+            dialog.dismiss()
+            viewModel.loadRewardItems()
+        }
+        dialog.show()
     }
 
     private fun showErrorDialog(message: String) {

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#ffffff">
+    android:background="@color/surface_card">
 
     <!-- Drag handle -->
     <View
@@ -36,7 +36,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="My Reports"
-                android:textColor="#111827"
+                android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -45,7 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:textColor="#9ca3af"
+                android:textColor="@color/text_hint"
                 android:textSize="12sp" />
 
         </LinearLayout>
@@ -167,7 +167,7 @@
             android:text="‹ Prev"
             android:textSize="12sp"
             android:backgroundTint="#f1f5f9"
-            android:textColor="#374151"
+            android:textColor="@color/text_secondary"
             app:cornerRadius="8dp" />
 
         <TextView
@@ -176,7 +176,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:textColor="#6b7280"
+            android:textColor="@color/text_secondary"
             android:textSize="13sp"
             android:textStyle="bold" />
 
@@ -186,7 +186,7 @@
             android:layout_height="36dp"
             android:text="Next ›"
             android:textSize="12sp"
-            android:backgroundTint="#2C5F7F"
+            android:backgroundTint="@color/btn_primary"
             android:textColor="#ffffff"
             app:cornerRadius="8dp" />
 

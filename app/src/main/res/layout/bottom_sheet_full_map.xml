@@ -47,7 +47,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Barangay Hall Route"
-                    android:textColor="#1E3A5F"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -85,7 +85,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="-- Barangay Hall"
-                android:textColor="#1E3A5F"
+                android:textColor="@color/dark_blue"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -95,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="Calculating route..."
-                android:textColor="#6b7280"
+                android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
 
             <!-- Legend -->

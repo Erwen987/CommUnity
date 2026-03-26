@@ -5,15 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
-    app:cardBackgroundColor="#F5F5F5"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    app:cardBackgroundColor="@color/surface_card"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp">
+        android:padding="14dp">
 
         <!-- Status color stripe -->
         <View
@@ -34,7 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Problem"
-                android:textColor="#1E3A5F"
+                android:textColor="@color/text_primary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -42,9 +42,9 @@
                 android:id="@+id/tvReportDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="3dp"
                 android:text="Description"
-                android:textColor="#5A7BA6"
+                android:textColor="@color/text_secondary"
                 android:textSize="12sp"
                 android:maxLines="2"
                 android:ellipsize="end" />
@@ -53,9 +53,9 @@
                 android:id="@+id/tvReportDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="5dp"
                 android:text="Date"
-                android:textColor="#9E9E9E"
+                android:textColor="@color/text_hint"
                 android:textSize="11sp" />
 
             <TextView
@@ -64,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Pending review"
-                android:textColor="#9E9E9E"
+                android:textColor="@color/text_hint"
                 android:textSize="11sp" />
 
         </LinearLayout>
@@ -98,8 +98,9 @@
                 android:text="View Details ›"
                 android:textColor="@android:color/white"
                 android:textSize="11sp"
-                android:backgroundTint="#2C5F7F"
-                app:cornerRadius="8dp" />
+                android:textAllCaps="false"
+                android:backgroundTint="@color/btn_primary"
+                app:cornerRadius="10dp" />
 
         </LinearLayout>
 

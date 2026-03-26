@@ -11,6 +11,8 @@ import com.example.communitys.model.data.UserModel
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.realtime.PostgresAction
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import io.github.jan.supabase.realtime.channel
 import io.github.jan.supabase.realtime.postgresChangeFlow
 import kotlinx.coroutines.flow.launchIn
@@ -94,14 +96,13 @@ class RewardsViewModel : ViewModel() {
                 }
 
                 // Insert pending redemption record
-                supabase.from("redemptions").insert(
-                    mapOf(
-                        "user_id"        to authId,
-                        "reward_item_id" to itemId,
-                        "points_spent"   to pointsRequired,
-                        "status"         to "pending"
-                    )
-                )
+                val redemptionData = buildJsonObject {
+                    put("user_id",        authId)
+                    put("reward_item_id", itemId)
+                    put("points_spent",   pointsRequired)
+                    put("status",         "pending")
+                }
+                supabase.from("redemptions").insert(redemptionData)
 
                 // Deduct from reward_points
                 val newPts = currentPts - pointsRequired

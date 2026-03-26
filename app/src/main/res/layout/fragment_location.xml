@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#5B9BD5"
+    android:background="@color/app_bg_blue"
     android:fillViewport="true">
 
     <LinearLayout
@@ -12,37 +12,42 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Top Header -->
+        <!-- ── Header ── -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="28dp"
+            android:paddingBottom="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Activity Map"
                 android:textColor="@android:color/white"
-                android:textSize="28sp"
-                android:textStyle="bold" />
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="See how far your Barangay Hall is"
-                android:textColor="@android:color/white"
+                android:textColor="#CCE4FF"
                 android:textSize="14sp" />
 
         </LinearLayout>
 
-        <!-- Map Card -->
+        <!-- ── Map Card ── -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            app:cardBackgroundColor="@android:color/white"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:cardBackgroundColor="@color/surface_card"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp">
 
@@ -52,7 +57,6 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- Card header: title + My Location button -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -69,8 +73,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Barangay Hall"
-                            android:textColor="#1E3A5F"
-                            android:textSize="18sp"
+                            android:textColor="@color/text_primary"
+                            android:textSize="17sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -78,7 +82,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="Your location to barangay hall"
-                            android:textColor="#9ca3af"
+                            android:textColor="@color/text_hint"
                             android:textSize="12sp" />
 
                     </LinearLayout>
@@ -88,24 +92,23 @@
                         android:layout_width="wrap_content"
                         android:layout_height="36dp"
                         android:text="My Location"
-                        android:textSize="11sp"
-                        android:textColor="#1E3A5F"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
-                        android:backgroundTint="#EFF6FF"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_primary"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:backgroundTint="@color/surface_card"
                         style="?attr/materialButtonOutlinedStyle"
-                        app:strokeColor="#BFDBFE"
+                        app:strokeColor="@color/primary_blue"
                         app:strokeWidth="1.5dp"
                         app:cornerRadius="8dp" />
 
                 </LinearLayout>
 
-                <!-- Map container (SupportMapFragment added programmatically) -->
                 <FrameLayout
                     android:id="@+id/mapTapWrapper"
                     android:layout_width="match_parent"
-                    android:layout_height="280dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_height="260dp"
+                    android:layout_marginTop="14dp"
                     android:clipToOutline="true"
                     android:foreground="?attr/selectableItemBackground">
 
@@ -113,25 +116,23 @@
                         android:id="@+id/mapContainer"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#e5e7eb" />
+                        android:background="#E5E7EB" />
 
-                    <!-- Tap to expand hint -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="top|end"
                         android:layout_margin="10dp"
-                        android:background="#33000000"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
+                        android:background="#44000000"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
                         android:paddingTop="4dp"
                         android:paddingBottom="4dp"
                         android:text="⤢  Expand"
-                        android:textColor="#ffffff"
+                        android:textColor="#FFFFFF"
                         android:textSize="10sp"
                         android:textStyle="bold" />
 
-                    <!-- Transparent overlay to capture taps over the map -->
                     <View
                         android:id="@+id/mapClickOverlay"
                         android:layout_width="match_parent"
@@ -142,13 +143,12 @@
 
                 </FrameLayout>
 
-                <!-- Route info strip (shown after route is calculated) -->
                 <LinearLayout
                     android:id="@+id/layoutRouteInfo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="12dp"
                     android:background="@drawable/bg_route_info"
                     android:padding="12dp"
                     android:gravity="center_vertical"
@@ -165,7 +165,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="-- Barangay Hall"
-                            android:textColor="#1E3A5F"
+                            android:textColor="@color/text_primary"
                             android:textSize="13sp"
                             android:textStyle="bold" />
 
@@ -175,8 +175,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="Calculating route..."
-                            android:textColor="#6b7280"
-                            android:textSize="11sp" />
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
 
                     </LinearLayout>
 
@@ -185,7 +185,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="-- km"
-                        android:textColor="#ffffff"
+                        android:textColor="#FFFFFF"
                         android:textSize="13sp"
                         android:textStyle="bold"
                         android:background="@drawable/bg_distance_badge"
@@ -196,19 +196,18 @@
 
                 </LinearLayout>
 
-                <!-- Legend -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="10dp"
                     android:gravity="center">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="● Your Location"
-                        android:textColor="#ef4444"
+                        android:textColor="#EF4444"
                         android:textSize="11sp" />
 
                     <View
@@ -220,7 +219,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="● Barangay Hall"
-                        android:textColor="#3b82f6"
+                        android:textColor="#3B82F6"
                         android:textSize="11sp" />
 
                 </LinearLayout>
@@ -229,14 +228,15 @@
 
         </androidx.cardview.widget.CardView>
 
-        <!-- Issues Reported Section -->
+        <!-- ── Issues Reported ── -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginTop="14dp"
             android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@android:color/white"
+            app:cardBackgroundColor="@color/surface_card"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp">
 
@@ -250,15 +250,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="My Issues Reported"
-                        android:textColor="#1E3A5F"
-                        android:textSize="20sp"
+                        android:textColor="@color/text_primary"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -266,7 +267,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="View All ›"
-                        android:textColor="#2563eb"
+                        android:textColor="@color/primary_blue"
                         android:textSize="13sp"
                         android:textStyle="bold"
                         android:visibility="gone" />
@@ -286,7 +287,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="No issues reported yet."
-                    android:textColor="#9E9E9E"
+                    android:textColor="@color/text_hint"
                     android:textSize="14sp"
                     android:gravity="center"
                     android:padding="24dp"
