@@ -126,6 +126,9 @@
                             android:layout_height="wrap_content"
                             android:hint="Select a problem..."
                             android:inputType="none"
+                            android:focusable="true"
+                            android:focusableInTouchMode="false"
+                            android:cursorVisible="false"
                             android:textColor="@color/input_text_color"
                             android:textColorHint="@color/hint_text_color"
                             android:textSize="14sp"
@@ -150,18 +153,17 @@
                         android:lineSpacingExtra="2dp"
                         android:visibility="gone" />
 
-                    <!-- Brief Description — only shown when "Others" is selected -->
+                    <!-- Additional Details -->
                     <TextView
                         android:id="@+id/tvDescriptionLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="BRIEF DESCRIPTION"
+                        android:text="ADDITIONAL DETAILS"
                         android:textColor="@color/hint_text_color"
                         android:textSize="11sp"
                         android:textStyle="bold"
-                        android:letterSpacing="0.08"
-                        android:visibility="gone" />
+                        android:letterSpacing="0.08" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilDescription"
@@ -179,15 +181,14 @@
                         app:boxStrokeWidth="0dp"
                         app:boxStrokeErrorColor="@android:color/holo_red_light"
                         app:errorTextColor="@android:color/holo_red_light"
-                        app:errorEnabled="true"
-                        android:visibility="gone">
+                        app:errorEnabled="true">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etDescription"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="top"
-                            android:hint="Describe the issue..."
+                            android:hint="Explain the issue in detail (e.g., location, severity, when it started)..."
                             android:inputType="textMultiLine"
                             android:minLines="3"
                             android:textColor="@color/input_text_color"

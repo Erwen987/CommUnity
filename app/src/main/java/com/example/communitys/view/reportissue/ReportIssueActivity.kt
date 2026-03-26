@@ -218,6 +218,12 @@ class ReportIssueActivity : AppCompatActivity() {
     // ── Problem dropdown ──────────────────────────────────────────────────────
 
     private fun setupProblemDropdown() {
+        if (categories.isEmpty()) {
+            binding.actvProblem.hint = "No categories available"
+            binding.actvProblem.isEnabled = false
+            return
+        }
+        
         val displayOptions = categories.map { cat ->
             if (cat.points > 0) "${cat.name} — ${cat.points} pts"
             else "${cat.name} — awarded by official"
@@ -226,15 +232,21 @@ class ReportIssueActivity : AppCompatActivity() {
         binding.actvProblem.setAdapter(adapter)
         binding.actvProblem.threshold = 0   // show all items without needing to type
         binding.actvProblem.hint = "Select a problem"
+        binding.actvProblem.isEnabled = true
 
-        // Show full list when tapped or focused
+        // Show full list when tapped
         binding.actvProblem.setOnClickListener {
-            binding.actvProblem.showDropDown()
+            if (categories.isNotEmpty()) {
+                binding.actvProblem.showDropDown()
+            }
         }
         
+        // Show full list when focused
         binding.actvProblem.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                binding.actvProblem.showDropDown()
+            if (hasFocus && categories.isNotEmpty()) {
+                binding.actvProblem.post {
+                    binding.actvProblem.showDropDown()
+                }
             }
         }
 
@@ -242,7 +254,7 @@ class ReportIssueActivity : AppCompatActivity() {
             binding.tilProblem.error = null
             selectedCategory = categories.getOrNull(position)
             
-            // Show description if available (except for "Others")
+            // Show category description if available (except for "Others")
             val isOthers = selectedCategory?.name?.equals("Others", ignoreCase = true) == true
             if (!isOthers && !selectedCategory?.description.isNullOrBlank()) {
                 binding.tvCategoryDescription.text = selectedCategory?.description
@@ -250,11 +262,6 @@ class ReportIssueActivity : AppCompatActivity() {
             } else {
                 binding.tvCategoryDescription.visibility = View.GONE
             }
-            
-            val visibility = if (isOthers) View.VISIBLE else View.GONE
-            binding.tvDescriptionLabel.visibility = visibility
-            binding.tilDescription.visibility     = visibility
-            if (!isOthers) binding.etDescription.setText("")
         }
     }
 
@@ -293,22 +300,22 @@ class ReportIssueActivity : AppCompatActivity() {
 
         val isOthers = category.name.equals("Others", ignoreCase = true)
 
-        if (isOthers) {
-            when {
-                description.isEmpty() -> {
-                    binding.tilDescription.error = "Please describe the issue"
-                    binding.etDescription.requestFocus()
-                    return
-                }
-                description.length < 10 -> {
-                    binding.tilDescription.error = "Description must be at least 10 characters"
-                    binding.etDescription.requestFocus()
-                    return
-                }
+        // Validate description
+        when {
+            description.isEmpty() -> {
+                binding.tilDescription.error = "Please provide additional details about the issue"
+                binding.etDescription.requestFocus()
+                return
+            }
+            description.length < 10 -> {
+                binding.tilDescription.error = "Description must be at least 10 characters"
+                binding.etDescription.requestFocus()
+                return
             }
         }
 
-        val finalDescription = if (isOthers) description else category.name
+        // Use user's description for all reports
+        val finalDescription = description
 
         binding.btnSubmitReport.isEnabled = false
         binding.btnSubmitReport.text      = "Submitting..."
