@@ -68,7 +68,8 @@ class RequestRepository {
                 put("payment_method", paymentMethod)
                 put("status",        "pending")
                 put("resident_name", residentName)
-                put("quantity",      quantity)
+                // quantity field commented out until database column is added
+                // put("quantity",      quantity)
                 if (proofUrl != null) put("proof_url", proofUrl)
                 if (barangay != null) put("barangay",  barangay)
             }

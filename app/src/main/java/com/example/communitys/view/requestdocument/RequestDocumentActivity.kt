@@ -130,30 +130,62 @@ class RequestDocumentActivity : AppCompatActivity() {
     // ── Payment selection ─────────────────────────────────────────────────────
 
     private fun setupQuantityControls() {
+        // Set initial value
+        binding.etQuantity.setText("1")
+        
         binding.btnDecreaseQty.setOnClickListener {
-            if (currentQuantity > 1) {
-                currentQuantity--
+            val current = binding.etQuantity.text.toString().toIntOrNull() ?: 1
+            if (current > 1) {
+                currentQuantity = current - 1
                 binding.etQuantity.setText(currentQuantity.toString())
+                binding.tilQuantity.error = null
+                binding.tilQuantity.isErrorEnabled = false
                 updateTotalPrice()
             }
         }
         
         binding.btnIncreaseQty.setOnClickListener {
-            if (currentQuantity < 10) {
-                currentQuantity++
+            val current = binding.etQuantity.text.toString().toIntOrNull() ?: 1
+            if (current < 10) {
+                currentQuantity = current + 1
                 binding.etQuantity.setText(currentQuantity.toString())
+                binding.tilQuantity.error = null
+                binding.tilQuantity.isErrorEnabled = false
                 updateTotalPrice()
             } else {
                 Toast.makeText(this, "Maximum quantity is 10", Toast.LENGTH_SHORT).show()
             }
         }
         
+        // Handle manual text input
+        binding.etQuantity.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                val text = s.toString()
+                if (text.isNotEmpty()) {
+                    val qty = text.toIntOrNull()
+                    if (qty != null && qty in 1..10) {
+                        currentQuantity = qty
+                        binding.tilQuantity.error = null
+                        binding.tilQuantity.isErrorEnabled = false
+                        updateTotalPrice()
+                    }
+                }
+            }
+        })
+        
         binding.etQuantity.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 val text = binding.etQuantity.text.toString()
-                val qty = text.toIntOrNull() ?: 1
-                currentQuantity = qty.coerceIn(1, 10)
-                binding.etQuantity.setText(currentQuantity.toString())
+                if (text.isEmpty()) {
+                    binding.etQuantity.setText("1")
+                    currentQuantity = 1
+                } else {
+                    val qty = text.toIntOrNull() ?: 1
+                    currentQuantity = qty.coerceIn(1, 10)
+                    binding.etQuantity.setText(currentQuantity.toString())
+                }
                 updateTotalPrice()
             }
         }
@@ -272,16 +304,22 @@ class RequestDocumentActivity : AppCompatActivity() {
         }
         
         // Validate quantity
-        val qtyText = binding.etQuantity.text.toString()
-        val qty = qtyText.toIntOrNull()
-        if (qty == null || qty < 1 || qty > 10) {
-            binding.tilQuantity.error = "Quantity must be between 1 and 10"
-            binding.tilQuantity.isErrorEnabled = true
-            isValid = false
+        val qtyText = binding.etQuantity.text.toString().trim()
+        if (qtyText.isEmpty()) {
+            // Set default quantity if empty
+            currentQuantity = 1
+            binding.etQuantity.setText("1")
         } else {
-            binding.tilQuantity.error = null
-            binding.tilQuantity.isErrorEnabled = false
-            currentQuantity = qty
+            val qty = qtyText.toIntOrNull()
+            if (qty == null || qty < 1 || qty > 10) {
+                binding.tilQuantity.error = "Quantity must be between 1 and 10"
+                binding.tilQuantity.isErrorEnabled = true
+                isValid = false
+            } else {
+                binding.tilQuantity.error = null
+                binding.tilQuantity.isErrorEnabled = false
+                currentQuantity = qty
+            }
         }
 
         // Require proof of payment when GCash is selected
@@ -345,8 +383,8 @@ class RequestDocumentActivity : AppCompatActivity() {
                     purpose       = purpose,
                     paymentMethod = selectedPayment,
                     proofUrl      = uploadedProofUrl,
-                    barangay      = barangay,
-                    quantity      = currentQuantity
+                    barangay      = barangay
+                    // quantity parameter removed temporarily until database is updated
                 )
 
                 result.onSuccess {
